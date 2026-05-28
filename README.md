@@ -2,6 +2,8 @@
 
 > AI 时代的 GEO（Generative Engine Optimization）内容优化与多平台智能发布系统
 
+**[English](README.en.md)** | 中文
+
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go&logoColor=white)](https://golang.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
