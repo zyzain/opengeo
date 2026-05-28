@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+package account;
+
+option go_package = "opengeo/gen/go/opengeo/internal/v1/account";
+
+// 用户管理服务
+service AccountService {
+  // 用户管理
+  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  
+  // 角色权限管理
+  rpc CreateRole(CreateRoleRequest) returns (Role);
+  rpc GetRole(GetRoleRequest) returns (Role);
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc RevokeRole(RevokeRoleRequest) returns (RevokeRoleResponse);
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+  
+  // 账号管理
+  rpc CreateAccount(CreateAccountRequest) returns (Account);
+  rpc GetAccount(GetAccountRequest) returns (Account);
+  rpc UpdateAccount(UpdateAccountRequest) returns (Account);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+  rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse);
+  
+  // 账号分组管理
+  rpc CreateAccountGroup(CreateAccountGroupRequest) returns (AccountGroup);
+  rpc GetAccountGroup(GetAccountGroupRequest) returns (AccountGroup);
+  rpc ListAccountGroups(ListAccountGroupsRequest) returns (ListAccountGroupsResponse);
+  rpc AddAccountToGroup(AddAccountToGroupRequest) returns (AddAccountToGroupResponse);
+  rpc RemoveAccountFromGroup(RemoveAccountFromGroupRequest) returns (RemoveAccountFromGroupResponse);
+  
+  // 账号健康检查
+  rpc CheckAccountHealth(CheckAccountHealthRequest) returns (AccountHealth);
+  rpc GetAccountHealthHistory(GetAccountHealthHistoryRequest) returns (GetAccountHealthHistoryResponse);
+}
+
+// 用户相关消息
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message GetUserRequest {
+  int64 user_id = 1;
+}
+
+message UpdateUserRequest {
+  int64 user_id = 1;
+  string email = 2;
+  int32 status = 3;
+}
+
+message DeleteUserRequest {
+  int64 user_id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+}
+
+message ListUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string keyword = 3;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total = 2;
+}
+
+message User {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  int32 status = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// 角色相关消息
+message CreateRoleRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message GetRoleRequest {
+  int64 role_id = 1;
+}
+
+message ListRolesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListRolesResponse {
+  repeated Role roles = 1;
+  int32 total = 2;
+}
+
+message Role {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string created_at = 4;
+}
+
+message AssignRoleRequest {
+  int64 user_id = 1;
+  int64 role_id = 2;
+}
+
+message AssignRoleResponse {
+  bool success = 1;
+}
+
+message RevokeRoleRequest {
+  int64 user_id = 1;
+  int64 role_id = 2;
+}
+
+message RevokeRoleResponse {
+  bool success = 1;
+}
+
+message CheckPermissionRequest {
+  int64 user_id = 1;
+  string resource = 2;
+  string action = 3;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+}
+
+// 账号相关消息
+message CreateAccountRequest {
+  int64 user_id = 1;
+  string platform = 2;
+  string account_name = 3;
+  string account_id = 4;
+}
+
+message GetAccountRequest {
+  int64 account_id = 1;
+}
+
+message UpdateAccountRequest {
+  int64 account_id = 1;
+  string account_name = 2;
+  int32 status = 3;
+}
+
+message DeleteAccountRequest {
+  int64 account_id = 1;
+}
+
+message DeleteAccountResponse {
+  bool success = 1;
+}
+
+message ListAccountsRequest {
+  int64 user_id = 1;
+  string platform = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListAccountsResponse {
+  repeated Account accounts = 1;
+  int32 total = 2;
+}
+
+message Account {
+  int64 id = 1;
+  int64 user_id = 2;
+  string platform = 3;
+  string account_name = 4;
+  string account_id = 5;
+  int32 status = 6;
+  float health_score = 7;
+  string last_check_time = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+// 账号分组相关消息
+message CreateAccountGroupRequest {
+  int64 user_id = 1;
+  string name = 2;
+  int64 parent_id = 3;
+  string group_type = 4;
+  string description = 5;
+}
+
+message GetAccountGroupRequest {
+  int64 group_id = 1;
+}
+
+message ListAccountGroupsRequest {
+  int64 user_id = 1;
+  int64 parent_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListAccountGroupsResponse {
+  repeated AccountGroup groups = 1;
+  int32 total = 2;
+}
+
+message AccountGroup {
+  int64 id = 1;
+  int64 user_id = 2;
+  string name = 3;
+  int64 parent_id = 4;
+  string group_type = 5;
+  string description = 6;
+  string created_at = 7;
+}
+
+message AddAccountToGroupRequest {
+  int64 account_id = 1;
+  int64 group_id = 2;
+}
+
+message AddAccountToGroupResponse {
+  bool success = 1;
+}
+
+message RemoveAccountFromGroupRequest {
+  int64 account_id = 1;
+  int64 group_id = 2;
+}
+
+message RemoveAccountFromGroupResponse {
+  bool success = 1;
+}
+
+// 健康检查相关消息
+message CheckAccountHealthRequest {
+  int64 account_id = 1;
+}
+
+message AccountHealth {
+  int64 id = 1;
+  int64 account_id = 2;
+  float health_score = 3;
+  string status = 4;
+  string check_details = 5;
+  string checked_at = 6;
+}
+
+message GetAccountHealthHistoryRequest {
+  int64 account_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message GetAccountHealthHistoryResponse {
+  repeated AccountHealth history = 1;
+  int32 total = 2;
+}

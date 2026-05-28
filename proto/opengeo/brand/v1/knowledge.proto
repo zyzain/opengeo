@@ -1,0 +1,366 @@
+syntax = "proto3";
+
+package opengeo.brand.v1;
+
+option go_package = "opengeo/gen/go/opengeo/brand/v1;brandv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 知识图谱服务
+service KnowledgeService {
+  // ========== 知识实体管理 ==========
+  
+  // 创建知识实体
+  rpc CreateEntity(CreateEntityRequest) returns (KnowledgeEntity);
+
+  // 获取知识实体
+  rpc GetEntity(GetEntityRequest) returns (KnowledgeEntity);
+
+  // 更新知识实体
+  rpc UpdateEntity(UpdateEntityRequest) returns (KnowledgeEntity);
+
+  // 删除知识实体
+  rpc DeleteEntity(DeleteEntityRequest) returns (DeleteEntityResponse);
+
+  // 列出知识实体
+  rpc ListEntities(ListEntitiesRequest) returns (ListEntitiesResponse);
+
+  // 搜索知识实体
+  rpc SearchEntities(SearchEntitiesRequest) returns (SearchEntitiesResponse);
+
+  // ========== 知识关系管理 ==========
+
+  // 创建知识关系
+  rpc CreateRelation(CreateRelationRequest) returns (KnowledgeRelation);
+
+  // 删除知识关系
+  rpc DeleteRelation(DeleteRelationRequest) returns (DeleteRelationResponse);
+
+  // 列出实体的关系
+  rpc ListRelations(ListRelationsRequest) returns (ListRelationsResponse);
+
+  // ========== 知识图谱查询 ==========
+
+  // 查询实体关联图谱
+  rpc QueryGraph(QueryGraphRequest) returns (QueryGraphResponse);
+
+  // 查询实体路径
+  rpc QueryPath(QueryPathRequest) returns (QueryPathResponse);
+
+  // ========== 批量操作 ==========
+
+  // 批量导入实体
+  rpc BulkImportEntities(BulkImportEntitiesRequest) returns (BulkImportEntitiesResponse);
+
+  // 批量导入关系
+  rpc BulkImportRelations(BulkImportRelationsRequest) returns (BulkImportRelationsResponse);
+}
+
+// 实体类型
+enum EntityType {
+  ENTITY_TYPE_UNSPECIFIED = 0;
+  ENTITY_TYPE_BRAND = 1;       // 品牌
+  ENTITY_TYPE_PRODUCT = 2;     // 产品
+  ENTITY_TYPE_PERSON = 3;      // 人物
+  ENTITY_TYPE_ORG = 4;         // 组织
+  ENTITY_TYPE_EVENT = 5;       // 事件
+  ENTITY_TYPE_CONCEPT = 6;     // 概念
+  ENTITY_TYPE_LOCATION = 7;    // 地点
+  ENTITY_TYPE_TECHNOLOGY = 8;  // 技术
+}
+
+// 关系类型
+enum RelationType {
+  RELATION_TYPE_UNSPECIFIED = 0;
+  RELATION_TYPE_IS_A = 1;           // 是一种
+  RELATION_TYPE_PART_OF = 2;        // 属于
+  RELATION_TYPE_RELATED_TO = 3;     // 相关
+  RELATION_TYPE_COMPETES_WITH = 4;  // 竞争
+  RELATION_TYPE_MENTIONS = 5;       // 提及
+  RELATION_TYPE_DEPENDS_ON = 6;     // 依赖
+  RELATION_TYPE_OWNS = 7;           // 拥有
+  RELATION_TYPE_CREATED_BY = 8;     // 创建者
+}
+
+// 知识实体
+message KnowledgeEntity {
+  // 实体 ID
+  int64 id = 1;
+
+  // 所属品牌 ID
+  int64 brand_id = 2;
+
+  // 实体名称
+  string name = 3;
+
+  // 实体类型
+  EntityType type = 4;
+
+  // 实体描述
+  string description = 5;
+
+  // 实体属性（JSON）
+  map<string, string> properties = 6;
+
+  // 权威链接
+  repeated string authority_links = 7;
+
+  // 标签
+  repeated string tags = 8;
+
+  // 向量嵌入 ID（Milvus）
+  string embedding_id = 9;
+
+  // 创建时间
+  string created_at = 10;
+
+  // 更新时间
+  string updated_at = 11;
+}
+
+// 知识关系
+message KnowledgeRelation {
+  // 关系 ID
+  int64 id = 1;
+
+  // 源实体 ID
+  int64 from_entity_id = 2;
+
+  // 目标实体 ID
+  int64 to_entity_id = 3;
+
+  // 关系类型
+  RelationType type = 4;
+
+  // 关系权重（0-1）
+  float weight = 5;
+
+  // 关系描述
+  string description = 6;
+
+  // 关系属性（JSON）
+  map<string, string> properties = 7;
+
+  // 创建时间
+  string created_at = 8;
+}
+
+// 图谱节点
+message GraphNode {
+  // 实体 ID
+  int64 entity_id = 1;
+
+  // 实体名称
+  string name = 2;
+
+  // 实体类型
+  EntityType type = 3;
+
+  // 节点层级（距离起始实体的跳数）
+  int32 level = 4;
+}
+
+// 图谱边
+message GraphEdge {
+  // 关系 ID
+  int64 relation_id = 1;
+
+  // 源实体 ID
+  int64 from_entity_id = 2;
+
+  // 目标实体 ID
+  int64 to_entity_id = 3;
+
+  // 关系类型
+  RelationType type = 4;
+
+  // 关系权重
+  float weight = 5;
+}
+
+// 图谱查询结果
+message GraphResult {
+  // 节点列表
+  repeated GraphNode nodes = 1;
+
+  // 边列表
+  repeated GraphEdge edges = 2;
+
+  // 节点详情（entity_id -> KnowledgeEntity）
+  map<int64, KnowledgeEntity> entity_details = 3;
+}
+
+// 路径查询结果
+message PathResult {
+  // 路径上的实体 ID 列表
+  repeated int64 entity_ids = 1;
+
+  // 路径上的关系列表
+  repeated KnowledgeRelation relations = 2;
+
+  // 路径长度
+  int32 length = 3;
+
+  // 路径权重（累计）
+  float total_weight = 4;
+}
+
+// ========== 请求/响应消息 ==========
+
+message CreateEntityRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string name = 3;
+  EntityType type = 4;
+  string description = 5;
+  map<string, string> properties = 6;
+  repeated string authority_links = 7;
+  repeated string tags = 8;
+}
+
+message GetEntityRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entity_id = 2;
+}
+
+message UpdateEntityRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entity_id = 2;
+  string name = 3;
+  EntityType type = 4;
+  string description = 5;
+  map<string, string> properties = 6;
+  repeated string authority_links = 7;
+  repeated string tags = 8;
+}
+
+message DeleteEntityRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entity_id = 2;
+}
+
+message DeleteEntityResponse {
+  bool success = 1;
+}
+
+message ListEntitiesRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+  EntityType type = 4;
+  string keyword = 5;
+  repeated string tags = 6;
+}
+
+message ListEntitiesResponse {
+  repeated KnowledgeEntity entities = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message SearchEntitiesRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string query = 3;
+  EntityType type = 4;
+  int32 limit = 5;
+  float min_similarity = 6;
+}
+
+message SearchEntitiesResponse {
+  repeated SearchResult results = 1;
+}
+
+message SearchResult {
+  KnowledgeEntity entity = 1;
+  float similarity = 2;
+}
+
+message CreateRelationRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 from_entity_id = 2;
+  int64 to_entity_id = 3;
+  RelationType type = 4;
+  float weight = 5;
+  string description = 6;
+  map<string, string> properties = 7;
+}
+
+message DeleteRelationRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 relation_id = 2;
+}
+
+message DeleteRelationResponse {
+  bool success = 1;
+}
+
+message ListRelationsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entity_id = 2;
+  RelationType type = 3;
+  opengeo.common.v1.PageRequest page = 4;
+}
+
+message ListRelationsResponse {
+  repeated KnowledgeRelation relations = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message QueryGraphRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 center_entity_id = 3;
+  int32 max_depth = 4;
+  repeated RelationType relation_types = 5;
+  repeated EntityType entity_types = 6;
+  int32 limit = 7;
+}
+
+message QueryGraphResponse {
+  GraphResult graph = 1;
+}
+
+message QueryPathRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 from_entity_id = 2;
+  int64 to_entity_id = 3;
+  int32 max_depth = 4;
+}
+
+message QueryPathResponse {
+  repeated PathResult paths = 1;
+}
+
+message BulkImportEntitiesRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  repeated KnowledgeEntity entities = 3;
+  bool overwrite_existing = 4;
+}
+
+message BulkImportEntitiesResponse {
+  int32 imported_count = 1;
+  int32 skipped_count = 2;
+  int32 error_count = 3;
+  repeated ImportError errors = 4;
+}
+
+message ImportError {
+  int32 row = 1;
+  string name = 2;
+  string error_message = 3;
+}
+
+message BulkImportRelationsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  repeated KnowledgeRelation relations = 3;
+}
+
+message BulkImportRelationsResponse {
+  int32 imported_count = 1;
+  int32 skipped_count = 2;
+  int32 error_count = 3;
+  repeated ImportError errors = 4;
+}

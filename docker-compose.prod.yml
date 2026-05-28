@@ -1,0 +1,322 @@
+version: '3.8'
+
+# 多副本生产部署配置
+# 使用方式: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # ==================== 应用服务（多副本） ====================
+
+  # Gateway API 网关 - 多副本部署
+  gateway:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.gateway
+    image: opengeo/gateway:latest
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1          # 每次更新1个副本
+        delay: 10s              # 每个副本更新间隔
+        failure_action: rollback # 更新失败时回滚
+        monitor: 30s            # 监控新副本30秒
+        max_failure_ratio: 0.3  # 最大失败率30%
+        order: start-first      # 先启动新副本再停止旧副本（零停机）
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      - MYSQL_DSN=${MYSQL_DSN:-root:opengeo_secure_2026@tcp(mysql:3306)/opengeo?charset=utf8mb4&parseTime=True&loc=Local}
+      - REDIS_ADDR=${REDIS_ADDR:-redis:6379}
+      - CONSUL_ADDR=${CONSUL_ADDR:-consul:8500}
+      - JAEGER_ENDPOINT=${JAEGER_ENDPOINT:-http://jaeger:4317}
+      - GIN_MODE=release
+    ports:
+      - "8080:8080"
+    networks:
+      - opengeo-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Content 内容服务 - 多副本部署
+  content:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.content
+    image: opengeo/content:latest
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 30s
+        max_failure_ratio: 0.3
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      - MYSQL_DSN=${MYSQL_DSN:-root:opengeo_secure_2026@tcp(mysql:3306)/opengeo?charset=utf8mb4&parseTime=True&loc=Local}
+      - REDIS_ADDR=${REDIS_ADDR:-redis:6379}
+      - CONSUL_ADDR=${CONSUL_ADDR:-consul:8500}
+      - JAEGER_ENDPOINT=${JAEGER_ENDPOINT:-http://jaeger:4317}
+    networks:
+      - opengeo-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Publish 发布服务 - 多副本部署
+  publish:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.publish
+    image: opengeo/publish:latest
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 30s
+        max_failure_ratio: 0.3
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      - MYSQL_DSN=${MYSQL_DSN:-root:opengeo_secure_2026@tcp(mysql:3306)/opengeo?charset=utf8mb4&parseTime=True&loc=Local}
+      - REDIS_ADDR=${REDIS_ADDR:-redis:6379}
+      - CONSUL_ADDR=${CONSUL_ADDR:-consul:8500}
+      - JAEGER_ENDPOINT=${JAEGER_ENDPOINT:-http://jaeger:4317}
+    networks:
+      - opengeo-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ==================== 基础设施（单副本 + 资源限制） ====================
+
+  # MySQL - 主从配置（单主）
+  mysql:
+    image: mysql:8.0
+    container_name: opengeo-mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max-connections=500
+      - --innodb-buffer-pool-size=1G
+      - --slow-query-log=1
+      - --long-query-time=2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-opengeo_secure_2026}
+      MYSQL_DATABASE: opengeo
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - opengeo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - 带持久化
+  redis:
+    image: redis:7-alpine
+    container_name: opengeo-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - opengeo-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Consul 服务发现
+  consul:
+    image: consul:1.15.4
+    container_name: opengeo-consul
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    networks:
+      - opengeo-network
+
+  # Jaeger 链路追踪
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: opengeo-jaeger
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - opengeo-network
+
+  # Prometheus 监控
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    container_name: opengeo-prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - opengeo-network
+
+  # Grafana 可视化
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: opengeo-grafana
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    networks:
+      - opengeo-network
+
+  # Nginx 负载均衡（可选，用于外部访问）
+  nginx:
+    image: nginx:alpine
+    container_name: opengeo-nginx
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - opengeo-network
+    depends_on:
+      - gateway
+
+networks:
+  opengeo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local

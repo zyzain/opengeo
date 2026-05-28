@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "PublishRequestedEvent",
+  "namespace": "opengeo.events.publish",
+  "doc": "发布请求事件",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "事件唯一标识"
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "default": "publish.requested",
+      "doc": "事件类型"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "事件来源服务"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "事件发生时间戳"
+    },
+    {
+      "name": "task_id",
+      "type": "long",
+      "doc": "发布任务ID"
+    },
+    {
+      "name": "user_id",
+      "type": "long",
+      "doc": "用户ID"
+    },
+    {
+      "name": "content_id",
+      "type": "long",
+      "doc": "内容ID"
+    },
+    {
+      "name": "channel_id",
+      "type": "long",
+      "doc": "渠道ID"
+    },
+    {
+      "name": "scheduled_time",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "计划发布时间"
+    }
+  ]
+}

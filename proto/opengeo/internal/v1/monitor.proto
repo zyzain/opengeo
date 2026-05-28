@@ -1,0 +1,287 @@
+syntax = "proto3";
+
+package monitor;
+
+option go_package = "opengeo/gen/go/opengeo/internal/v1/monitor";
+
+// 监测分析服务
+service MonitorService {
+  // AI引用追踪
+  rpc TrackAICitation(TrackAICitationRequest) returns (TrackAICitationResponse);
+  rpc GetAICitations(GetAICitationsRequest) returns (GetAICitationsResponse);
+  rpc GetCitationTrends(GetCitationTrendsRequest) returns (GetCitationTrendsResponse);
+  
+  // 信源评分
+  rpc CalculateSourceScore(CalculateSourceScoreRequest) returns (SourceScore);
+  rpc GetSourceScores(GetSourceScoresRequest) returns (GetSourceScoresResponse);
+  rpc GetScoreTrends(GetScoreTrendsRequest) returns (GetScoreTrendsResponse);
+  
+  // 竞品监测
+  rpc CreateCompetitorMonitor(CreateCompetitorMonitorRequest) returns (CompetitorMonitor);
+  rpc GetCompetitorMonitor(GetCompetitorMonitorRequest) returns (CompetitorMonitor);
+  rpc ListCompetitorMonitors(ListCompetitorMonitorsRequest) returns (ListCompetitorMonitorsResponse);
+  rpc GetCompetitorAnalysis(GetCompetitorAnalysisRequest) returns (GetCompetitorAnalysisResponse);
+  
+  // ROI分析
+  rpc TrackROIMetric(TrackROIMetricRequest) returns (TrackROIMetricResponse);
+  rpc GetROIMetrics(GetROIMetricsRequest) returns (GetROIMetricsResponse);
+  rpc GenerateROIReport(GenerateROIReportRequest) returns (GenerateROIReportResponse);
+  
+  // 优化建议
+  rpc GenerateOptimizationSuggestions(GenerateOptimizationSuggestionsRequest) returns (GenerateOptimizationSuggestionsResponse);
+  rpc ApplyOptimizationSuggestion(ApplyOptimizationSuggestionRequest) returns (ApplyOptimizationSuggestionResponse);
+}
+
+// AI引用相关消息
+message TrackAICitationRequest {
+  int64 content_id = 1;
+  string ai_model = 2;
+  string query_text = 3;
+}
+
+message TrackAICitationResponse {
+  bool success = 1;
+  AICitation citation = 2;
+}
+
+message GetAICitationsRequest {
+  int64 content_id = 1;
+  string ai_model = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message GetAICitationsResponse {
+  repeated AICitation citations = 1;
+  int32 total = 2;
+}
+
+message GetCitationTrendsRequest {
+  int64 content_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+message GetCitationTrendsResponse {
+  repeated CitationTrend trends = 1;
+}
+
+message AICitation {
+  int64 id = 1;
+  int64 content_id = 2;
+  string ai_model = 3;
+  string query_text = 4;
+  bool is_cited = 5;
+  int32 citation_position = 6;
+  string citation_text = 7;
+  string sentiment = 8;
+  string tracked_at = 9;
+}
+
+message CitationTrend {
+  string date = 1;
+  int32 citation_count = 2;
+  float citation_rate = 3;
+}
+
+// 信源评分相关消息
+message CalculateSourceScoreRequest {
+  int64 channel_id = 1;
+  int64 account_id = 2;
+}
+
+message GetSourceScoresRequest {
+  int64 channel_id = 1;
+  int64 account_id = 2;
+}
+
+message GetSourceScoresResponse {
+  repeated SourceScore scores = 1;
+}
+
+message GetScoreTrendsRequest {
+  int64 channel_id = 1;
+  int64 account_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+}
+
+message GetScoreTrendsResponse {
+  repeated ScoreTrend trends = 1;
+}
+
+message SourceScore {
+  int64 id = 1;
+  int64 channel_id = 2;
+  int64 account_id = 3;
+  float score = 4;
+  string score_dimensions = 5;
+  string updated_at = 6;
+}
+
+message ScoreTrend {
+  string date = 1;
+  float score = 2;
+}
+
+// 竞品监测相关消息
+message CreateCompetitorMonitorRequest {
+  int64 user_id = 1;
+  string competitor_name = 2;
+  string competitor_domain = 3;
+  string monitor_config = 4;
+}
+
+message GetCompetitorMonitorRequest {
+  int64 monitor_id = 1;
+}
+
+message ListCompetitorMonitorsRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListCompetitorMonitorsResponse {
+  repeated CompetitorMonitor monitors = 1;
+  int32 total = 2;
+}
+
+message GetCompetitorAnalysisRequest {
+  int64 monitor_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+message GetCompetitorAnalysisResponse {
+  CompetitorAnalysis analysis = 1;
+}
+
+message CompetitorMonitor {
+  int64 id = 1;
+  int64 user_id = 2;
+  string competitor_name = 3;
+  string competitor_domain = 4;
+  string monitor_config = 5;
+  string last_check_time = 6;
+  string created_at = 7;
+}
+
+message CompetitorAnalysis {
+  int64 monitor_id = 1;
+  float visibility_score = 2;
+  repeated string top_queries = 3;
+  repeated ContentGap content_gaps = 4;
+  string recommendations = 5;
+}
+
+message ContentGap {
+  string topic = 1;
+  float competitor_coverage = 2;
+  float our_coverage = 3;
+  float opportunity_score = 4;
+}
+
+// ROI分析相关消息
+message TrackROIMetricRequest {
+  int64 content_id = 1;
+  int64 channel_id = 2;
+  string metric_type = 3;
+  float metric_value = 4;
+  string utm_source = 5;
+  string utm_medium = 6;
+  string utm_campaign = 7;
+}
+
+message TrackROIMetricResponse {
+  bool success = 1;
+}
+
+message GetROIMetricsRequest {
+  int64 content_id = 1;
+  int64 channel_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+}
+
+message GetROIMetricsResponse {
+  repeated ROIMetric metrics = 1;
+}
+
+message GenerateROIReportRequest {
+  int64 user_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+message GenerateROIReportResponse {
+  ROIReport report = 1;
+}
+
+message ROIMetric {
+  int64 id = 1;
+  int64 content_id = 2;
+  int64 channel_id = 3;
+  string metric_type = 4;
+  float metric_value = 5;
+  string utm_source = 6;
+  string utm_medium = 7;
+  string utm_campaign = 8;
+  string recorded_at = 9;
+}
+
+message ROIReport {
+  int64 user_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+  float total_investment = 4;
+  float total_return = 5;
+  float roi_percentage = 6;
+  repeated ChannelROI channel_breakdown = 7;
+  repeated ContentROI content_breakdown = 8;
+}
+
+message ChannelROI {
+  int64 channel_id = 1;
+  string channel_name = 2;
+  float investment = 3;
+  float return_value = 4;
+  float roi_percentage = 5;
+}
+
+message ContentROI {
+  int64 content_id = 1;
+  string content_title = 2;
+  float investment = 3;
+  float return_value = 4;
+  float roi_percentage = 5;
+}
+
+// 优化建议相关消息
+message GenerateOptimizationSuggestionsRequest {
+  int64 content_id = 1;
+}
+
+message GenerateOptimizationSuggestionsResponse {
+  repeated OptimizationSuggestion suggestions = 1;
+}
+
+message ApplyOptimizationSuggestionRequest {
+  int64 suggestion_id = 1;
+  int64 content_id = 2;
+}
+
+message ApplyOptimizationSuggestionResponse {
+  bool success = 1;
+  string updated_content = 2;
+}
+
+message OptimizationSuggestion {
+  int64 id = 1;
+  int64 content_id = 2;
+  string suggestion_type = 3;
+  string suggestion_data = 4;
+  int32 priority = 5;
+  int32 status = 6;
+  string created_at = 7;
+}

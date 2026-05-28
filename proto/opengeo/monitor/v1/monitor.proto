@@ -1,0 +1,731 @@
+syntax = "proto3";
+
+package opengeo.monitor.v1;
+
+option go_package = "opengeo/gen/go/opengeo/monitor/v1;monitorv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 监测分析服务
+service MonitorService {
+  // ========== AI 引用追踪 ==========
+
+  // 记录 AI 引用
+  rpc RecordCitation(RecordCitationRequest) returns (AICitation);
+
+  // 获取引用详情
+  rpc GetCitation(GetCitationRequest) returns (AICitation);
+
+  // 列出引用记录
+  rpc ListCitations(ListCitationsRequest) returns (ListCitationsResponse);
+
+  // 获取引用统计
+  rpc GetCitationStats(GetCitationStatsRequest) returns (CitationStats);
+
+  // ========== AI 引用归因分析（云端 API） ==========
+
+  // 请求归因分析
+  rpc RequestAttribution(RequestAttributionRequest) returns (AttributionResult);
+
+  // 获取归因结果
+  rpc GetAttribution(GetAttributionRequest) returns (AttributionResult);
+
+  // 列出归因记录
+  rpc ListAttributions(ListAttributionsRequest) returns (ListAttributionsResponse);
+
+  // ========== 品牌可信度评分（云端 API） ==========
+
+  // 请求品牌可信度评分
+  rpc RequestTrustScore(RequestTrustScoreRequest) returns (TrustScore);
+
+  // 获取最新可信度评分
+  rpc GetTrustScore(GetTrustScoreRequest) returns (TrustScore);
+
+  // 获取可信度评分历史
+  rpc ListTrustScores(ListTrustScoresRequest) returns (ListTrustScoresResponse);
+
+  // ========== 信源评分 ==========
+
+  // 获取信源评分
+  rpc GetSourceScore(GetSourceScoreRequest) returns (SourceScore);
+
+  // 列出信源评分
+  rpc ListSourceScores(ListSourceScoresRequest) returns (ListSourceScoresResponse);
+
+  // ========== 竞品监测 ==========
+
+  // 创建竞品监测
+  rpc CreateCompetitorMonitor(CreateCompetitorMonitorRequest) returns (CompetitorMonitor);
+
+  // 获取竞品监测
+  rpc GetCompetitorMonitor(GetCompetitorMonitorRequest) returns (CompetitorMonitor);
+
+  // 列出竞品监测
+  rpc ListCompetitorMonitors(ListCompetitorMonitorsRequest) returns (ListCompetitorMonitorsResponse);
+
+  // 删除竞品监测
+  rpc DeleteCompetitorMonitor(DeleteCompetitorMonitorRequest) returns (DeleteCompetitorMonitorResponse);
+
+  // 获取竞品分析结果
+  rpc GetCompetitorAnalysis(GetCompetitorAnalysisRequest) returns (CompetitorAnalysis);
+
+  // ========== ROI 指标 ==========
+
+  // 记录 ROI 指标
+  rpc RecordROIMetric(RecordROIMetricRequest) returns (ROIMetric);
+
+  // 列出 ROI 指标
+  rpc ListROIMetrics(ListROIMetricsRequest) returns (ListROIMetricsResponse);
+
+  // 获取 ROI 统计
+  rpc GetROIStats(GetROIStatsRequest) returns (ROIStats);
+
+  // ========== 优化建议 ==========
+
+  // 获取优化建议
+  rpc GetSuggestion(GetSuggestionRequest) returns (OptimizationSuggestion);
+
+  // 列出优化建议
+  rpc ListSuggestions(ListSuggestionsRequest) returns (ListSuggestionsResponse);
+
+  // 应用优化建议
+  rpc ApplySuggestion(ApplySuggestionRequest) returns (ApplySuggestionResponse);
+
+  // 忽略优化建议
+  rpc IgnoreSuggestion(IgnoreSuggestionRequest) returns (IgnoreSuggestionResponse);
+
+  // ========== 引用趋势 ==========
+
+  // 获取引用趋势
+  rpc GetCitationTrend(GetCitationTrendRequest) returns (CitationTrendResponse);
+}
+
+// AI 模型
+enum AIModel {
+  AI_MODEL_UNSPECIFIED = 0;
+  AI_MODEL_DEEPSEEK = 1;
+  AI_MODEL_KIMI = 2;
+  AI_MODEL_CHATGPT = 3;
+  AI_MODEL_CLAUDE = 4;
+  AI_MODEL_GEMINI = 5;
+  AI_MODEL_DOUBAO = 6;
+  AI_MODEL_OTHER = 99;
+}
+
+// 情感倾向
+enum Sentiment {
+  SENTIMENT_UNSPECIFIED = 0;
+  SENTIMENT_POSITIVE = 1;
+  SENTIMENT_NEUTRAL = 2;
+  SENTIMENT_NEGATIVE = 3;
+}
+
+// AI 引用记录
+message AICitation {
+  // 记录 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 内容 ID
+  int64 content_id = 3;
+
+  // 品牌 ID
+  int64 brand_id = 4;
+
+  // AI 模型
+  AIModel ai_model = 5;
+
+  // 查询文本
+  string query_text = 6;
+
+  // 是否被引用
+  bool is_cited = 7;
+
+  // 引用位置
+  int32 citation_position = 8;
+
+  // 引用文本片段
+  string citation_text = 9;
+
+  // 引用 URL
+  string citation_url = 10;
+
+  // 情感倾向
+  Sentiment sentiment = 11;
+
+  // 置信度评分
+  float confidence_score = 12;
+
+  // 追踪时间
+  string tracked_at = 13;
+
+  // 创建时间
+  string created_at = 14;
+}
+
+// 引用统计
+message CitationStats {
+  // 品牌 ID
+  int64 brand_id = 1;
+
+  // 统计周期
+  string period = 2;
+
+  // 总查询次数
+  int64 total_queries = 3;
+
+  // 被引用次数
+  int64 cited_count = 4;
+
+  // 引用率
+  float citation_rate = 5;
+
+  // 各模型引用统计
+  map<string, int64> citations_by_model = 6;
+
+  // 平均引用位置
+  float avg_citation_position = 7;
+
+  // 情感分布
+  map<string, int64> sentiment_distribution = 8;
+}
+
+// 归因结果
+message AttributionResult {
+  // 归因 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 内容 ID
+  int64 content_id = 3;
+
+  // 品牌 ID
+  int64 brand_id = 4;
+
+  // 查询文本
+  string query_text = 5;
+
+  // 归因评分
+  float attribution_score = 6;
+
+  // 被引用片段
+  repeated string cited_fragments = 7;
+
+  // 信源分析
+  string source_analysis = 8;
+
+  // 竞品对比
+  string competitor_comparison = 9;
+
+  // 优化建议
+  repeated string recommendations = 10;
+
+  // 云端 API 请求 ID
+  string api_request_id = 11;
+
+  // 消耗 Token 数
+  int64 tokens_used = 12;
+
+  // 费用（分）
+  int64 cost_cents = 13;
+
+  // 过期时间
+  string expires_at = 14;
+
+  // 创建时间
+  string created_at = 15;
+}
+
+// 品牌可信度评分
+message TrustScore {
+  // 评分 ID
+  int64 id = 1;
+
+  // 品牌 ID
+  int64 brand_id = 2;
+
+  // 综合可信度评分（0-100）
+  float score = 3;
+
+  // 搜索维度评分
+  float search_score = 4;
+
+  // 社媒维度评分
+  float social_score = 5;
+
+  // 合规维度评分
+  float compliance_score = 6;
+
+  // 引用维度评分
+  float citation_score = 7;
+
+  // 评分因子详情（JSON）
+  string factors = 8;
+
+  // 云端 API 请求 ID
+  string api_request_id = 9;
+
+  // 过期时间
+  string expires_at = 10;
+
+  // 创建时间
+  string created_at = 11;
+}
+
+// 信源评分
+message SourceScore {
+  // 评分 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 渠道 ID
+  int64 channel_id = 3;
+
+  // 账号 ID
+  int64 account_id = 4;
+
+  // 综合评分（0-100）
+  float score = 5;
+
+  // 各维度评分（JSON）
+  string score_dimensions = 6;
+
+  // 评分插件名称
+  string plugin_name = 7;
+
+  // 更新时间
+  string updated_at = 8;
+}
+
+// 竞品监测
+message CompetitorMonitor {
+  // 监测 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 品牌 ID
+  int64 brand_id = 3;
+
+  // 竞品名称
+  string competitor_name = 4;
+
+  // 竞品域名
+  string competitor_domain = 5;
+
+  // 监测配置（JSON）
+  string monitor_config = 6;
+
+  // 最后检查时间
+  string last_check_time = 7;
+
+  // 是否激活
+  bool is_active = 8;
+
+  // 创建时间
+  string created_at = 9;
+
+  // 更新时间
+  string updated_at = 10;
+}
+
+// 竞品分析结果
+message CompetitorAnalysis {
+  // 分析 ID
+  int64 id = 1;
+
+  // 监测 ID
+  int64 monitor_id = 2;
+
+  // 可见性评分
+  float visibility_score = 3;
+
+  // 热门查询（JSON）
+  string top_queries = 4;
+
+  // 内容差距（JSON）
+  string content_gaps = 5;
+
+  // 建议（JSON）
+  string recommendations = 6;
+
+  // 分析时间
+  string analyzed_at = 7;
+
+  // 创建时间
+  string created_at = 8;
+}
+
+// ROI 指标
+message ROIMetric {
+  // 指标 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 内容 ID
+  int64 content_id = 3;
+
+  // 品牌 ID
+  int64 brand_id = 4;
+
+  // 渠道 ID
+  int64 channel_id = 5;
+
+  // 指标类型
+  string metric_type = 6;
+
+  // 指标值
+  float metric_value = 7;
+
+  // 货币类型
+  string currency = 8;
+
+  // UTM 来源
+  string utm_source = 9;
+
+  // UTM 媒介
+  string utm_medium = 10;
+
+  // UTM 活动
+  string utm_campaign = 11;
+
+  // 记录时间
+  string recorded_at = 12;
+
+  // 创建时间
+  string created_at = 13;
+}
+
+// ROI 统计
+message ROIStats {
+  // 品牌 ID
+  int64 brand_id = 1;
+
+  // 统计周期
+  string period = 2;
+
+  // 总投入
+  float total_cost = 3;
+
+  // 总产出
+  float total_revenue = 4;
+
+  // ROI 比率
+  float roi_ratio = 5;
+
+  // 各渠道 ROI
+  map<string, float> roi_by_channel = 6;
+
+  // 各内容类型 ROI
+  map<string, float> roi_by_content_type = 7;
+}
+
+// 优化建议
+message OptimizationSuggestion {
+  // 建议 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 内容 ID
+  int64 content_id = 3;
+
+  // 品牌 ID
+  int64 brand_id = 4;
+
+  // 建议类型
+  string suggestion_type = 5;
+
+  // 来源：local/cloud
+  string source = 6;
+
+  // 建议内容（JSON）
+  string suggestion_data = 7;
+
+  // 优先级：0=低 1=中 2=高
+  int32 priority = 8;
+
+  // 预期影响评分
+  float impact_score = 9;
+
+  // 状态：0=待处理 1=已应用 2=已忽略
+  int32 status = 10;
+
+  // 应用时间
+  string applied_at = 11;
+
+  // 创建时间
+  string created_at = 12;
+
+  // 更新时间
+  string updated_at = 13;
+}
+
+// 引用趋势
+message CitationTrend {
+  // 趋势 ID
+  int64 id = 1;
+
+  // 内容 ID
+  int64 content_id = 2;
+
+  // 品牌 ID
+  int64 brand_id = 3;
+
+  // AI 模型
+  AIModel ai_model = 4;
+
+  // 引用次数
+  int32 citation_count = 5;
+
+  // 引用率
+  float citation_rate = 6;
+
+  // 统计日期
+  string trend_date = 7;
+}
+
+// ========== 请求/响应消息 ==========
+
+message RecordCitationRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  AIModel ai_model = 4;
+  string query_text = 5;
+  bool is_cited = 6;
+  int32 citation_position = 7;
+  string citation_text = 8;
+  string citation_url = 9;
+  Sentiment sentiment = 10;
+  float confidence_score = 11;
+}
+
+message GetCitationRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 citation_id = 2;
+}
+
+message ListCitationsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  AIModel ai_model = 4;
+  bool is_cited = 5;
+  opengeo.common.v1.PageRequest page = 6;
+  string time_start = 7;
+  string time_end = 8;
+}
+
+message ListCitationsResponse {
+  repeated AICitation citations = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message GetCitationStatsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  string period_start = 4;
+  string period_end = 5;
+}
+
+message RequestAttributionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  string query_text = 4;
+}
+
+message GetAttributionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 attribution_id = 2;
+}
+
+message ListAttributionsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  opengeo.common.v1.PageRequest page = 4;
+}
+
+message ListAttributionsResponse {
+  repeated AttributionResult attributions = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message RequestTrustScoreRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message GetTrustScoreRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message ListTrustScoresRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+  string time_start = 4;
+  string time_end = 5;
+}
+
+message ListTrustScoresResponse {
+  repeated TrustScore scores = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message GetSourceScoreRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 channel_id = 2;
+  int64 account_id = 3;
+}
+
+message ListSourceScoresRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+}
+
+message ListSourceScoresResponse {
+  repeated SourceScore scores = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message CreateCompetitorMonitorRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string competitor_name = 3;
+  string competitor_domain = 4;
+  string monitor_config = 5;
+}
+
+message GetCompetitorMonitorRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 monitor_id = 2;
+}
+
+message ListCompetitorMonitorsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+}
+
+message ListCompetitorMonitorsResponse {
+  repeated CompetitorMonitor monitors = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message DeleteCompetitorMonitorRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 monitor_id = 2;
+}
+
+message DeleteCompetitorMonitorResponse {
+  bool success = 1;
+}
+
+message GetCompetitorAnalysisRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 monitor_id = 2;
+}
+
+message RecordROIMetricRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  int64 channel_id = 4;
+  string metric_type = 5;
+  float metric_value = 6;
+  string currency = 7;
+  string utm_source = 8;
+  string utm_medium = 9;
+  string utm_campaign = 10;
+}
+
+message ListROIMetricsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  int64 channel_id = 4;
+  string metric_type = 5;
+  opengeo.common.v1.PageRequest page = 6;
+  string time_start = 7;
+  string time_end = 8;
+}
+
+message ListROIMetricsResponse {
+  repeated ROIMetric metrics = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message GetROIStatsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string period_start = 3;
+  string period_end = 4;
+}
+
+message GetSuggestionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 suggestion_id = 2;
+}
+
+message ListSuggestionsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  string suggestion_type = 4;
+  int32 status = 5;
+  opengeo.common.v1.PageRequest page = 6;
+}
+
+message ListSuggestionsResponse {
+  repeated OptimizationSuggestion suggestions = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message ApplySuggestionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 suggestion_id = 2;
+}
+
+message ApplySuggestionResponse {
+  bool success = 1;
+  string applied_at = 2;
+}
+
+message IgnoreSuggestionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 suggestion_id = 2;
+}
+
+message IgnoreSuggestionResponse {
+  bool success = 1;
+}
+
+message GetCitationTrendRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  int64 content_id = 3;
+  AIModel ai_model = 4;
+  string date_start = 5;
+  string date_end = 6;
+}
+
+message CitationTrendResponse {
+  repeated CitationTrend trends = 1;
+}

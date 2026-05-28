@@ -1,0 +1,105 @@
+{
+  "jwt": {
+    "token_expire": 86400000000000,
+    "refresh_token_expire": 604800000000000,
+    "issuer": "opengeo"
+  },
+  "database": {
+    "max_idle_conns": 10,
+    "max_open_conns": 100,
+    "conn_max_lifetime": 3600000000000
+  },
+  "pagination": {
+    "default_page_size": 20,
+    "max_page_size": 100
+  },
+  "ai_models": {
+    "deepseek": {
+      "base_url": "https://api.deepseek.com/v1",
+      "model": "deepseek-chat",
+      "max_tokens": 4096,
+      "temperature": 0.7
+    },
+    "kimi": {
+      "base_url": "https://api.moonshot.cn/v1",
+      "model": "moonshot-v1-8k",
+      "max_tokens": 4096,
+      "temperature": 0.7
+    },
+    "doubao": {
+      "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+      "model": "doubao-pro-4k",
+      "max_tokens": 4096,
+      "temperature": 0.7
+    },
+    "chatgpt": {
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4o-mini",
+      "max_tokens": 4096,
+      "temperature": 0.7
+    },
+    "default": "deepseek"
+  },
+  "anti_ban": {
+    "platform_delays": {
+      "wechat": [30, 120],
+      "weibo": [10, 60],
+      "douyin": [20, 90],
+      "xiaohongshu": [15, 75],
+      "zhihu": [20, 90],
+      "toutiao": [10, 60]
+    },
+    "default_delay": [15, 90],
+    "min_delay": 5,
+    "offset_ratio": 0.2,
+    "scroll_interval": [500, 3000],
+    "typing_delay": [50, 200],
+    "typing_pause_probability": 0.05,
+    "typing_pause_delay": [500, 2000],
+    "rate_limits": {
+      "wechat": {"max_per_hour": 5, "max_per_day": 20, "min_interval": 300},
+      "weibo": {"max_per_hour": 10, "max_per_day": 50, "min_interval": 60},
+      "douyin": {"max_per_hour": 3, "max_per_day": 10, "min_interval": 600},
+      "xiaohongshu": {"max_per_hour": 5, "max_per_day": 20, "min_interval": 300},
+      "zhihu": {"max_per_hour": 5, "max_per_day": 30, "min_interval": 300},
+      "toutiao": {"max_per_hour": 10, "max_per_day": 50, "min_interval": 60}
+    },
+    "default_rate_limit": {
+      "max_per_hour": 10,
+      "max_per_day": 50,
+      "min_interval": 60
+    },
+    "proxy_failure_threshold": 3
+  },
+  "stagger": {
+    "min_interval": 300000000000,
+    "max_interval": 1800000000000,
+    "variance_ratio": 0.3,
+    "max_concurrency": 10,
+    "burst_limit": 5
+  },
+  "retry": {
+    "max_retries": 3,
+    "initial_delay": 30,
+    "max_delay": 3600,
+    "backoff_factor": 2.0,
+    "enable_fallback": true,
+    "enable_auto_retry": true
+  },
+  "webhook": {
+    "timeout": 30000000000,
+    "max_retries": 3
+  },
+  "health_check": {
+    "http_timeout": 10000000000,
+    "check_interval": 60,
+    "batch_limit": 100,
+    "alert_score_threshold": 60,
+    "pause_score_threshold": 30
+  },
+  "llm": {
+    "timeout": 30000000000,
+    "max_tokens": 4096,
+    "temperature": 0.7
+  }
+}

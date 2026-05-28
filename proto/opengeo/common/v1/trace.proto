@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package opengeo.common.v1;
+
+option go_package = "opengeo/gen/go/opengeo/common/v1;commonv1";
+
+// Trace 上下文，用于跨服务调用时传递追踪信息
+message TraceContext {
+  // 全局唯一追踪 ID
+  string trace_id = 1;
+
+  // 当前 Span ID
+  string span_id = 2;
+
+  // 父 Span ID
+  string parent_span_id = 3;
+
+  // 采样标志
+  string trace_flags = 4;
+
+  // Baggage 项（可选的上下文传播数据）
+  map<string, string> baggage = 5;
+}

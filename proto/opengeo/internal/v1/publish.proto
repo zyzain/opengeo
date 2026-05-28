@@ -1,0 +1,219 @@
+syntax = "proto3";
+
+package publish;
+
+option go_package = "opengeo/gen/go/opengeo/internal/v1/publish";
+
+// 发布管理服务
+service PublishService {
+  // 发布渠道管理
+  rpc CreatePublishChannel(CreatePublishChannelRequest) returns (PublishChannel);
+  rpc GetPublishChannel(GetPublishChannelRequest) returns (PublishChannel);
+  rpc ListPublishChannels(ListPublishChannelsRequest) returns (ListPublishChannelsResponse);
+  rpc UpdatePublishChannel(UpdatePublishChannelRequest) returns (PublishChannel);
+  rpc DeletePublishChannel(DeletePublishChannelRequest) returns (DeletePublishChannelResponse);
+  
+  // 发布任务管理
+  rpc CreatePublishTask(CreatePublishTaskRequest) returns (PublishTask);
+  rpc GetPublishTask(GetPublishTaskRequest) returns (PublishTask);
+  rpc ListPublishTasks(ListPublishTasksRequest) returns (ListPublishTasksResponse);
+  rpc CancelPublishTask(CancelPublishTaskRequest) returns (CancelPublishTaskResponse);
+  rpc RetryPublishTask(RetryPublishTaskRequest) returns (RetryPublishTaskResponse);
+  
+  // 发布执行
+  rpc PublishContent(PublishContentRequest) returns (PublishContentResponse);
+  rpc PreviewPublish(PreviewPublishRequest) returns (PreviewPublishResponse);
+  rpc ValidatePublish(ValidatePublishRequest) returns (ValidatePublishResponse);
+  
+  // 渠道适配器管理
+  rpc CreateChannelAdapter(CreateChannelAdapterRequest) returns (ChannelAdapter);
+  rpc GetChannelAdapter(GetChannelAdapterRequest) returns (ChannelAdapter);
+  rpc ListChannelAdapters(ListChannelAdaptersRequest) returns (ListChannelAdaptersResponse);
+  rpc TestChannelAdapter(TestChannelAdapterRequest) returns (TestChannelAdapterResponse);
+}
+
+// 渠道相关消息
+message CreatePublishChannelRequest {
+  int64 user_id = 1;
+  string channel_type = 2;
+  string channel_name = 3;
+  string channel_config = 4;
+}
+
+message GetPublishChannelRequest {
+  int64 channel_id = 1;
+}
+
+message ListPublishChannelsRequest {
+  int64 user_id = 1;
+  string channel_type = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListPublishChannelsResponse {
+  repeated PublishChannel channels = 1;
+  int32 total = 2;
+}
+
+message UpdatePublishChannelRequest {
+  int64 channel_id = 1;
+  string channel_name = 2;
+  string channel_config = 3;
+  bool is_enabled = 4;
+}
+
+message DeletePublishChannelRequest {
+  int64 channel_id = 1;
+}
+
+message DeletePublishChannelResponse {
+  bool success = 1;
+}
+
+message PublishChannel {
+  int64 id = 1;
+  int64 user_id = 2;
+  string channel_type = 3;
+  string channel_name = 4;
+  string channel_config = 5;
+  bool is_enabled = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+// 任务相关消息
+message CreatePublishTaskRequest {
+  int64 user_id = 1;
+  int64 content_id = 2;
+  int64 channel_id = 3;
+  string scheduled_time = 4;
+}
+
+message GetPublishTaskRequest {
+  int64 task_id = 1;
+}
+
+message ListPublishTasksRequest {
+  int64 user_id = 1;
+  int32 status = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListPublishTasksResponse {
+  repeated PublishTask tasks = 1;
+  int32 total = 2;
+}
+
+message CancelPublishTaskRequest {
+  int64 task_id = 1;
+}
+
+message CancelPublishTaskResponse {
+  bool success = 1;
+}
+
+message RetryPublishTaskRequest {
+  int64 task_id = 1;
+}
+
+message RetryPublishTaskResponse {
+  bool success = 1;
+}
+
+message PublishTask {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 content_id = 3;
+  int64 channel_id = 4;
+  int32 status = 5;
+  string scheduled_time = 6;
+  string published_time = 7;
+  int32 retry_count = 8;
+  string error_message = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+// 发布执行相关消息
+message PublishContentRequest {
+  int64 task_id = 1;
+}
+
+message PublishContentResponse {
+  bool success = 1;
+  string publish_result = 2;
+  string external_id = 3;
+}
+
+message PreviewPublishRequest {
+  int64 content_id = 1;
+  int64 channel_id = 2;
+}
+
+message PreviewPublishResponse {
+  bool success = 1;
+  string preview_html = 2;
+  string preview_data = 3;
+}
+
+message ValidatePublishRequest {
+  int64 content_id = 1;
+  int64 channel_id = 2;
+}
+
+message ValidatePublishResponse {
+  bool valid = 1;
+  repeated ValidationIssue issues = 2;
+}
+
+message ValidationIssue {
+  string field = 1;
+  string issue_type = 2;
+  string description = 3;
+  string suggestion = 4;
+}
+
+// 适配器相关消息
+message CreateChannelAdapterRequest {
+  string adapter_name = 1;
+  string adapter_type = 2;
+  string adapter_config = 3;
+  string version = 4;
+}
+
+message GetChannelAdapterRequest {
+  int64 adapter_id = 1;
+}
+
+message ListChannelAdaptersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListChannelAdaptersResponse {
+  repeated ChannelAdapter adapters = 1;
+  int32 total = 2;
+}
+
+message TestChannelAdapterRequest {
+  int64 adapter_id = 1;
+  string test_data = 2;
+}
+
+message TestChannelAdapterResponse {
+  bool success = 1;
+  string test_result = 2;
+  string error_message = 3;
+}
+
+message ChannelAdapter {
+  int64 id = 1;
+  string adapter_name = 2;
+  string adapter_type = 3;
+  string adapter_config = 4;
+  string version = 5;
+  bool is_enabled = 6;
+  string created_at = 7;
+}

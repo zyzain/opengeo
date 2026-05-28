@@ -1,0 +1,156 @@
+# OpenGEO BrandOS Helm Chart Values
+
+# 全局配置
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# 租户服务
+tenant:
+  replicaCount: 2
+  image:
+    repository: opengeo/tenant-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8001
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# 品牌服务
+brand:
+  replicaCount: 2
+  image:
+    repository: opengeo/brand-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8002
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# 内容服务
+content:
+  replicaCount: 2
+  image:
+    repository: opengeo/content-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8003
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# 发布服务
+publish:
+  replicaCount: 2
+  image:
+    repository: opengeo/publish-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8004
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# 监测服务
+monitor:
+  replicaCount: 2
+  image:
+    repository: opengeo/monitor-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8005
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# 网关服务
+gateway:
+  replicaCount: 2
+  image:
+    repository: opengeo/gateway
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# 前端
+web:
+  replicaCount: 2
+  image:
+    repository: opengeo/web
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+
+# 数据库
+mysql:
+  enabled: true
+  auth:
+    rootPassword: root
+    database: opengeo
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Redis
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+
+# 可观测性
+observability:
+  jaeger:
+    enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true

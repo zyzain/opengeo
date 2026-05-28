@@ -1,0 +1,516 @@
+syntax = "proto3";
+
+package opengeo.brand.v1;
+
+option go_package = "opengeo/gen/go/opengeo/brand/v1;brandv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 品牌服务
+service BrandService {
+  // ========== 品牌管理 ==========
+  
+  // 创建品牌
+  rpc CreateBrand(CreateBrandRequest) returns (Brand);
+
+  // 获取品牌信息
+  rpc GetBrand(GetBrandRequest) returns (Brand);
+
+  // 更新品牌信息
+  rpc UpdateBrand(UpdateBrandRequest) returns (Brand);
+
+  // 删除品牌（软删除）
+  rpc DeleteBrand(DeleteBrandRequest) returns (DeleteBrandResponse);
+
+  // 列出品牌
+  rpc ListBrands(ListBrandsRequest) returns (ListBrandsResponse);
+
+  // ========== 品牌元数据 ==========
+
+  // 获取品牌元数据
+  rpc GetBrandMetadata(GetBrandMetadataRequest) returns (BrandMetadata);
+
+  // 更新品牌元数据
+  rpc UpdateBrandMetadata(UpdateBrandMetadataRequest) returns (BrandMetadata);
+
+  // ========== 品牌术语表 ==========
+
+  // 创建术语
+  rpc CreateGlossaryEntry(CreateGlossaryEntryRequest) returns (GlossaryEntry);
+
+  // 获取术语
+  rpc GetGlossaryEntry(GetGlossaryEntryRequest) returns (GlossaryEntry);
+
+  // 更新术语
+  rpc UpdateGlossaryEntry(UpdateGlossaryEntryRequest) returns (GlossaryEntry);
+
+  // 删除术语
+  rpc DeleteGlossaryEntry(DeleteGlossaryEntryRequest) returns (DeleteGlossaryEntryResponse);
+
+  // 列出术语
+  rpc ListGlossaryEntries(ListGlossaryEntriesRequest) returns (ListGlossaryEntriesResponse);
+
+  // 批量导入术语
+  rpc BulkImportGlossary(BulkImportGlossaryRequest) returns (BulkImportGlossaryResponse);
+
+  // 批量导出术语
+  rpc BulkExportGlossary(BulkExportGlossaryRequest) returns (BulkExportGlossaryResponse);
+
+  // ========== 品牌快照 ==========
+
+  // 创建品牌快照
+  rpc CreateBrandSnapshot(CreateBrandSnapshotRequest) returns (BrandSnapshot);
+
+  // 列出品牌快照
+  rpc ListBrandSnapshots(ListBrandSnapshotsRequest) returns (ListBrandSnapshotsResponse);
+
+  // 对比品牌快照
+  rpc CompareBrandSnapshots(CompareBrandSnapshotsRequest) returns (CompareBrandSnapshotsResponse);
+}
+
+// 品牌状态
+enum BrandStatus {
+  BRAND_STATUS_UNSPECIFIED = 0;
+  BRAND_STATUS_ACTIVE = 1;
+  BRAND_STATUS_ARCHIVED = 2;
+  BRAND_STATUS_DISABLED = 3;
+}
+
+// 品牌实体
+message Brand {
+  // 品牌 ID
+  int64 id = 1;
+
+  // 所属租户 ID
+  int64 tenant_id = 2;
+
+  // 品牌名称
+  string name = 3;
+
+  // 品牌标识（URL 友好）
+  string slug = 4;
+
+  // 品牌描述
+  string description = 5;
+
+  // Logo URL
+  string logo_url = 6;
+
+  // 品牌官网
+  string website = 7;
+
+  // 所属行业
+  string industry = 8;
+
+  // 成立年份
+  int32 founded_year = 9;
+
+  // 总部所在地
+  string headquarters = 10;
+
+  // 状态
+  BrandStatus status = 11;
+
+  // 品牌配置
+  map<string, string> settings = 12;
+
+  // 创建时间
+  string created_at = 13;
+
+  // 更新时间
+  string updated_at = 14;
+}
+
+// VI 规范
+message VIProfile {
+  // 主色
+  string primary_color = 1;
+
+  // 副色
+  string secondary_color = 2;
+
+  // Logo URL
+  string logo_url = 3;
+
+  // 字体
+  string font_family = 4;
+
+  // 品牌关键词
+  repeated string brand_keywords = 5;
+
+  // 品牌口号
+  string slogan = 6;
+}
+
+// 语调规范
+message ToneProfile {
+  // 正式度：formal/casual/technical
+  string formality = 1;
+
+  // 个性：friendly/professional/playful/authoritative
+  string personality = 2;
+
+  // 禁用词
+  repeated string avoid_words = 3;
+
+  // 偏好短语
+  repeated string preferred_phrases = 4;
+
+  // 写作风格指南
+  string style_guide = 5;
+}
+
+// 受众画像
+message AudienceProfile {
+  // 受众名称
+  string name = 1;
+
+  // 年龄范围
+  string age_range = 2;
+
+  // 兴趣标签
+  repeated string interests = 3;
+
+  // 痛点
+  repeated string pain_points = 4;
+
+  // 偏好渠道
+  repeated string preferred_channels = 5;
+
+  // 地理位置
+  repeated string locations = 6;
+
+  // 语言偏好
+  repeated string languages = 7;
+}
+
+// 品牌元数据
+message BrandMetadata {
+  // 品牌 ID
+  int64 brand_id = 1;
+
+  // VI 规范
+  VIProfile vi_profile = 2;
+
+  // 语调规范
+  ToneProfile tone_profile = 3;
+
+  // 受众画像列表
+  repeated AudienceProfile audience_profiles = 4;
+
+  // 竞品列表
+  repeated CompetitorInfo competitor_list = 5;
+
+  // 品牌价值观
+  repeated string brand_values = 6;
+
+  // 独特卖点
+  repeated string unique_selling_points = 7;
+
+  // Schema 版本
+  string schema_version = 8;
+
+  // 创建时间
+  string created_at = 9;
+
+  // 更新时间
+  string updated_at = 10;
+}
+
+// 竞品信息
+message CompetitorInfo {
+  // 竞品名称
+  string name = 1;
+
+  // 竞品域名
+  string domain = 2;
+
+  // 竞品描述
+  string description = 3;
+
+  // 竞品优势
+  repeated string strengths = 4;
+
+  // 竞品劣势
+  repeated string weaknesses = 5;
+}
+
+// 术语条目
+message GlossaryEntry {
+  // 术语 ID
+  int64 id = 1;
+
+  // 所属品牌 ID
+  int64 brand_id = 2;
+
+  // 术语名称
+  string term = 3;
+
+  // 术语定义
+  string definition = 4;
+
+  // 术语分类
+  string category = 5;
+
+  // 别名列表
+  repeated string aliases = 6;
+
+  // 使用上下文
+  string context = 7;
+
+  // 是否禁用词
+  bool is_forbidden = 8;
+
+  // 是否首选术语
+  bool is_preferred = 9;
+
+  // 创建时间
+  string created_at = 10;
+
+  // 更新时间
+  string updated_at = 11;
+}
+
+// 品牌快照
+message BrandSnapshot {
+  // 快照 ID
+  int64 id = 1;
+
+  // 品牌 ID
+  int64 brand_id = 2;
+
+  // 版本号
+  string version = 3;
+
+  // 快照数据（JSON）
+  string snapshot_data = 4;
+
+  // 变更说明
+  string change_log = 5;
+
+  // 创建人 ID
+  int64 created_by = 6;
+
+  // 创建时间
+  string created_at = 7;
+}
+
+// 快照差异
+message SnapshotDiff {
+  // 变更字段
+  repeated FieldChange changes = 1;
+
+  // 新增字段
+  repeated FieldChange additions = 2;
+
+  // 删除字段
+  repeated FieldChange deletions = 3;
+}
+
+// 字段变更
+message FieldChange {
+  // 字段路径
+  string field_path = 1;
+
+  // 旧值
+  string old_value = 2;
+
+  // 新值
+  string new_value = 3;
+
+  // 变更类型
+  ChangeType change_type = 4;
+}
+
+// 变更类型
+enum ChangeType {
+  CHANGE_TYPE_UNSPECIFIED = 0;
+  CHANGE_TYPE_ADDED = 1;
+  CHANGE_TYPE_MODIFIED = 2;
+  CHANGE_TYPE_DELETED = 3;
+}
+
+// ========== 请求/响应消息 ==========
+
+message CreateBrandRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string logo_url = 5;
+  string website = 6;
+  string industry = 7;
+  int32 founded_year = 8;
+  string headquarters = 9;
+}
+
+message GetBrandRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message UpdateBrandRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string name = 3;
+  string description = 4;
+  string logo_url = 5;
+  string website = 6;
+  string industry = 7;
+  int32 founded_year = 8;
+  string headquarters = 9;
+  BrandStatus status = 10;
+  map<string, string> settings = 11;
+}
+
+message DeleteBrandRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message DeleteBrandResponse {
+  bool success = 1;
+}
+
+message ListBrandsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  opengeo.common.v1.PageRequest page = 2;
+  BrandStatus status = 3;
+  string industry = 4;
+  string keyword = 5;
+}
+
+message ListBrandsResponse {
+  repeated Brand brands = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message GetBrandMetadataRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message UpdateBrandMetadataRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  VIProfile vi_profile = 3;
+  ToneProfile tone_profile = 4;
+  repeated AudienceProfile audience_profiles = 5;
+  repeated CompetitorInfo competitor_list = 6;
+  repeated string brand_values = 7;
+  repeated string unique_selling_points = 8;
+}
+
+message CreateGlossaryEntryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string term = 3;
+  string definition = 4;
+  string category = 5;
+  repeated string aliases = 6;
+  string context = 7;
+  bool is_forbidden = 8;
+}
+
+message GetGlossaryEntryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entry_id = 2;
+}
+
+message UpdateGlossaryEntryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entry_id = 2;
+  string term = 3;
+  string definition = 4;
+  string category = 5;
+  repeated string aliases = 6;
+  string context = 7;
+  bool is_forbidden = 8;
+  bool is_preferred = 9;
+}
+
+message DeleteGlossaryEntryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 entry_id = 2;
+}
+
+message DeleteGlossaryEntryResponse {
+  bool success = 1;
+}
+
+message ListGlossaryEntriesRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+  string category = 4;
+  string keyword = 5;
+  bool is_forbidden = 6;
+}
+
+message ListGlossaryEntriesResponse {
+  repeated GlossaryEntry entries = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message BulkImportGlossaryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  repeated GlossaryEntry entries = 3;
+  bool overwrite_existing = 4;
+}
+
+message BulkImportGlossaryResponse {
+  int32 imported_count = 1;
+  int32 skipped_count = 2;
+  int32 error_count = 3;
+  repeated ImportError errors = 4;
+}
+
+message ImportError {
+  int32 row = 1;
+  string term = 2;
+  string error_message = 3;
+}
+
+message BulkExportGlossaryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string category = 3;
+  string format = 4; // json/csv
+}
+
+message BulkExportGlossaryResponse {
+  repeated GlossaryEntry entries = 1;
+  string download_url = 2;
+}
+
+message CreateBrandSnapshotRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  string version = 3;
+  string change_log = 4;
+}
+
+message ListBrandSnapshotsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+}
+
+message ListBrandSnapshotsResponse {
+  repeated BrandSnapshot snapshots = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message CompareBrandSnapshotsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 snapshot_id_1 = 2;
+  int64 snapshot_id_2 = 3;
+}
+
+message CompareBrandSnapshotsResponse {
+  BrandSnapshot snapshot_1 = 1;
+  BrandSnapshot snapshot_2 = 2;
+  SnapshotDiff diff = 3;
+}

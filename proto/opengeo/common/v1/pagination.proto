@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package opengeo.common.v1;
+
+option go_package = "opengeo/gen/go/opengeo/common/v1;commonv1";
+
+// 分页请求
+message PageRequest {
+  // 页码，从 1 开始
+  int32 page = 1;
+
+  // 每页数量，默认 20，最大 100
+  int32 page_size = 2;
+
+  // 排序字段
+  string sort_by = 3;
+
+  // 排序方向
+  SortOrder sort_order = 4;
+}
+
+// 排序方向
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}
+
+// 分页响应
+message PageResponse {
+  // 总记录数
+  int32 total = 1;
+
+  // 当前页码
+  int32 page = 2;
+
+  // 每页数量
+  int32 page_size = 3;
+
+  // 总页数
+  int32 total_pages = 4;
+}

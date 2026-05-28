@@ -1,0 +1,256 @@
+syntax = "proto3";
+
+package opengeo.tenant.v1;
+
+option go_package = "opengeo/gen/go/opengeo/tenant/v1;tenantv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 租户服务
+service TenantService {
+  // 创建租户
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
+
+  // 获取租户信息
+  rpc GetTenant(GetTenantRequest) returns (Tenant);
+
+  // 更新租户信息
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
+
+  // 删除租户（软删除）
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
+
+  // 列出租户
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+
+  // 获取租户配额
+  rpc GetTenantQuota(GetTenantQuotaRequest) returns (TenantQuota);
+
+  // 更新租户配额
+  rpc UpdateTenantQuota(UpdateTenantQuotaRequest) returns (TenantQuota);
+
+  // 获取租户用量统计
+  rpc GetTenantUsage(GetTenantUsageRequest) returns (TenantUsage);
+}
+
+// 租户状态
+enum TenantStatus {
+  TENANT_STATUS_UNSPECIFIED = 0;
+  TENANT_STATUS_ACTIVE = 1;
+  TENANT_STATUS_DISABLED = 2;
+  TENANT_STATUS_EXPIRED = 3;
+  TENANT_STATUS_ARCHIVED = 4;
+}
+
+// 租户套餐
+enum TenantPlan {
+  TENANT_PLAN_UNSPECIFIED = 0;
+  TENANT_PLAN_FREE = 1;
+  TENANT_PLAN_STARTER = 2;
+  TENANT_PLAN_PRO = 3;
+  TENANT_PLAN_ENTERPRISE = 4;
+}
+
+// 租户实体
+message Tenant {
+  // 租户 ID
+  int64 id = 1;
+
+  // 租户名称
+  string name = 2;
+
+  // 租户标识（URL 友好）
+  string slug = 3;
+
+  // 绑定域名
+  string domain = 4;
+
+  // Logo URL
+  string logo_url = 5;
+
+  // 套餐
+  TenantPlan plan = 6;
+
+  // 状态
+  TenantStatus status = 7;
+
+  // 品牌数上限
+  int32 brand_limit = 8;
+
+  // 用户数上限
+  int32 user_limit = 9;
+
+  // 存储上限（字节）
+  int64 storage_limit = 10;
+
+  // 云端 API 月调用配额
+  int32 api_quota = 11;
+
+  // 本月已用 API 调用次数
+  int32 api_used = 12;
+
+  // 配额重置时间
+  string quota_reset_at = 13;
+
+  // 租户配置
+  map<string, string> settings = 14;
+
+  // 创建时间
+  string created_at = 15;
+
+  // 更新时间
+  string updated_at = 16;
+}
+
+// 租户配额
+message TenantQuota {
+  // 租户 ID
+  int64 tenant_id = 1;
+
+  // 品牌数上限
+  int32 brand_limit = 2;
+
+  // 当前品牌数
+  int32 brand_count = 3;
+
+  // 用户数上限
+  int32 user_limit = 4;
+
+  // 当前用户数
+  int32 user_count = 5;
+
+  // 存储上限（字节）
+  int64 storage_limit = 6;
+
+  // 已用存储（字节）
+  int64 storage_used = 7;
+
+  // 云端 API 月调用配额
+  int32 api_quota = 8;
+
+  // 本月已用 API 调用次数
+  int32 api_used = 9;
+
+  // 配额重置时间
+  string quota_reset_at = 10;
+}
+
+// 租户用量统计
+message TenantUsage {
+  // 租户 ID
+  int64 tenant_id = 1;
+
+  // 统计周期开始
+  string period_start = 2;
+
+  // 统计周期结束
+  string period_end = 3;
+
+  // 内容数量
+  int32 content_count = 4;
+
+  // 发布任务数量
+  int32 publish_count = 5;
+
+  // AI 优化次数
+  int32 ai_optimization_count = 6;
+
+  // 云端 API 调用次数
+  int32 api_call_count = 7;
+
+  // 云端 API 消耗 Token 数
+  int64 api_tokens_used = 8;
+
+  // 云端 API 费用（分）
+  int64 api_cost_cents = 9;
+
+  // 各 API 类型用量明细
+  map<string, int32> api_usage_by_type = 10;
+}
+
+// ========== 请求/响应消息 ==========
+
+message CreateTenantRequest {
+  // 请求元数据
+  opengeo.common.v1.RequestMeta meta = 1;
+
+  // 租户名称
+  string name = 2;
+
+  // 租户标识
+  string slug = 3;
+
+  // 绑定域名
+  string domain = 4;
+
+  // 套餐
+  TenantPlan plan = 5;
+
+  // 管理员邮箱
+  string admin_email = 6;
+
+  // 管理员用户名
+  string admin_username = 7;
+
+  // 管理员密码
+  string admin_password = 8;
+}
+
+message GetTenantRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+}
+
+message UpdateTenantRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+  string name = 3;
+  string domain = 4;
+  string logo_url = 5;
+  TenantStatus status = 6;
+  map<string, string> settings = 7;
+}
+
+message DeleteTenantRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+}
+
+message DeleteTenantResponse {
+  bool success = 1;
+}
+
+message ListTenantsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  opengeo.common.v1.PageRequest page = 2;
+  TenantStatus status = 3;
+  TenantPlan plan = 4;
+  string keyword = 5;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message GetTenantQuotaRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+}
+
+message UpdateTenantQuotaRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+  int32 brand_limit = 3;
+  int32 user_limit = 4;
+  int64 storage_limit = 5;
+  int32 api_quota = 6;
+}
+
+message GetTenantUsageRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 tenant_id = 2;
+  string period_start = 3;
+  string period_end = 4;
+}

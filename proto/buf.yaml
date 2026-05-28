@@ -1,0 +1,15 @@
+version: v2
+modules:
+  - path: .
+deps:
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - STANDARD
+  except:
+    - UNARY_RPC
+    - COMMENT_FIELD
+    - PACKAGE_DIRECTORY_MATCH
+breaking:
+  use:
+    - FILE

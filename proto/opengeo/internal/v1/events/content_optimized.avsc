@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "ContentOptimizedEvent",
+  "namespace": "opengeo.events.content",
+  "doc": "内容优化完成事件",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "事件唯一标识"
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "default": "content.optimized",
+      "doc": "事件类型"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "事件来源服务"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "事件发生时间戳"
+    },
+    {
+      "name": "content_id",
+      "type": "long",
+      "doc": "内容ID"
+    },
+    {
+      "name": "user_id",
+      "type": "long",
+      "doc": "用户ID"
+    },
+    {
+      "name": "optimization_type",
+      "type": "string",
+      "doc": "优化类型: geo_semantic, model_adapt, compliance_check"
+    },
+    {
+      "name": "score",
+      "type": "float",
+      "doc": "优化分数"
+    },
+    {
+      "name": "details",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "优化详情"
+    }
+  ]
+}

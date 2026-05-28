@@ -1,0 +1,56 @@
+2026/05/26 12:47:44.027737 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/health                   --> handlerName=opengeo/gateway/internal/handler.(*Handler).Health-fm (num=6 handlers)
+2026/05/26 12:47:44.028840 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/ready                    --> handlerName=opengeo/gateway/internal/handler.(*Handler).Ready-fm (num=6 handlers)
+2026/05/26 12:47:44.028856 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/auth/login        --> handlerName=opengeo/gateway/internal/handler.(*Handler).Login-fm (num=6 handlers)
+2026/05/26 12:47:44.028866 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/auth/register     --> handlerName=opengeo/gateway/internal/handler.(*Handler).Register-fm (num=6 handlers)
+2026/05/26 12:47:44.028874 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/auth/refresh      --> handlerName=opengeo/gateway/internal/handler.(*Handler).RefreshToken-fm (num=6 handlers)
+2026/05/26 12:47:44.028882 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/users/:id         --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetUser-fm (num=7 handlers)
+2026/05/26 12:47:44.028889 engine.go:668: [Debug] HERTZ: Method=PUT    absolutePath=/api/v1/users/:id         --> handlerName=opengeo/gateway/internal/handler.(*Handler).UpdateUser-fm (num=7 handlers)
+2026/05/26 12:47:44.028896 engine.go:668: [Debug] HERTZ: Method=DELETE absolutePath=/api/v1/users/:id         --> handlerName=opengeo/gateway/internal/handler.(*Handler).DeleteUser-fm (num=7 handlers)
+2026/05/26 12:47:44.028903 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/users             --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListUsers-fm (num=7 handlers)
+2026/05/26 12:47:44.028909 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/contents          --> handlerName=opengeo/gateway/internal/handler.(*Handler).CreateContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028917 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/contents/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028926 engine.go:668: [Debug] HERTZ: Method=PUT    absolutePath=/api/v1/contents/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).UpdateContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028934 engine.go:668: [Debug] HERTZ: Method=DELETE absolutePath=/api/v1/contents/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).DeleteContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028943 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/contents          --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListContents-fm (num=7 handlers)
+2026/05/26 12:47:44.028950 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/contents/:id/optimize --> handlerName=opengeo/gateway/internal/handler.(*Handler).OptimizeContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028958 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/contents/:id/publish --> handlerName=opengeo/gateway/internal/handler.(*Handler).PublishContent-fm (num=7 handlers)
+2026/05/26 12:47:44.028965 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/accounts          --> handlerName=opengeo/gateway/internal/handler.(*Handler).CreateAccount-fm (num=7 handlers)
+2026/05/26 12:47:44.028971 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/accounts/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetAccount-fm (num=7 handlers)
+2026/05/26 12:47:44.028978 engine.go:668: [Debug] HERTZ: Method=PUT    absolutePath=/api/v1/accounts/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).UpdateAccount-fm (num=7 handlers)
+2026/05/26 12:47:44.028984 engine.go:668: [Debug] HERTZ: Method=DELETE absolutePath=/api/v1/accounts/:id      --> handlerName=opengeo/gateway/internal/handler.(*Handler).DeleteAccount-fm (num=7 handlers)
+2026/05/26 12:47:44.028991 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/accounts          --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListAccounts-fm (num=7 handlers)
+2026/05/26 12:47:44.029004 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/accounts/:id/health --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetAccountHealth-fm (num=7 handlers)
+2026/05/26 12:47:44.029010 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/publish/tasks     --> handlerName=opengeo/gateway/internal/handler.(*Handler).CreatePublishTask-fm (num=7 handlers)
+2026/05/26 12:47:44.029016 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/publish/tasks/:id --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetPublishTask-fm (num=7 handlers)
+2026/05/26 12:47:44.029021 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/publish/tasks     --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListPublishTasks-fm (num=7 handlers)
+2026/05/26 12:47:44.029026 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/publish/tasks/:id/cancel --> handlerName=opengeo/gateway/internal/handler.(*Handler).CancelPublishTask-fm (num=7 handlers)
+2026/05/26 12:47:44.029032 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/publish/tasks/:id/retry --> handlerName=opengeo/gateway/internal/handler.(*Handler).RetryPublishTask-fm (num=7 handlers)
+2026/05/26 12:47:44.029038 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/schedules         --> handlerName=opengeo/gateway/internal/handler.(*Handler).CreateSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029042 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/schedules/:id     --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029048 engine.go:668: [Debug] HERTZ: Method=PUT    absolutePath=/api/v1/schedules/:id     --> handlerName=opengeo/gateway/internal/handler.(*Handler).UpdateSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029054 engine.go:668: [Debug] HERTZ: Method=DELETE absolutePath=/api/v1/schedules/:id     --> handlerName=opengeo/gateway/internal/handler.(*Handler).DeleteSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029059 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/schedules         --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListSchedules-fm (num=7 handlers)
+2026/05/26 12:47:44.029066 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/schedules/:id/enable --> handlerName=opengeo/gateway/internal/handler.(*Handler).EnableSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029072 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/schedules/:id/disable --> handlerName=opengeo/gateway/internal/handler.(*Handler).DisableSchedule-fm (num=7 handlers)
+2026/05/26 12:47:44.029079 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/monitor/citations --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetAICitations-fm (num=7 handlers)
+2026/05/26 12:47:44.029084 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/monitor/scores    --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetSourceScores-fm (num=7 handlers)
+2026/05/26 12:47:44.029089 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/monitor/competitors --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetCompetitorMonitors-fm (num=7 handlers)
+2026/05/26 12:47:44.029095 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/monitor/roi       --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetROIMetrics-fm (num=7 handlers)
+2026/05/26 12:47:44.029100 engine.go:668: [Debug] HERTZ: Method=POST   absolutePath=/api/v1/monitor/suggestions/generate --> handlerName=opengeo/gateway/internal/handler.(*Handler).GenerateSuggestions-fm (num=7 handlers)
+2026/05/26 12:47:44.029106 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/system/configs    --> handlerName=opengeo/gateway/internal/handler.(*Handler).GetSystemConfigs-fm (num=7 handlers)
+2026/05/26 12:47:44.029117 engine.go:668: [Debug] HERTZ: Method=PUT    absolutePath=/api/v1/system/configs/:key --> handlerName=opengeo/gateway/internal/handler.(*Handler).UpdateSystemConfig-fm (num=7 handlers)
+2026/05/26 12:47:44.029122 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/system/plugins    --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListPlugins-fm (num=7 handlers)
+2026/05/26 12:47:44.029127 engine.go:668: [Debug] HERTZ: Method=GET    absolutePath=/api/v1/system/webhooks   --> handlerName=opengeo/gateway/internal/handler.(*Handler).ListWebhooks-fm (num=7 handlers)
+Gateway服务已启动，监听端口: 8080
+Swagger文档: http://localhost:8080/swagger/index.html
+2026/05/26 12:47:44.030233 engine.go:396: [Info] HERTZ: Using network library=netpoll
+2026/05/26 12:47:44.031341 transport.go:115: [Info] HERTZ: HTTP server listening on address=[::]:8080
+[2026-05-26 12:47:48] GET /health 200 385.708µs
+Login called: username=admin
+[2026-05-26 12:48:05] POST /api/v1/auth/login 200 2.845541ms
+[2026-05-26 13:01:41] GET / 404 875ns
+[2026-05-26 13:23:48] POST /api/v1/auth/register 200 18.196875ms
+[2026-05-26 13:23:54] POST /api/v1/auth/register 200 13.351542ms
+Login called: username=zain
+[2026-05-26 13:24:12] POST /api/v1/auth/login 200 5.259ms
+signal: killed

@@ -1,0 +1,379 @@
+syntax = "proto3";
+
+package opengeo.publish.v1;
+
+option go_package = "opengeo/gen/go/opengeo/publish/v1;publishv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 发布管理服务
+service PublishService {
+  // ========== 发布渠道管理 ==========
+  
+  // 创建发布渠道
+  rpc CreateChannel(CreateChannelRequest) returns (PublishChannel);
+
+  // 获取发布渠道
+  rpc GetChannel(GetChannelRequest) returns (PublishChannel);
+
+  // 更新发布渠道
+  rpc UpdateChannel(UpdateChannelRequest) returns (PublishChannel);
+
+  // 删除发布渠道
+  rpc DeleteChannel(DeleteChannelRequest) returns (DeleteChannelResponse);
+
+  // 列出发布渠道
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse);
+
+  // ========== 发布任务管理 ==========
+
+  // 创建发布任务
+  rpc CreateTask(CreateTaskRequest) returns (PublishTask);
+
+  // 获取发布任务
+  rpc GetTask(GetTaskRequest) returns (PublishTask);
+
+  // 列出发布任务
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+
+  // 取消发布任务
+  rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+
+  // 重试发布任务
+  rpc RetryTask(RetryTaskRequest) returns (RetryTaskResponse);
+
+  // ========== 发布执行 ==========
+
+  // 执行发布
+  rpc Publish(PublishRequest) returns (PublishResponse);
+
+  // 预览发布
+  rpc Preview(PreviewRequest) returns (PreviewResponse);
+
+  // 校验发布内容
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+
+  // ========== 渠道适配器 ==========
+
+  // 列出可用的渠道适配器
+  rpc ListAdapters(ListAdaptersRequest) returns (ListAdaptersResponse);
+
+  // 测试渠道适配器连接
+  rpc TestAdapter(TestAdapterRequest) returns (TestAdapterResponse);
+}
+
+// 渠道类型
+enum ChannelType {
+  CHANNEL_TYPE_UNSPECIFIED = 0;
+  CHANNEL_TYPE_WECHAT = 1;       // 微信公众号
+  CHANNEL_TYPE_WEIBO = 2;        // 微博
+  CHANNEL_TYPE_DOUYIN = 3;       // 抖音
+  CHANNEL_TYPE_XIAOHONGSHU = 4;  // 小红书
+  CHANNEL_TYPE_ZHIHU = 5;        // 知乎
+  CHANNEL_TYPE_TOUTIAO = 6;      // 今日头条
+  CHANNEL_TYPE_CUSTOM = 99;      // 自定义渠道
+}
+
+// 任务状态
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;
+  TASK_STATUS_PENDING = 1;       // 待发布
+  TASK_STATUS_PUBLISHING = 2;    // 发布中
+  TASK_STATUS_SUCCESS = 3;       // 成功
+  TASK_STATUS_FAILED = 4;        // 失败
+  TASK_STATUS_CANCELLED = 5;     // 已取消
+  TASK_STATUS_RETRYING = 6;      // 重试中
+  TASK_STATUS_MANUAL_REVIEW = 7; // 人工审核
+}
+
+// 发布渠道
+message PublishChannel {
+  // 渠道 ID
+  int64 id = 1;
+
+  // 所属租户 ID
+  int64 tenant_id = 2;
+
+  // 关联品牌 ID
+  int64 brand_id = 3;
+
+  // 渠道类型
+  ChannelType channel_type = 4;
+
+  // 渠道名称
+  string channel_name = 5;
+
+  // 渠道配置（JSON）
+  string channel_config = 6;
+
+  // 标题模板
+  string title_template = 7;
+
+  // 正文模板
+  string body_template = 8;
+
+  // 标签模板
+  string tags_template = 9;
+
+  // 封面模板
+  string cover_template = 10;
+
+  // GEO 配置（JSON）
+  string geo_config = 11;
+
+  // 是否启用
+  bool is_enabled = 12;
+
+  // 创建时间
+  string created_at = 13;
+
+  // 更新时间
+  string updated_at = 14;
+}
+
+// 发布任务
+message PublishTask {
+  // 任务 ID
+  int64 id = 1;
+
+  // 所属租户 ID
+  int64 tenant_id = 2;
+
+  // 创建者用户 ID
+  int64 user_id = 3;
+
+  // 内容 ID
+  int64 content_id = 4;
+
+  // 关联品牌 ID
+  int64 brand_id = 5;
+
+  // 渠道 ID
+  int64 channel_id = 6;
+
+  // 备用渠道 ID
+  int64 fallback_channel_id = 7;
+
+  // 任务状态
+  TaskStatus status = 8;
+
+  // 计划发布时间
+  string scheduled_time = 9;
+
+  // 实际发布时间
+  string published_time = 10;
+
+  // 外部平台内容 ID
+  string external_id = 11;
+
+  // 外部平台内容 URL
+  string external_url = 12;
+
+  // 已重试次数
+  int32 retry_count = 13;
+
+  // 最大重试次数
+  int32 max_retries = 14;
+
+  // 错误信息
+  string error_message = 15;
+
+  // 优先级
+  int32 priority = 16;
+
+  // 创建时间
+  string created_at = 17;
+
+  // 更新时间
+  string updated_at = 18;
+}
+
+// 渠道适配器信息
+message ChannelAdapterInfo {
+  // 适配器名称
+  string adapter_name = 1;
+
+  // 支持的渠道类型
+  ChannelType channel_type = 2;
+
+  // 适配器描述
+  string description = 3;
+
+  // 版本
+  string version = 4;
+
+  // 是否已安装
+  bool is_installed = 5;
+
+  // 配置 Schema（JSON）
+  string config_schema = 6;
+}
+
+// ========== 请求/响应消息 ==========
+
+message CreateChannelRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  ChannelType channel_type = 3;
+  string channel_name = 4;
+  string channel_config = 5;
+  string title_template = 6;
+  string body_template = 7;
+  string tags_template = 8;
+  string cover_template = 9;
+  string geo_config = 10;
+}
+
+message GetChannelRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 channel_id = 2;
+}
+
+message UpdateChannelRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 channel_id = 2;
+  string channel_name = 3;
+  string channel_config = 4;
+  string title_template = 5;
+  string body_template = 6;
+  string tags_template = 7;
+  string cover_template = 8;
+  string geo_config = 9;
+  bool is_enabled = 10;
+}
+
+message DeleteChannelRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 channel_id = 2;
+}
+
+message DeleteChannelResponse {
+  bool success = 1;
+}
+
+message ListChannelsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+  ChannelType channel_type = 4;
+  bool is_enabled = 5;
+}
+
+message ListChannelsResponse {
+  repeated PublishChannel channels = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message CreateTaskRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  int64 channel_id = 4;
+  int64 fallback_channel_id = 5;
+  string scheduled_time = 6;
+  int32 priority = 7;
+}
+
+message GetTaskRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 task_id = 2;
+}
+
+message ListTasksRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+  opengeo.common.v1.PageRequest page = 3;
+  TaskStatus status = 4;
+  int64 channel_id = 5;
+  string scheduled_time_start = 6;
+  string scheduled_time_end = 7;
+}
+
+message ListTasksResponse {
+  repeated PublishTask tasks = 1;
+  opengeo.common.v1.PageResponse page = 2;
+}
+
+message CancelTaskRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 task_id = 2;
+}
+
+message CancelTaskResponse {
+  bool success = 1;
+}
+
+message RetryTaskRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 task_id = 2;
+}
+
+message RetryTaskResponse {
+  bool success = 1;
+}
+
+message PublishRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 task_id = 2;
+}
+
+message PublishResponse {
+  bool success = 1;
+  string publish_result = 2;
+  string external_id = 3;
+  string external_url = 4;
+}
+
+message PreviewRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  int64 channel_id = 4;
+}
+
+message PreviewResponse {
+  bool success = 1;
+  string preview_html = 2;
+  string preview_data = 3;
+}
+
+message ValidateRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  int64 channel_id = 4;
+}
+
+message ValidateResponse {
+  bool valid = 1;
+  repeated ValidationIssue issues = 2;
+}
+
+message ValidationIssue {
+  string field = 1;
+  string issue_type = 2;
+  string description = 3;
+  string suggestion = 4;
+  string severity = 5; // error/warning/info
+}
+
+message ListAdaptersRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message ListAdaptersResponse {
+  repeated ChannelAdapterInfo adapters = 1;
+}
+
+message TestAdapterRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  string adapter_name = 2;
+  string config = 3;
+}
+
+message TestAdapterResponse {
+  bool success = 1;
+  string message = 2;
+  string error_details = 3;
+}

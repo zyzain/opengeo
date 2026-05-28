@@ -1,0 +1,17 @@
+apiVersion: v2
+name: opengeo
+description: OpenGEO BrandOS - AI-Native 品牌治理开源基础设施
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - geo
+  - brand
+  - ai
+  - content
+home: https://opengeo.com
+sources:
+  - https://github.com/opengeo/opengeo
+maintainers:
+  - name: OpenGEO Team
+    email: team@opengeo.com

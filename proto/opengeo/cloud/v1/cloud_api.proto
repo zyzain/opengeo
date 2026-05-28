@@ -1,0 +1,408 @@
+syntax = "proto3";
+
+package opengeo.cloud.v1;
+
+option go_package = "opengeo/gen/go/opengeo/cloud/v1;cloudv1";
+
+import "opengeo/common/v1/pagination.proto";
+import "opengeo/common/v1/trace.proto";
+
+// 云端 API 服务
+service CloudAPIService {
+  // ========== API 套餐管理 ==========
+
+  // 列出可用套餐
+  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
+
+  // 获取套餐详情
+  rpc GetPlan(GetPlanRequest) returns (APIPlan);
+
+  // ========== 订阅管理 ==========
+
+  // 创建订阅
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (TenantSubscription);
+
+  // 获取订阅信息
+  rpc GetSubscription(GetSubscriptionRequest) returns (TenantSubscription);
+
+  // 更新订阅
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (TenantSubscription);
+
+  // 取消订阅
+  rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse);
+
+  // ========== API Key 管理 ==========
+
+  // 生成 API Key
+  rpc GenerateAPIKey(GenerateAPIKeyRequest) returns (APIKeyInfo);
+
+  // 吊销 API Key
+  rpc RevokeAPIKey(RevokeAPIKeyRequest) returns (RevokeAPIKeyResponse);
+
+  // 列出 API Key
+  rpc ListAPIKeys(ListAPIKeysRequest) returns (ListAPIKeysResponse);
+
+  // ========== 用量查询 ==========
+
+  // 获取当前用量
+  rpc GetCurrentUsage(GetCurrentUsageRequest) returns (APIUsage);
+
+  // 获取用量历史
+  rpc GetUsageHistory(GetUsageHistoryRequest) returns (GetUsageHistoryResponse);
+
+  // 获取计费记录
+  rpc GetBillingRecords(GetBillingRecordsRequest) returns (GetBillingRecordsResponse);
+
+  // ========== 云端 API 调用 ==========
+
+  // AI 引用归因分析
+  rpc AnalyzeAttribution(AnalyzeAttributionRequest) returns (AnalyzeAttributionResponse);
+
+  // 品牌可信度评分
+  rpc GetBrandTrustScore(GetBrandTrustScoreRequest) returns (GetBrandTrustScoreResponse);
+
+  // 实时合规校验
+  rpc CheckCompliance(CheckComplianceRequest) returns (CheckComplianceResponse);
+
+  // 智能内容优化建议
+  rpc GetOptimizationAdvice(GetOptimizationAdviceRequest) returns (GetOptimizationAdviceResponse);
+}
+
+// API 套餐
+message APIPlan {
+  // 套餐 ID
+  int64 id = 1;
+
+  // 套餐名称
+  string name = 2;
+
+  // 套餐代码
+  string code = 3;
+
+  // 套餐描述
+  string description = 4;
+
+  // 月调用配额
+  int32 monthly_quota = 5;
+
+  // 月价格（分）
+  int64 price_cents = 6;
+
+  // 超额单价（分/次）
+  int64 overage_price = 7;
+
+  // 包含的 API 类型
+  repeated string features = 8;
+
+  // 是否可用
+  bool is_active = 9;
+
+  // 排序权重
+  int32 sort_order = 10;
+}
+
+// 租户订阅
+message TenantSubscription {
+  // 订阅 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // 套餐 ID
+  int64 plan_id = 3;
+
+  // 套餐信息
+  APIPlan plan = 4;
+
+  // 状态：active/cancelled/expired/trial
+  string status = 5;
+
+  // 开始时间
+  string starts_at = 6;
+
+  // 结束时间
+  string ends_at = 7;
+
+  // 试用结束时间
+  string trial_ends_at = 8;
+
+  // 是否自动续费
+  bool auto_renew = 9;
+
+  // API Key
+  string api_key = 10;
+
+  // 创建时间
+  string created_at = 11;
+
+  // 更新时间
+  string updated_at = 12;
+}
+
+// API Key 信息
+message APIKeyInfo {
+  // Key ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // API Key
+  string api_key = 3;
+
+  // API Secret（仅创建时返回）
+  string api_secret = 4;
+
+  // 描述
+  string description = 5;
+
+  // 状态
+  string status = 6;
+
+  // 创建时间
+  string created_at = 7;
+
+  // 最后使用时间
+  string last_used_at = 8;
+}
+
+// API 用量
+message APIUsage {
+  // 租户 ID
+  int64 tenant_id = 1;
+
+  // 套餐代码
+  string plan_code = 2;
+
+  // 月配额
+  int32 monthly_quota = 3;
+
+  // 本月已用
+  int32 used_this_month = 4;
+
+  // 剩余配额
+  int32 remaining = 5;
+
+  // 配额重置时间
+  string quota_reset_at = 6;
+
+  // 各 API 类型用量
+  map<string, int32> usage_by_type = 7;
+
+  // 本月费用（分）
+  int64 cost_this_month = 8;
+}
+
+// 计费记录
+message BillingRecord {
+  // 记录 ID
+  int64 id = 1;
+
+  // 租户 ID
+  int64 tenant_id = 2;
+
+  // API 类型
+  string api_type = 3;
+
+  // 端点
+  string endpoint = 4;
+
+  // 请求 ID
+  string request_id = 5;
+
+  // 输入 Token 数
+  int64 tokens_input = 6;
+
+  // 输出 Token 数
+  int64 tokens_output = 7;
+
+  // 费用（分）
+  int64 cost_cents = 8;
+
+  // 是否超额调用
+  bool is_overage = 9;
+
+  // 状态
+  string status = 10;
+
+  // 创建时间
+  string created_at = 11;
+}
+
+// ========== 请求/响应消息 ==========
+
+message ListPlansRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message ListPlansResponse {
+  repeated APIPlan plans = 1;
+}
+
+message GetPlanRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 plan_id = 2;
+}
+
+message CreateSubscriptionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 plan_id = 2;
+  bool auto_renew = 3;
+}
+
+message GetSubscriptionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message UpdateSubscriptionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 plan_id = 2;
+  bool auto_renew = 3;
+}
+
+message CancelSubscriptionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message CancelSubscriptionResponse {
+  bool success = 1;
+  string cancelled_at = 2;
+}
+
+message GenerateAPIKeyRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  string description = 2;
+}
+
+message RevokeAPIKeyRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  string api_key = 2;
+}
+
+message RevokeAPIKeyResponse {
+  bool success = 1;
+}
+
+message ListAPIKeysRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message ListAPIKeysResponse {
+  repeated APIKeyInfo keys = 1;
+}
+
+message GetCurrentUsageRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+}
+
+message GetUsageHistoryRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  string month = 2; // YYYY-MM 格式
+}
+
+message GetUsageHistoryResponse {
+  repeated APIUsage history = 1;
+}
+
+message GetBillingRecordsRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  opengeo.common.v1.PageRequest page = 2;
+  string api_type = 3;
+  string time_start = 4;
+  string time_end = 5;
+}
+
+message GetBillingRecordsResponse {
+  repeated BillingRecord records = 1;
+  opengeo.common.v1.PageResponse page = 2;
+  int64 total_cost_cents = 3;
+}
+
+// ========== 云端 API 调用消息 ==========
+
+message AnalyzeAttributionRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  string query_text = 4;
+}
+
+message AnalyzeAttributionResponse {
+  bool success = 1;
+  string request_id = 2;
+  float attribution_score = 3;
+  repeated string cited_fragments = 4;
+  string source_analysis = 5;
+  string competitor_comparison = 6;
+  repeated string recommendations = 7;
+  int64 tokens_used = 8;
+  int64 cost_cents = 9;
+}
+
+message GetBrandTrustScoreRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 brand_id = 2;
+}
+
+message GetBrandTrustScoreResponse {
+  bool success = 1;
+  string request_id = 2;
+  float overall_score = 3;
+  float search_score = 4;
+  float social_score = 5;
+  float compliance_score = 6;
+  float citation_score = 7;
+  string factors = 8;
+  int64 tokens_used = 9;
+  int64 cost_cents = 10;
+}
+
+message CheckComplianceRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  repeated string check_types = 4;
+}
+
+message CheckComplianceResponse {
+  bool success = 1;
+  string request_id = 2;
+  bool is_compliant = 3;
+  string risk_level = 4;
+  repeated ComplianceIssue issues = 5;
+  repeated string suggestions = 6;
+  int64 tokens_used = 7;
+  int64 cost_cents = 8;
+}
+
+message ComplianceIssue {
+  string issue_type = 1;
+  string description = 2;
+  string severity = 3;
+  string location = 4;
+  string suggestion = 5;
+}
+
+message GetOptimizationAdviceRequest {
+  opengeo.common.v1.RequestMeta meta = 1;
+  int64 content_id = 2;
+  int64 brand_id = 3;
+  repeated string focus_areas = 4;
+}
+
+message GetOptimizationAdviceResponse {
+  bool success = 1;
+  string request_id = 2;
+  repeated OptimizationAdvice advices = 3;
+  int64 tokens_used = 4;
+  int64 cost_cents = 5;
+}
+
+message OptimizationAdvice {
+  string area = 1;
+  string current_score = 2;
+  string target_score = 3;
+  repeated string suggestions = 4;
+  string priority = 5;
+}

@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package scheduler;
+
+option go_package = "opengeo/gen/go/opengeo/internal/v1/scheduler";
+
+// 调度管理服务
+service SchedulerService {
+  // 调度管理
+  rpc CreateSchedule(CreateScheduleRequest) returns (Schedule);
+  rpc GetSchedule(GetScheduleRequest) returns (Schedule);
+  rpc ListSchedules(ListSchedulesRequest) returns (ListSchedulesResponse);
+  rpc UpdateSchedule(UpdateScheduleRequest) returns (Schedule);
+  rpc DeleteSchedule(DeleteScheduleRequest) returns (DeleteScheduleResponse);
+  rpc EnableSchedule(EnableScheduleRequest) returns (EnableScheduleResponse);
+  rpc DisableSchedule(DisableScheduleRequest) returns (DisableScheduleResponse);
+  
+  // 任务调度
+  rpc ScheduleTask(ScheduleTaskRequest) returns (ScheduleTaskResponse);
+  rpc CancelScheduledTask(CancelScheduledTaskRequest) returns (CancelScheduledTaskResponse);
+  rpc GetScheduledTasks(GetScheduledTasksRequest) returns (GetScheduledTasksResponse);
+  
+  // 热力图分析
+  rpc GetAIActivityHeatmap(GetAIActivityHeatmapRequest) returns (GetAIActivityHeatmapResponse);
+  rpc UpdateHeatmapData(UpdateHeatmapDataRequest) returns (UpdateHeatmapDataResponse);
+  
+  // 发布日历
+  rpc GetPublishCalendar(GetPublishCalendarRequest) returns (GetPublishCalendarResponse);
+  rpc UpdatePublishCalendar(UpdatePublishCalendarRequest) returns (UpdatePublishCalendarResponse);
+}
+
+// 调度相关消息
+message CreateScheduleRequest {
+  int64 user_id = 1;
+  string schedule_name = 2;
+  string schedule_type = 3;
+  string cron_expression = 4;
+  string config = 5;
+}
+
+message GetScheduleRequest {
+  int64 schedule_id = 1;
+}
+
+message ListSchedulesRequest {
+  int64 user_id = 1;
+  bool is_enabled = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListSchedulesResponse {
+  repeated Schedule schedules = 1;
+  int32 total = 2;
+}
+
+message UpdateScheduleRequest {
+  int64 schedule_id = 1;
+  string schedule_name = 2;
+  string cron_expression = 3;
+  string config = 4;
+}
+
+message DeleteScheduleRequest {
+  int64 schedule_id = 1;
+}
+
+message DeleteScheduleResponse {
+  bool success = 1;
+}
+
+message EnableScheduleRequest {
+  int64 schedule_id = 1;
+}
+
+message EnableScheduleResponse {
+  bool success = 1;
+}
+
+message DisableScheduleRequest {
+  int64 schedule_id = 1;
+}
+
+message DisableScheduleResponse {
+  bool success = 1;
+}
+
+message Schedule {
+  int64 id = 1;
+  int64 user_id = 2;
+  string schedule_name = 3;
+  string schedule_type = 4;
+  string cron_expression = 5;
+  string config = 6;
+  bool is_enabled = 7;
+  string next_run_time = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+// 任务调度相关消息
+message ScheduleTaskRequest {
+  int64 schedule_id = 1;
+  int64 task_id = 2;
+}
+
+message ScheduleTaskResponse {
+  bool success = 1;
+}
+
+message CancelScheduledTaskRequest {
+  int64 schedule_id = 1;
+  int64 task_id = 2;
+}
+
+message CancelScheduledTaskResponse {
+  bool success = 1;
+}
+
+message GetScheduledTasksRequest {
+  int64 schedule_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message GetScheduledTasksResponse {
+  repeated ScheduledTask tasks = 1;
+  int32 total = 2;
+}
+
+message ScheduledTask {
+  int64 schedule_id = 1;
+  int64 task_id = 2;
+  string scheduled_time = 3;
+  string status = 4;
+}
+
+// 热力图相关消息
+message GetAIActivityHeatmapRequest {
+  string platform = 1;
+  string ai_model = 2;
+}
+
+message GetAIActivityHeatmapResponse {
+  repeated HeatmapItem items = 1;
+}
+
+message HeatmapItem {
+  int32 time_slot = 1;
+  int32 day_of_week = 2;
+  float activity_score = 3;
+}
+
+message UpdateHeatmapDataRequest {
+  string platform = 1;
+  string ai_model = 2;
+  int32 time_slot = 3;
+  int32 day_of_week = 4;
+  float activity_score = 5;
+}
+
+message UpdateHeatmapDataResponse {
+  bool success = 1;
+}
+
+// 发布日历相关消息
+message GetPublishCalendarRequest {
+  int64 user_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+message GetPublishCalendarResponse {
+  repeated CalendarEvent events = 1;
+}
+
+message CalendarEvent {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  string start_time = 4;
+  string end_time = 5;
+  int64 schedule_id = 6;
+  int32 status = 7;
+}
+
+message UpdatePublishCalendarRequest {
+  int64 event_id = 1;
+  string title = 2;
+  string description = 3;
+  string start_time = 4;
+  string end_time = 5;
+}
+
+message UpdatePublishCalendarResponse {
+  bool success = 1;
+}

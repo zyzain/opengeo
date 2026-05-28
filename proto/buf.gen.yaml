@@ -1,0 +1,23 @@
+version: v2
+plugins:
+  # Go 代码生成
+  - remote: buf.build/protocolbuffers/go
+    out: ../gen/go
+    opt:
+      - paths=source_relative
+
+  # Go gRPC 代码生成
+  - remote: buf.build/grpc/go
+    out: ../gen/go
+    opt:
+      - paths=source_relative
+
+  # TypeScript 类型生成
+  - remote: buf.build/community/stephenh-ts-proto
+    out: ../web/src/types/gen
+    opt:
+      - esModuleInterop=true
+      - outputServices=generic
+      - outputJsonMethods=true
+      - useOptionals=messages
+      - forceLong=bigint

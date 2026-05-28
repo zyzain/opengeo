@@ -1,0 +1,76 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus自身指标
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Gateway服务指标
+  - job_name: 'gateway'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Account Service指标
+  - job_name: 'account-service'
+    static_configs:
+      - targets: ['host.docker.internal:9091']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Content Service指标
+  - job_name: 'content-service'
+    static_configs:
+      - targets: ['host.docker.internal:9092']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Publish Service指标
+  - job_name: 'publish-service'
+    static_configs:
+      - targets: ['host.docker.internal:9093']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Scheduler Service指标
+  - job_name: 'scheduler-service'
+    static_configs:
+      - targets: ['host.docker.internal:9094']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Monitor Service指标
+  - job_name: 'monitor-service'
+    static_configs:
+      - targets: ['host.docker.internal:9095']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # System Service指标
+  - job_name: 'system-service'
+    static_configs:
+      - targets: ['host.docker.internal:9096']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # MySQL指标 (需要mysqld_exporter)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['host.docker.internal:9104']
+    scrape_interval: 10s
+
+  # Redis指标 (需要redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['host.docker.internal:9121']
+    scrape_interval: 10s
+
+  # Kafka指标 (需要kafka_exporter)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['host.docker.internal:9308']
+    scrape_interval: 10s

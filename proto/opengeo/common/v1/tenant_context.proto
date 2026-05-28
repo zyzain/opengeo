@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package opengeo.common.v1;
+
+option go_package = "opengeo/gen/go/opengeo/common/v1;commonv1";
+
+// 租户上下文，由 Middleware 注入，前端不可见
+message TenantContext {
+  // 租户 ID
+  int64 tenant_id = 1;
+
+  // 租户名称（只读，用于日志）
+  string tenant_name = 2;
+
+  // 当前用户 ID
+  int64 user_id = 3;
+
+  // 当前用户名（只读，用于日志）
+  string username = 4;
+
+  // 租户套餐
+  string plan = 5;
+
+  // API 配额剩余
+  int32 api_quota_remaining = 6;
+}
+
+// 通用请求头，所有 API 请求必须包含
+message RequestMeta {
+  // Trace 上下文
+  TraceContext trace = 1;
+
+  // 租户上下文（由 Middleware 注入，前端禁止传参）
+  TenantContext tenant = 2;
+
+  // 请求 ID（用于幂等性校验）
+  string request_id = 3;
+
+  // 客户端版本
+  string client_version = 4;
+}

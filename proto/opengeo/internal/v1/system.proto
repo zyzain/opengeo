@@ -1,0 +1,286 @@
+syntax = "proto3";
+
+package system;
+
+option go_package = "opengeo/gen/go/opengeo/internal/v1/system";
+
+// 系统管理服务
+service SystemService {
+  // 插件管理
+  rpc CreatePlugin(CreatePluginRequest) returns (Plugin);
+  rpc GetPlugin(GetPluginRequest) returns (Plugin);
+  rpc ListPlugins(ListPluginsRequest) returns (ListPluginsResponse);
+  rpc UpdatePlugin(UpdatePluginRequest) returns (Plugin);
+  rpc DeletePlugin(DeletePluginRequest) returns (DeletePluginResponse);
+  rpc EnablePlugin(EnablePluginRequest) returns (EnablePluginResponse);
+  rpc DisablePlugin(DisablePluginRequest) returns (DisablePluginResponse);
+  
+  // Webhook管理
+  rpc CreateWebhook(CreateWebhookRequest) returns (Webhook);
+  rpc GetWebhook(GetWebhookRequest) returns (Webhook);
+  rpc ListWebhooks(ListWebhooksRequest) returns (ListWebhooksResponse);
+  rpc UpdateWebhook(UpdateWebhookRequest) returns (Webhook);
+  rpc DeleteWebhook(DeleteWebhookRequest) returns (DeleteWebhookResponse);
+  rpc TestWebhook(TestWebhookRequest) returns (TestWebhookResponse);
+  
+  // 多租户管理
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
+  rpc GetTenant(GetTenantRequest) returns (Tenant);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
+  
+  // 系统配置
+  rpc GetSystemConfig(GetSystemConfigRequest) returns (SystemConfig);
+  rpc UpdateSystemConfig(UpdateSystemConfigRequest) returns (SystemConfig);
+  rpc ListSystemConfigs(ListSystemConfigsRequest) returns (ListSystemConfigsResponse);
+  
+  // 国际化
+  rpc GetTranslations(GetTranslationsRequest) returns (GetTranslationsResponse);
+  rpc UpdateTranslations(UpdateTranslationsRequest) returns (UpdateTranslationsResponse);
+}
+
+// 插件相关消息
+message CreatePluginRequest {
+  string plugin_name = 1;
+  string plugin_type = 2;
+  string description = 3;
+  string version = 4;
+  string author = 5;
+  string config_schema = 6;
+}
+
+message GetPluginRequest {
+  int64 plugin_id = 1;
+}
+
+message ListPluginsRequest {
+  string plugin_type = 1;
+  bool is_enabled = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListPluginsResponse {
+  repeated Plugin plugins = 1;
+  int32 total = 2;
+}
+
+message UpdatePluginRequest {
+  int64 plugin_id = 1;
+  string description = 2;
+  string version = 3;
+  string config_schema = 4;
+}
+
+message DeletePluginRequest {
+  int64 plugin_id = 1;
+}
+
+message DeletePluginResponse {
+  bool success = 1;
+}
+
+message EnablePluginRequest {
+  int64 plugin_id = 1;
+}
+
+message EnablePluginResponse {
+  bool success = 1;
+}
+
+message DisablePluginRequest {
+  int64 plugin_id = 1;
+}
+
+message DisablePluginResponse {
+  bool success = 1;
+}
+
+message Plugin {
+  int64 id = 1;
+  string plugin_name = 2;
+  string plugin_type = 3;
+  string description = 4;
+  string version = 5;
+  string author = 6;
+  string config_schema = 7;
+  bool is_enabled = 8;
+  string created_at = 9;
+}
+
+// Webhook相关消息
+message CreateWebhookRequest {
+  int64 user_id = 1;
+  string webhook_name = 2;
+  string url = 3;
+  string secret = 4;
+  string events = 5;
+}
+
+message GetWebhookRequest {
+  int64 webhook_id = 1;
+}
+
+message ListWebhooksRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListWebhooksResponse {
+  repeated Webhook webhooks = 1;
+  int32 total = 2;
+}
+
+message UpdateWebhookRequest {
+  int64 webhook_id = 1;
+  string webhook_name = 2;
+  string url = 3;
+  string secret = 4;
+  string events = 5;
+  bool is_enabled = 6;
+}
+
+message DeleteWebhookRequest {
+  int64 webhook_id = 1;
+}
+
+message DeleteWebhookResponse {
+  bool success = 1;
+}
+
+message TestWebhookRequest {
+  int64 webhook_id = 1;
+  string test_data = 2;
+}
+
+message TestWebhookResponse {
+  bool success = 1;
+  string response_code = 2;
+  string response_body = 3;
+  string error_message = 4;
+}
+
+message Webhook {
+  int64 id = 1;
+  int64 user_id = 2;
+  string webhook_name = 3;
+  string url = 4;
+  string secret = 5;
+  string events = 6;
+  bool is_enabled = 7;
+  string created_at = 8;
+}
+
+// 租户相关消息
+message CreateTenantRequest {
+  string tenant_name = 1;
+  string tenant_code = 2;
+  string contact_name = 3;
+  string contact_email = 4;
+  string quota_config = 5;
+}
+
+message GetTenantRequest {
+  int64 tenant_id = 1;
+}
+
+message ListTenantsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  int32 total = 2;
+}
+
+message UpdateTenantRequest {
+  int64 tenant_id = 1;
+  string contact_name = 2;
+  string contact_email = 3;
+  string quota_config = 4;
+  int32 status = 5;
+}
+
+message DeleteTenantRequest {
+  int64 tenant_id = 1;
+}
+
+message DeleteTenantResponse {
+  bool success = 1;
+}
+
+message Tenant {
+  int64 id = 1;
+  string tenant_name = 2;
+  string tenant_code = 3;
+  string contact_name = 4;
+  string contact_email = 5;
+  int32 status = 6;
+  string quota_config = 7;
+  string created_at = 8;
+}
+
+// 系统配置相关消息
+message GetSystemConfigRequest {
+  string config_key = 1;
+}
+
+message UpdateSystemConfigRequest {
+  string config_key = 1;
+  string config_value = 2;
+}
+
+message ListSystemConfigsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListSystemConfigsResponse {
+  repeated SystemConfig configs = 1;
+  int32 total = 2;
+}
+
+message SystemConfig {
+  int64 id = 1;
+  string config_key = 2;
+  string config_value = 3;
+  string config_type = 4;
+  string description = 5;
+  string updated_at = 6;
+}
+
+// 国际化相关消息
+message GetTranslationsRequest {
+  string locale = 1;
+  string key = 2;
+}
+
+message GetTranslationsResponse {
+  repeated Translation translations = 1;
+}
+
+message UpdateTranslationsRequest {
+  string locale = 1;
+  repeated TranslationUpdate updates = 2;
+}
+
+message UpdateTranslationsResponse {
+  bool success = 1;
+  int32 updated_count = 2;
+}
+
+message Translation {
+  int64 id = 1;
+  string locale = 2;
+  string key = 3;
+  string value = 4;
+  string created_at = 5;
+}
+
+message TranslationUpdate {
+  string key = 1;
+  string value = 2;
+}
