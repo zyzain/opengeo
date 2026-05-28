@@ -17,6 +17,7 @@ import {
   ArrowLeftOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
+import { useIntl } from 'react-intl';
 import { useBrand, useBrandMetadata, useGlossary } from '../../hooks/useBrand';
 import BrandForm from '../../components/brand/BrandForm';
 import MetadataEditor from '../../components/brand/MetadataEditor';
@@ -27,6 +28,7 @@ import BrandSnapshot from '../../components/brand/BrandSnapshot';
 const { TabPane } = Tabs;
 
 const BrandDetailPage: React.FC = () => {
+  const intl = useIntl();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const brandId = Number(id);
@@ -77,27 +79,27 @@ const BrandDetailPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
-      message.success('品牌更新成功');
+      message.success(intl.formatMessage({ id: 'brand.message.updateSuccess' }));
       setEditModalVisible(false);
       refetchBrand();
     } catch (error) {
-      message.error('更新失败');
+      message.error(intl.formatMessage({ id: 'common.message.updateFailed' }));
     }
   };
 
   const handleDeleteBrand = () => {
     Modal.confirm({
-      title: '确认删除',
-      content: `确定要删除品牌 "${brand?.name}" 吗？此操作不可恢复。`,
-      okText: '删除',
+      title: intl.formatMessage({ id: 'common.confirmDelete' }),
+      content: intl.formatMessage({ id: 'brand.confirmDelete' }, { name: brand?.name }),
+      okText: intl.formatMessage({ id: 'common.action.delete' }),
       okType: 'danger',
       onOk: async () => {
         try {
           await fetch(`/api/v1/brand/${brandId}`, { method: 'DELETE' });
-          message.success('品牌删除成功');
+          message.success(intl.formatMessage({ id: 'brand.message.deleteSuccess' }));
           navigate('/brand');
         } catch (error) {
-          message.error('删除失败');
+          message.error(intl.formatMessage({ id: 'common.message.deleteFailed' }));
         }
       },
     });
@@ -112,7 +114,7 @@ const BrandDetailPage: React.FC = () => {
       });
       refetchMetadata();
     } catch (error) {
-      message.error('元数据保存失败');
+      message.error(intl.formatMessage({ id: 'brand.message.metadataSaveFailed' }));
     }
   };
 
@@ -125,7 +127,7 @@ const BrandDetailPage: React.FC = () => {
       });
       fetchKnowledgeData();
     } catch (error) {
-      message.error('添加实体失败');
+      message.error(intl.formatMessage({ id: 'brand.message.addEntityFailed' }));
     }
   };
 
@@ -138,7 +140,7 @@ const BrandDetailPage: React.FC = () => {
       });
       fetchKnowledgeData();
     } catch (error) {
-      message.error('添加关系失败');
+      message.error(intl.formatMessage({ id: 'brand.message.addRelationFailed' }));
     }
   };
 
@@ -149,7 +151,7 @@ const BrandDetailPage: React.FC = () => {
       });
       fetchKnowledgeData();
     } catch (error) {
-      message.error('删除实体失败');
+      message.error(intl.formatMessage({ id: 'brand.message.deleteEntityFailed' }));
     }
   };
 
@@ -162,7 +164,7 @@ const BrandDetailPage: React.FC = () => {
       });
       fetchSnapshots();
     } catch (error) {
-      message.error('创建快照失败');
+      message.error(intl.formatMessage({ id: 'brand.message.createSnapshotFailed' }));
     }
   };
 
@@ -175,10 +177,10 @@ const BrandDetailPage: React.FC = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        message.info('快照对比功能开发中...');
+        message.info(intl.formatMessage({ id: 'brand.message.snapshotCompareInDev' }));
       }
     } catch (error) {
-      message.error('对比失败');
+      message.error(intl.formatMessage({ id: 'brand.message.compareFailed' }));
     }
   };
 
@@ -193,8 +195,8 @@ const BrandDetailPage: React.FC = () => {
   if (!brand) {
     return (
       <div style={{ padding: 24, textAlign: 'center' }}>
-        <h2>品牌不存在</h2>
-        <Button onClick={() => navigate('/brand')}>返回品牌列表</Button>
+        <h2>{intl.formatMessage({ id: 'brand.message.brandNotFound' })}</h2>
+        <Button onClick={() => navigate('/brand')}>{intl.formatMessage({ id: 'brand.action.backToList' })}</Button>
       </div>
     );
   }
@@ -207,7 +209,7 @@ const BrandDetailPage: React.FC = () => {
           onClick={() => navigate('/brand')}
           style={{ marginBottom: 16 }}
         >
-          返回品牌列表
+          {intl.formatMessage({ id: 'brand.action.backToList' })}
         </Button>
       </div>
 
@@ -223,39 +225,39 @@ const BrandDetailPage: React.FC = () => {
         extra={
           <Space>
             <Button icon={<EditOutlined />} onClick={() => setEditModalVisible(true)}>
-              编辑
+              {intl.formatMessage({ id: 'common.action.edit' })}
             </Button>
             <Button icon={<HistoryOutlined />} onClick={() => fetchSnapshots()}>
-              刷新快照
+              {intl.formatMessage({ id: 'brand.action.refreshSnapshots' })}
             </Button>
             <Button danger icon={<DeleteOutlined />} onClick={handleDeleteBrand}>
-              删除
+              {intl.formatMessage({ id: 'common.action.delete' })}
             </Button>
           </Space>
         }
       >
         <Descriptions bordered column={2}>
-          <Descriptions.Item label="品牌标识">{brand.slug}</Descriptions.Item>
-          <Descriptions.Item label="行业">{brand.industry}</Descriptions.Item>
-          <Descriptions.Item label="官网">
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.slug' })}>{brand.slug}</Descriptions.Item>
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.industry' })}>{brand.industry}</Descriptions.Item>
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.website' })}>
             {brand.website ? (
               <a href={brand.website} target="_blank" rel="noopener noreferrer">
                 {brand.website}
               </a>
             ) : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="状态">
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.status' })}>
             <Tag color={brand.status === 1 ? 'green' : 'red'}>
-              {brand.status === 1 ? '活跃' : '已禁用'}
+              {brand.status === 1 ? intl.formatMessage({ id: 'brand.status.active' }) : intl.formatMessage({ id: 'brand.status.disabled' })}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="描述" span={2}>
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.description' })} span={2}>
             {brand.description || '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="创建时间">
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.createdAt' })}>
             {new Date(brand.created_at).toLocaleString()}
           </Descriptions.Item>
-          <Descriptions.Item label="更新时间">
+          <Descriptions.Item label={intl.formatMessage({ id: 'brand.field.updatedAt' })}>
             {new Date(brand.updated_at).toLocaleString()}
           </Descriptions.Item>
         </Descriptions>
@@ -263,7 +265,7 @@ const BrandDetailPage: React.FC = () => {
 
       <Card style={{ marginTop: 24 }}>
         <Tabs defaultActiveKey="metadata">
-          <TabPane tab="品牌元数据" key="metadata">
+          <TabPane tab={intl.formatMessage({ id: 'brand.tab.metadata' })} key="metadata">
             <MetadataEditor
               brandId={brandId}
               metadata={metadata}
@@ -272,7 +274,7 @@ const BrandDetailPage: React.FC = () => {
             />
           </TabPane>
 
-          <TabPane tab="术语表" key="glossary">
+          <TabPane tab={intl.formatMessage({ id: 'brand.tab.glossary' })} key="glossary">
             <GlossaryManager
               brandId={brandId}
               entries={glossary}
@@ -281,7 +283,7 @@ const BrandDetailPage: React.FC = () => {
             />
           </TabPane>
 
-          <TabPane tab="知识图谱" key="knowledge">
+          <TabPane tab={intl.formatMessage({ id: 'brand.tab.knowledge' })} key="knowledge">
             <KnowledgeGraph
               brandId={brandId}
               entities={knowledgeEntities}
@@ -293,7 +295,7 @@ const BrandDetailPage: React.FC = () => {
             />
           </TabPane>
 
-          <TabPane tab="品牌快照" key="snapshots">
+          <TabPane tab={intl.formatMessage({ id: 'brand.tab.snapshots' })} key="snapshots">
             <BrandSnapshot
               brandId={brandId}
               snapshots={snapshots}
@@ -306,7 +308,7 @@ const BrandDetailPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="编辑品牌"
+        title={intl.formatMessage({ id: 'brand.modal.editBrand' })}
         open={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
         footer={null}

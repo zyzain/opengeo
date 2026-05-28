@@ -1,0 +1,165 @@
+.brandPage {
+  padding: 24px;
+}
+
+.brandHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brandTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.brandCard {
+  margin-bottom: 24px;
+}
+
+.brandInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brandLogo {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.brandDescription {
+  color: #666;
+  margin: 0;
+}
+
+.statusTag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.statusActive {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.statusArchived {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.statusDisabled {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+}
+
+.metadataSection {
+  margin-bottom: 24px;
+}
+
+.metadataTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.colorSwatch {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.knowledgeGraphContainer {
+  min-height: 400px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.entityCard {
+  display: inline-block;
+  width: 200px;
+  margin: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.entityCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.entityTypeIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.relationLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.snapshotTimeline {
+  padding: 16px 0;
+}
+
+.snapshotVersion {
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.glossaryTable {
+  margin-top: 16px;
+}
+
+.glossaryCategory {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.glossaryForbidden {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.glossaryPreferred {
+  color: #52c41a;
+  font-weight: 600;
+}

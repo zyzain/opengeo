@@ -33,61 +33,47 @@ import {
 	message,
 } from "antd";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-// 权限定义（硬编码回退数据）
-const fallbackPermissionGroups = [
-	{
-		title: "内容管理",
-		permissions: [
-			{ id: "content:create", label: "创建内容" },
-			{ id: "content:read", label: "查看内容" },
-			{ id: "content:update", label: "编辑内容" },
-			{ id: "content:delete", label: "删除内容" },
-			{ id: "content:publish", label: "发布内容" },
-			{ id: "content:optimize", label: "AI优化内容" },
-		],
-	},
-	{
-		title: "账号管理",
-		permissions: [
-			{ id: "account:create", label: "创建账号" },
-			{ id: "account:read", label: "查看账号" },
-			{ id: "account:update", label: "编辑账号" },
-			{ id: "account:delete", label: "删除账号" },
-		],
-	},
-	{
-		title: "发布管理",
-		permissions: [
-			{ id: "publish:create", label: "创建发布任务" },
-			{ id: "publish:read", label: "查看发布任务" },
-			{ id: "publish:cancel", label: "取消发布任务" },
-			{ id: "publish:retry", label: "重试发布任务" },
-		],
-	},
-	{
-		title: "监测管理",
-		permissions: [
-			{ id: "monitor:read", label: "查看监测数据" },
-			{ id: "monitor:configure", label: "配置监测规则" },
-		],
-	},
-	{
-		title: "系统管理",
-		permissions: [
-			{ id: "system:config", label: "系统配置" },
-			{ id: "system:user", label: "用户管理" },
-			{ id: "system:role", label: "角色管理" },
-			{ id: "system:plugin", label: "插件管理" },
-		],
-	},
-];
-
 export default function RoleManagementPage() {
+	const intl = useIntl();
 	const queryClient = useQueryClient();
+
+	const fallbackPermissionGroups = [
+		{ title: intl.formatMessage({ id: 'roles.permission.contentManagement' }), permissions: [
+			{ id: "content:create", label: intl.formatMessage({ id: 'roles.permission.createContent' }) },
+			{ id: "content:read", label: intl.formatMessage({ id: 'roles.permission.viewContent' }) },
+			{ id: "content:update", label: intl.formatMessage({ id: 'roles.permission.editContent' }) },
+			{ id: "content:delete", label: intl.formatMessage({ id: 'roles.permission.deleteContent' }) },
+			{ id: "content:publish", label: intl.formatMessage({ id: 'roles.permission.publishContent' }) },
+			{ id: "content:optimize", label: intl.formatMessage({ id: 'roles.permission.aiOptimizeContent' }) },
+		]},
+		{ title: intl.formatMessage({ id: 'roles.permission.accountManagement' }), permissions: [
+			{ id: "account:create", label: intl.formatMessage({ id: 'roles.permission.createAccount' }) },
+			{ id: "account:read", label: intl.formatMessage({ id: 'roles.permission.viewAccount' }) },
+			{ id: "account:update", label: intl.formatMessage({ id: 'roles.permission.editAccount' }) },
+			{ id: "account:delete", label: intl.formatMessage({ id: 'roles.permission.deleteAccount' }) },
+		]},
+		{ title: intl.formatMessage({ id: 'roles.permission.publishManagement' }), permissions: [
+			{ id: "publish:create", label: intl.formatMessage({ id: 'roles.permission.createPublishTask' }) },
+			{ id: "publish:read", label: intl.formatMessage({ id: 'roles.permission.viewPublishTask' }) },
+			{ id: "publish:cancel", label: intl.formatMessage({ id: 'roles.permission.cancelPublishTask' }) },
+			{ id: "publish:retry", label: intl.formatMessage({ id: 'roles.permission.retryPublishTask' }) },
+		]},
+		{ title: intl.formatMessage({ id: 'roles.permission.monitorManagement' }), permissions: [
+			{ id: "monitor:read", label: intl.formatMessage({ id: 'roles.permission.viewMonitorData' }) },
+			{ id: "monitor:configure", label: intl.formatMessage({ id: 'roles.permission.configMonitorRules' }) },
+		]},
+		{ title: intl.formatMessage({ id: 'roles.permission.systemManagement' }), permissions: [
+			{ id: "system:config", label: intl.formatMessage({ id: 'roles.permission.systemConfig' }) },
+			{ id: "system:user", label: intl.formatMessage({ id: 'roles.permission.userManagement' }) },
+			{ id: "system:role", label: intl.formatMessage({ id: 'roles.permission.roleManagement' }) },
+			{ id: "system:plugin", label: intl.formatMessage({ id: 'roles.permission.pluginManagement' }) },
+		]},
+	];
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [permModalVisible, setPermModalVisible] = useState(false);
@@ -96,16 +82,13 @@ export default function RoleManagementPage() {
 	const [createForm] = Form.useForm();
 	const [editForm] = Form.useForm();
 
-	// 获取权限定义
 	const { data: permDefsData } = useQuery({
 		queryKey: ["permissionDefinitions"],
 		queryFn: () => api.system.getPermissionDefinitions(),
 	});
 
-	const permissionGroups =
-		permDefsData?.data?.data?.groups || fallbackPermissionGroups;
+	const permissionGroups = permDefsData?.data?.data?.groups || fallbackPermissionGroups;
 
-	// 查询角色列表
 	const { data: rolesData, isLoading } = useQuery({
 		queryKey: ["roles"],
 		queryFn: () => api.roles.list(),
@@ -114,82 +97,34 @@ export default function RoleManagementPage() {
 
 	const roles = rolesData?.items || [];
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "角色名称",
+			title: intl.formatMessage({ id: 'roles.column.name' }),
 			dataIndex: "name",
 			key: "name",
 			render: (text: string, record: any) => (
 				<Space>
 					<SafetyOutlined />
 					<span className="font-medium">{text}</span>
-					{record.is_system && <Tag color="blue">系统角色</Tag>}
+					{record.is_system && <Tag color="blue">{intl.formatMessage({ id: 'roles.tag.systemRole' })}</Tag>}
 				</Space>
 			),
 		},
+		{ title: intl.formatMessage({ id: 'role.description' }), dataIndex: "description", key: "description", ellipsis: true },
+		{ title: intl.formatMessage({ id: 'roles.column.userCount' }), dataIndex: "user_count", key: "user_count", width: 100, render: (count: number) => <Badge count={count || 0} showZero style={{ backgroundColor: "#1890ff" }} /> },
+		{ title: intl.formatMessage({ id: 'roles.column.createdAt' }), dataIndex: "created_at", key: "created_at", width: 180, render: (text: string) => new Date(text).toLocaleString() },
 		{
-			title: "描述",
-			dataIndex: "description",
-			key: "description",
-			ellipsis: true,
-		},
-		{
-			title: "用户数",
-			dataIndex: "user_count",
-			key: "user_count",
-			width: 100,
-			render: (count: number) => (
-				<Badge
-					count={count || 0}
-					showZero
-					style={{ backgroundColor: "#1890ff" }}
-				/>
-			),
-		},
-		{
-			title: "创建时间",
-			dataIndex: "created_at",
-			key: "created_at",
-			width: 180,
-			render: (text: string) => new Date(text).toLocaleString(),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 200,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="编辑">
-						<Button
-							type="text"
-							icon={<EditOutlined />}
-							onClick={() => handleEdit(record)}
-						/>
-					</Tooltip>
-					<Tooltip title="权限配置">
-						<Button
-							type="text"
-							icon={<KeyOutlined />}
-							onClick={() => handlePermissions(record)}
-						/>
-					</Tooltip>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}><Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} /></Tooltip>
+					<Tooltip title={intl.formatMessage({ id: 'roles.action.permissions' })}><Button type="text" icon={<KeyOutlined />} onClick={() => handlePermissions(record)} /></Tooltip>
 					{!record.is_system && (
-						<Popconfirm
-							title="确定要删除这个角色吗？"
-							onConfirm={() => handleDelete(record.id)}
-							okText="确定"
-							cancelText="取消"
-						>
-							<Tooltip title="删除">
-								<Button type="text" danger icon={<DeleteOutlined />} />
-							</Tooltip>
+						<Popconfirm title={intl.formatMessage({ id: 'roles.confirmDelete' })} onConfirm={() => handleDelete(record.id)} okText={intl.formatMessage({ id: 'common.action.confirm' })} cancelText={intl.formatMessage({ id: 'common.action.cancel' })}>
+							<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}><Button type="text" danger icon={<DeleteOutlined />} /></Tooltip>
 						</Popconfirm>
 					)}
 				</Space>
@@ -197,20 +132,18 @@ export default function RoleManagementPage() {
 		},
 	];
 
-	// 创建角色
 	const handleCreate = async (values: any) => {
 		try {
 			await api.roles.create(values);
-			message.success("创建成功");
+			message.success(intl.formatMessage({ id: 'common.message.createSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 			queryClient.invalidateQueries({ queryKey: ["roles"] });
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "创建失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.createFailed' }));
 		}
 	};
 
-	// 编辑角色
 	const handleEdit = (record: any) => {
 		setEditingRole(record);
 		editForm.setFieldsValue(record);
@@ -220,28 +153,26 @@ export default function RoleManagementPage() {
 	const handleUpdate = async (values: any) => {
 		try {
 			await api.roles.update(editingRole.id, values);
-			message.success("更新成功");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			setEditModalVisible(false);
 			editForm.resetFields();
 			setEditingRole(null);
 			queryClient.invalidateQueries({ queryKey: ["roles"] });
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "更新失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.updateFailed' }));
 		}
 	};
 
-	// 删除角色
 	const handleDelete = async (id: number) => {
 		try {
 			await api.roles.delete(id);
-			message.success("删除成功");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 			queryClient.invalidateQueries({ queryKey: ["roles"] });
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "删除失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
-	// 权限配置
 	const handlePermissions = (record: any) => {
 		setSelectedRole(record);
 		setPermModalVisible(true);
@@ -264,185 +195,103 @@ export default function RoleManagementPage() {
 		const removed = oldPerms.filter((p: string) => !newPerms.includes(p));
 		try {
 			await Promise.all([
-				...added.map((perm: string) =>
-					api.roles.addPermission({
-						role_id: selectedRole.id,
-						permission: perm,
-					}),
-				),
-				...removed.map((perm: string) =>
-					api.roles.removePermission({
-						role_id: selectedRole.id,
-						permission: perm,
-					}),
-				),
+				...added.map((perm: string) => api.roles.addPermission({ role_id: selectedRole.id, permission: perm })),
+				...removed.map((perm: string) => api.roles.removePermission({ role_id: selectedRole.id, permission: perm })),
 			]);
-			message.success("权限更新成功");
-			queryClient.invalidateQueries({
-				queryKey: ["rolePermissions", selectedRole.id],
-			});
+			message.success(intl.formatMessage({ id: 'roles.message.permissionUpdateSuccess' }));
+			queryClient.invalidateQueries({ queryKey: ["rolePermissions", selectedRole.id] });
 		} catch (error: any) {
-			message.error("权限更新失败");
+			message.error(intl.formatMessage({ id: 'roles.message.permissionUpdateFailed' }));
 		}
 	};
 
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">角色管理</h1>
-				<p className="text-gray-500 mt-1">管理系统角色和权限配置</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'roles.page.title' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: 'roles.page.subtitle' })}</p>
 			</div>
 
-			{/* 预设角色说明 */}
 			<Card className="mb-4">
 				<Row gutter={[16, 16]}>
 					<Col xs={24} sm={8}>
 						<div className="p-3 bg-red-50 rounded-lg">
-							<div className="font-medium text-red-700">管理员</div>
-							<div className="text-sm text-gray-500">拥有所有系统权限</div>
+							<div className="font-medium text-red-700">{intl.formatMessage({ id: 'roles.preset.admin' })}</div>
+							<div className="text-sm text-gray-500">{intl.formatMessage({ id: 'roles.preset.adminDesc' })}</div>
 						</div>
 					</Col>
 					<Col xs={24} sm={8}>
 						<div className="p-3 bg-blue-50 rounded-lg">
-							<div className="font-medium text-blue-700">运营人员</div>
-							<div className="text-sm text-gray-500">内容和发布管理权限</div>
+							<div className="font-medium text-blue-700">{intl.formatMessage({ id: 'roles.preset.operator' })}</div>
+							<div className="text-sm text-gray-500">{intl.formatMessage({ id: 'roles.preset.operatorDesc' })}</div>
 						</div>
 					</Col>
 					<Col xs={24} sm={8}>
 						<div className="p-3 bg-green-50 rounded-lg">
-							<div className="font-medium text-green-700">查看者</div>
-							<div className="text-sm text-gray-500">
-								仅查看权限，无修改权限
-							</div>
+							<div className="font-medium text-green-700">{intl.formatMessage({ id: 'roles.preset.viewer' })}</div>
+							<div className="text-sm text-gray-500">{intl.formatMessage({ id: 'roles.preset.viewerDesc' })}</div>
 						</div>
 					</Col>
 				</Row>
 			</Card>
 
-			{/* 角色列表 */}
 			<Card
-				title={
-					<Space>
-						<SafetyOutlined />
-						<span>角色列表</span>
-					</Space>
-				}
+				title={<Space><SafetyOutlined /><span>{intl.formatMessage({ id: 'roles.section.list' })}</span></Space>}
 				extra={
 					<Space>
-						<Button
-							icon={<ReloadOutlined />}
-							onClick={() =>
-								queryClient.invalidateQueries({ queryKey: ["roles"] })
-							}
-						>
-							刷新
-						</Button>
-						<Button
-							type="primary"
-							icon={<PlusOutlined />}
-							onClick={() => setCreateModalVisible(true)}
-						>
-							创建角色
-						</Button>
+						<Button icon={<ReloadOutlined />} onClick={() => queryClient.invalidateQueries({ queryKey: ["roles"] })}>{intl.formatMessage({ id: 'common.action.refresh' })}</Button>
+						<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>{intl.formatMessage({ id: 'roles.action.create' })}</Button>
 					</Space>
 				}
 			>
-				<Table
-					columns={columns}
-					dataSource={roles}
-					rowKey="id"
-					loading={isLoading}
-					pagination={false}
-				/>
+				<Table columns={columns} dataSource={roles} rowKey="id" loading={isLoading} pagination={false} />
 			</Card>
 
-			{/* 创建角色弹窗 */}
-			<Modal
-				title="创建角色"
-				open={createModalVisible}
-				onCancel={() => setCreateModalVisible(false)}
-				footer={null}
-				width={500}
-			>
+			<Modal title={intl.formatMessage({ id: 'roles.modal.create' })} open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={500}>
 				<Form form={createForm} layout="vertical" onFinish={handleCreate}>
-					<Form.Item
-						name="name"
-						label="角色名称"
-						rules={[{ required: true, message: "请输入角色名称" }]}
-					>
-						<Input placeholder="请输入角色名称" />
+					<Form.Item name="name" label={intl.formatMessage({ id: 'roles.form.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'roles.validation.enterName' }) }]}>
+						<Input placeholder={intl.formatMessage({ id: 'roles.placeholder.name' })} />
 					</Form.Item>
-					<Form.Item name="description" label="描述">
-						<TextArea rows={3} placeholder="请输入角色描述" />
+					<Form.Item name="description" label={intl.formatMessage({ id: 'roles.form.description' })}>
+						<TextArea rows={3} placeholder={intl.formatMessage({ id: 'roles.placeholder.description' })} />
 					</Form.Item>
 					<Form.Item>
 						<Space>
-							<Button type="primary" htmlType="submit">
-								创建
-							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit">{intl.formatMessage({ id: 'common.action.create' })}</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
 			</Modal>
 
-			{/* 编辑角色弹窗 */}
-			<Modal
-				title="编辑角色"
-				open={editModalVisible}
-				onCancel={() => {
-					setEditModalVisible(false);
-					setEditingRole(null);
-				}}
-				footer={null}
-				width={500}
-			>
+			<Modal title={intl.formatMessage({ id: 'roles.modal.edit' })} open={editModalVisible} onCancel={() => { setEditModalVisible(false); setEditingRole(null); }} footer={null} width={500}>
 				<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-					<Form.Item
-						name="name"
-						label="角色名称"
-						rules={[{ required: true, message: "请输入角色名称" }]}
-					>
-						<Input placeholder="请输入角色名称" />
+					<Form.Item name="name" label={intl.formatMessage({ id: 'roles.form.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'roles.validation.enterName' }) }]}>
+						<Input placeholder={intl.formatMessage({ id: 'roles.placeholder.name' })} />
 					</Form.Item>
-					<Form.Item name="description" label="描述">
-						<TextArea rows={3} placeholder="请输入角色描述" />
+					<Form.Item name="description" label={intl.formatMessage({ id: 'roles.form.description' })}>
+						<TextArea rows={3} placeholder={intl.formatMessage({ id: 'roles.placeholder.description' })} />
 					</Form.Item>
 					<Form.Item>
 						<Space>
-							<Button type="primary" htmlType="submit">
-								保存
-							</Button>
-							<Button onClick={() => setEditModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit">{intl.formatMessage({ id: 'common.action.save' })}</Button>
+							<Button onClick={() => setEditModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
 			</Modal>
 
-			{/* 权限配置弹窗 */}
-			<Modal
-				title={`权限配置 - ${selectedRole?.name}`}
-				open={permModalVisible}
-				onCancel={() => setPermModalVisible(false)}
-				footer={null}
-				width={600}
-			>
+			<Modal title={`${intl.formatMessage({ id: 'roles.modal.permissionsTitle' })} ${selectedRole?.name}`} open={permModalVisible} onCancel={() => setPermModalVisible(false)} footer={null} width={600}>
 				<div className="space-y-4">
 					{permissionGroups.map((group: any) => (
 						<div key={group.title}>
 							<Divider orientation="left">{group.title}</Divider>
 							<Checkbox.Group
-								value={group.permissions
-									.filter((p: any) => currentPermissions.includes(p.id))
-									.map((p: any) => p.id)}
+								value={group.permissions.filter((p: any) => currentPermissions.includes(p.id)).map((p: any) => p.id)}
 								onChange={handlePermissionChange}
 							>
 								<div className="grid grid-cols-2 gap-2">
-									{group.permissions.map((perm: any) => (
-										<Checkbox key={perm.id} value={perm.id}>
-											{perm.label}
-										</Checkbox>
-									))}
+									{group.permissions.map((perm: any) => <Checkbox key={perm.id} value={perm.id}>{perm.label}</Checkbox>)}
 								</div>
 							</Checkbox.Group>
 						</div>

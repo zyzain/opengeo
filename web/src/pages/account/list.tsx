@@ -33,10 +33,12 @@ import {
 	message,
 } from "antd";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 const { Option } = Select;
 
 export default function AccountListPage() {
+	const intl = useIntl();
 	const [searchForm] = Form.useForm();
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 	const [editModalVisible, setEditModalVisible] = useState(false);
@@ -44,7 +46,6 @@ export default function AccountListPage() {
 	const [createForm] = Form.useForm();
 	const [editForm] = Form.useForm();
 
-	// 查询参数
 	const [queryParams, setQueryParams] = useState({
 		page: 1,
 		page_size: 10,
@@ -59,148 +60,71 @@ export default function AccountListPage() {
 	const accounts = data?.items || [];
 	const total = data?.total || 0;
 
-	// 平台类型
 	const platformTypes = [
-		{ value: "wechat", label: "微信公众号", color: "green" },
-		{ value: "weibo", label: "微博", color: "red" },
-		{ value: "douyin", label: "抖音", color: "purple" },
-		{ value: "xiaohongshu", label: "小红书", color: "pink" },
-		{ value: "zhihu", label: "知乎", color: "blue" },
-		{ value: "toutiao", label: "今日头条", color: "orange" },
+		{ value: "wechat", label: intl.formatMessage({ id: 'platform.channels.wechat' }), color: "green" },
+		{ value: "weibo", label: intl.formatMessage({ id: 'platform.channels.weibo' }), color: "red" },
+		{ value: "douyin", label: intl.formatMessage({ id: 'platform.channels.douyin' }), color: "purple" },
+		{ value: "xiaohongshu", label: intl.formatMessage({ id: 'platform.channels.xiaohongshu' }), color: "pink" },
+		{ value: "zhihu", label: intl.formatMessage({ id: 'platform.channels.zhihu' }), color: "blue" },
+		{ value: "toutiao", label: intl.formatMessage({ id: 'platform.channels.toutiao' }), color: "orange" },
 	];
 
-	// 获取平台标签
 	const getPlatformTag = (platform: string) => {
 		const platformInfo = platformTypes.find((p) => p.value === platform);
-		return (
-			<Tag color={platformInfo?.color || "default"}>
-				{platformInfo?.label || platform}
-			</Tag>
-		);
+		return <Tag color={platformInfo?.color || "default"}>{platformInfo?.label || platform}</Tag>;
 	};
 
-	// 状态标签
 	const getStatusTag = (status: number) => {
 		const statusMap: Record<number, { color: string; text: string }> = {
-			0: { color: "error", text: "禁用" },
-			1: { color: "success", text: "正常" },
-			2: { color: "warning", text: "异常" },
+			0: { color: "error", text: intl.formatMessage({ id: 'common.status.disabled' }) },
+			1: { color: "success", text: intl.formatMessage({ id: 'common.status.active' }) },
+			2: { color: "warning", text: intl.formatMessage({ id: 'account.status.abnormal' }) },
 		};
-		const config = statusMap[status] || { color: "default", text: "未知" };
+		const config = statusMap[status] || { color: "default", text: intl.formatMessage({ id: 'common.status.unknown' }) };
 		return <Badge status={config.color as any} text={config.text} />;
 	};
 
-	// 健康度颜色
 	const getHealthColor = (score: number) => {
 		if (score >= 80) return "#52c41a";
 		if (score >= 60) return "#faad14";
 		return "#ff4d4f";
 	};
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
+		{ title: intl.formatMessage({ id: 'account.name' }), dataIndex: "account_name", key: "account_name", ellipsis: true },
+		{ title: intl.formatMessage({ id: 'account.platform' }), dataIndex: "platform", key: "platform", width: 120, render: (platform: string) => getPlatformTag(platform) },
+		{ title: intl.formatMessage({ id: 'account.accountId' }), dataIndex: "account_id", key: "account_id", width: 150, ellipsis: true },
+		{ title: intl.formatMessage({ id: 'account.status' }), dataIndex: "status", key: "status", width: 100, render: (status: number) => getStatusTag(status) },
+		{ title: intl.formatMessage({ id: 'account.health' }), dataIndex: "health_score", key: "health_score", width: 150, render: (score: number) => <Progress percent={score} size="small" strokeColor={getHealthColor(score)} format={(percent) => `${percent}%`} /> },
+		{ title: intl.formatMessage({ id: 'common.column.createdAt' }), dataIndex: "created_at", key: "created_at", width: 180, render: (text: string) => new Date(text).toLocaleString() },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "账号名称",
-			dataIndex: "account_name",
-			key: "account_name",
-			ellipsis: true,
-		},
-		{
-			title: "平台",
-			dataIndex: "platform",
-			key: "platform",
-			width: 120,
-			render: (platform: string) => getPlatformTag(platform),
-		},
-		{
-			title: "账号ID",
-			dataIndex: "account_id",
-			key: "account_id",
-			width: 150,
-			ellipsis: true,
-		},
-		{
-			title: "状态",
-			dataIndex: "status",
-			key: "status",
-			width: 100,
-			render: (status: number) => getStatusTag(status),
-		},
-		{
-			title: "健康度",
-			dataIndex: "health_score",
-			key: "health_score",
-			width: 150,
-			render: (score: number) => (
-				<Progress
-					percent={score}
-					size="small"
-					strokeColor={getHealthColor(score)}
-					format={(percent) => `${percent}%`}
-				/>
-			),
-		},
-		{
-			title: "创建时间",
-			dataIndex: "created_at",
-			key: "created_at",
-			width: 180,
-			render: (text: string) => new Date(text).toLocaleString(),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 200,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="编辑">
-						<Button
-							type="text"
-							icon={<EditOutlined />}
-							onClick={() => handleEdit(record)}
-						/>
-					</Tooltip>
-					<Tooltip title="健康检查">
-						<Button
-							type="text"
-							icon={<CheckCircleOutlined />}
-							onClick={() => handleHealthCheck(record.id)}
-						/>
-					</Tooltip>
-					<Popconfirm
-						title="确定要删除这个账号吗？"
-						onConfirm={() => handleDelete(record.id)}
-						okText="确定"
-						cancelText="取消"
-					>
-						<Tooltip title="删除">
-							<Button type="text" danger icon={<DeleteOutlined />} />
-						</Tooltip>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}><Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} /></Tooltip>
+					<Tooltip title={intl.formatMessage({ id: 'common.check' })}><Button type="text" icon={<CheckCircleOutlined />} onClick={() => handleHealthCheck(record.id)} /></Tooltip>
+					<Popconfirm title={intl.formatMessage({ id: 'common.confirmDelete' })} onConfirm={() => handleDelete(record.id)} okText={intl.formatMessage({ id: 'common.action.confirm' })} cancelText={intl.formatMessage({ id: 'common.action.cancel' })}>
+						<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}><Button type="text" danger icon={<DeleteOutlined />} /></Tooltip>
 					</Popconfirm>
 				</Space>
 			),
 		},
 	];
 
-	// 创建账号
 	const handleCreate = async (values: any) => {
 		try {
 			await createMutation.mutateAsync(values);
-			message.success("创建成功");
+			message.success(intl.formatMessage({ id: 'common.message.createSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "创建失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.createFailed' }));
 		}
 	};
 
-	// 编辑账号
 	const handleEdit = (record: any) => {
 		setEditingAccount(record);
 		editForm.setFieldsValue(record);
@@ -210,45 +134,39 @@ export default function AccountListPage() {
 	const handleUpdate = async (values: any) => {
 		try {
 			await updateMutation.mutateAsync({ id: editingAccount.id, data: values });
-			message.success("更新成功");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			setEditModalVisible(false);
 			editForm.resetFields();
 			setEditingAccount(null);
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "更新失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.updateFailed' }));
 		}
 	};
 
-	// 删除账号
 	const handleDelete = async (id: number) => {
 		try {
 			await deleteMutation.mutateAsync(id);
-			message.success("删除成功");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "删除失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
-	// 健康检查
 	const handleHealthCheck = async (id: number) => {
 		try {
 			const res = await api.accounts.health(id);
 			const healthData = res.data.data;
-			message.success(
-				`健康检查完成 - 评分: ${healthData.health_score}, 状态: ${healthData.status}`,
-			);
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			refetch();
 		} catch (error: any) {
-			message.error("健康检查失败");
+			message.error(intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
-	// 搜索
 	const handleSearch = (values: any) => {
 		setQueryParams({ ...queryParams, ...values, page: 1 });
 	};
 
-	// 重置搜索
 	const handleReset = () => {
 		searchForm.resetFields();
 		setQueryParams({ page: 1, page_size: 10, platform: undefined });
@@ -257,173 +175,72 @@ export default function AccountListPage() {
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">账号管理</h1>
-				<p className="text-gray-500 mt-1">管理您的多平台账号</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'nav.account.list' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: 'account.page.subtitle' })}</p>
 			</div>
 
-			{/* 搜索表单 */}
 			<Card className="mb-4">
 				<Form form={searchForm} layout="inline" onFinish={handleSearch}>
-					<Form.Item name="platform" label="平台">
-						<Select placeholder="请选择平台" allowClear style={{ width: 150 }}>
-							{platformTypes.map((p) => (
-								<Option key={p.value} value={p.value}>
-									{p.label}
-								</Option>
-							))}
+					<Form.Item name="platform" label={intl.formatMessage({ id: 'account.platform' })}>
+						<Select placeholder={intl.formatMessage({ id: 'account.placeholder.selectPlatform' })} allowClear style={{ width: 150 }}>
+							{platformTypes.map((p) => <Option key={p.value} value={p.value}>{p.label}</Option>)}
 						</Select>
 					</Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								icon={<SearchOutlined />}
-								htmlType="submit"
-							>
-								搜索
-							</Button>
-							<Button onClick={handleReset}>重置</Button>
-							<Button icon={<ReloadOutlined />} onClick={() => refetch()}>
-								刷新
-							</Button>
+							<Button type="primary" icon={<SearchOutlined />} htmlType="submit">{intl.formatMessage({ id: 'common.action.search' })}</Button>
+							<Button onClick={handleReset}>{intl.formatMessage({ id: 'common.action.reset' })}</Button>
+							<Button icon={<ReloadOutlined />} onClick={() => refetch()}>{intl.formatMessage({ id: 'common.action.refresh' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
 			</Card>
 
-			{/* 账号列表 */}
 			<Card
-				title={
-					<Space>
-						<TeamOutlined />
-						<span>账号列表</span>
-						<Badge count={total} style={{ backgroundColor: "#1890ff" }} />
-					</Space>
-				}
-				extra={
-					<Button
-						type="primary"
-						icon={<PlusOutlined />}
-						onClick={() => setCreateModalVisible(true)}
-					>
-						添加账号
-					</Button>
-				}
+				title={<Space><TeamOutlined /><span>{intl.formatMessage({ id: 'account.column.accountList' })}</span><Badge count={total} style={{ backgroundColor: "#1890ff" }} /></Space>}
+				extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>{intl.formatMessage({ id: 'account.action.addAccount' })}</Button>}
 			>
-				<Table
-					columns={columns}
-					dataSource={accounts}
-					rowKey="id"
-					loading={isLoading}
-					pagination={{
-						current: queryParams.page,
-						pageSize: queryParams.page_size,
-						total,
-						showSizeChanger: true,
-						showQuickJumper: true,
-						showTotal: (total) => `共 ${total} 条`,
-						onChange: (page, pageSize) =>
-							setQueryParams({ ...queryParams, page, page_size: pageSize }),
-					}}
-				/>
+				<Table columns={columns} dataSource={accounts} rowKey="id" loading={isLoading} pagination={{
+					current: queryParams.page,
+					pageSize: queryParams.page_size,
+					total,
+					showSizeChanger: true,
+					showQuickJumper: true,
+					showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }),
+					onChange: (page, pageSize) => setQueryParams({ ...queryParams, page, page_size: pageSize }),
+				}} />
 			</Card>
 
-			{/* 创建账号弹窗 */}
-			<Modal
-				title="添加账号"
-				open={createModalVisible}
-				onCancel={() => setCreateModalVisible(false)}
-				footer={null}
-				width={500}
-			>
-				<Form form={createForm} layout="vertical" onFinish={handleCreate}>
-					<Form.Item
-						name="platform"
-						label="平台"
-						rules={[{ required: true, message: "请选择平台" }]}
-					>
-						<Select placeholder="请选择平台">
-							{platformTypes.map((p) => (
-								<Option key={p.value} value={p.value}>
-									{p.label}
-								</Option>
-							))}
-						</Select>
-					</Form.Item>
-					<Form.Item
-						name="account_name"
-						label="账号名称"
-						rules={[{ required: true, message: "请输入账号名称" }]}
-					>
-						<Input placeholder="请输入账号名称" />
-					</Form.Item>
-					<Form.Item
-						name="account_id"
-						label="平台账号ID"
-						rules={[{ required: true, message: "请输入平台账号ID" }]}
-					>
-						<Input placeholder="请输入平台账号ID" />
-					</Form.Item>
-					<Form.Item
-						name="credentials"
-						label="凭证信息"
-						tooltip="Cookie、Token 或 API Key，加密存储"
-					>
-						<Input.TextArea
-							rows={3}
-							placeholder="请输入凭证信息（Cookie/Token/API Key）"
-						/>
-					</Form.Item>
+		<Modal title={intl.formatMessage({ id: 'account.modal.addTitle' })} open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={500}>
+			<Form form={createForm} layout="vertical" onFinish={handleCreate}>
+				<Form.Item name="platform" label={intl.formatMessage({ id: 'account.platform' })} rules={[{ required: true, message: intl.formatMessage({ id: 'account.validation.selectPlatform' }) }]}>
+					<Select placeholder={intl.formatMessage({ id: 'account.placeholder.selectPlatform' })}>{platformTypes.map((p) => <Option key={p.value} value={p.value}>{p.label}</Option>)}</Select>
+				</Form.Item>
+				<Form.Item name="account_name" label={intl.formatMessage({ id: 'account.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'account.validation.enterAccountName' }) }]}><Input placeholder={intl.formatMessage({ id: 'account.placeholder.accountName' })} /></Form.Item>
+				<Form.Item name="account_id" label={intl.formatMessage({ id: 'account.accountId' })} rules={[{ required: true, message: intl.formatMessage({ id: 'account.validation.enterAccountId' }) }]}><Input placeholder={intl.formatMessage({ id: 'account.placeholder.accountId' })} /></Form.Item>
+				<Form.Item name="credentials" label={intl.formatMessage({ id: 'account.form.credentials' })} tooltip={intl.formatMessage({ id: 'account.form.credentialsTip' })}><Input.TextArea rows={3} placeholder={intl.formatMessage({ id: 'account.placeholder.credentials' })} /></Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								htmlType="submit"
-								loading={createMutation.isPending}
-							>
-								创建
-							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit" loading={createMutation.isPending}>{intl.formatMessage({ id: 'common.action.create' })}</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
 			</Modal>
 
-			{/* 编辑账号弹窗 */}
-			<Modal
-				title="编辑账号"
-				open={editModalVisible}
-				onCancel={() => {
-					setEditModalVisible(false);
-					setEditingAccount(null);
-				}}
-				footer={null}
-				width={500}
-			>
-				<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-					<Form.Item
-						name="account_name"
-						label="账号名称"
-						rules={[{ required: true, message: "请输入账号名称" }]}
-					>
-						<Input placeholder="请输入账号名称" />
-					</Form.Item>
-					<Form.Item name="status" label="状态">
+		<Modal title={intl.formatMessage({ id: 'account.modal.editTitle' })} open={editModalVisible} onCancel={() => { setEditModalVisible(false); setEditingAccount(null); }} footer={null} width={500}>
+			<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
+				<Form.Item name="account_name" label={intl.formatMessage({ id: 'account.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'account.validation.enterAccountName' }) }]}><Input placeholder={intl.formatMessage({ id: 'account.placeholder.accountName' })} /></Form.Item>
+					<Form.Item name="status" label={intl.formatMessage({ id: 'account.status' })}>
 						<Select>
-							<Option value={1}>正常</Option>
-							<Option value={0}>禁用</Option>
+							<Option value={1}>{intl.formatMessage({ id: 'common.status.active' })}</Option>
+							<Option value={0}>{intl.formatMessage({ id: 'common.status.disabled' })}</Option>
 						</Select>
 					</Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								htmlType="submit"
-								loading={updateMutation.isPending}
-							>
-								保存
-							</Button>
-							<Button onClick={() => setEditModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit" loading={updateMutation.isPending}>{intl.formatMessage({ id: 'common.action.save' })}</Button>
+							<Button onClick={() => setEditModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>

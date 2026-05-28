@@ -11,6 +11,7 @@ import (
 func RegisterRoutes(s *server.Hertz, hd *handler.Handler, permChecker middleware.PermissionChecker) {
 	// 注册全局中间件
 	s.Use(middleware.CORS())
+	s.Use(middleware.Locale())
 	s.Use(middleware.RequestID())
 	s.Use(middleware.Logger())
 	s.Use(middleware.RateLimiter())
@@ -298,6 +299,43 @@ func RegisterRoutes(s *server.Hertz, hd *handler.Handler, permChecker middleware
 				knowledgeWrite.POST("/entities", hd.CreateEntity)
 				knowledgeWrite.PUT("/entities/:id", hd.UpdateEntity)
 				knowledgeWrite.DELETE("/entities/:id", hd.DeleteEntity)
+			}
+
+			// 品牌管理（新增）
+			brandGroup := protected.Group("/brands")
+			brandGroup.Use(middleware.RequirePermission(permChecker, "brand", "read"))
+			{
+				brandGroup.GET("", hd.ListBrands)
+			}
+			brandWrite := protected.Group("/brands")
+			brandWrite.Use(middleware.RequirePermission(permChecker, "brand", "create"))
+			{
+				brandWrite.POST("", hd.CreateBrand)
+			}
+
+			brandDetailGroup := protected.Group("/brand")
+			brandDetailGroup.Use(middleware.RequirePermission(permChecker, "brand", "read"))
+			{
+				brandDetailGroup.GET("/:id", hd.GetBrand)
+				brandDetailGroup.GET("/:id/metadata", hd.GetBrandMetadata)
+				brandDetailGroup.GET("/:id/glossary", hd.ListGlossaryEntries)
+				brandDetailGroup.GET("/:id/snapshots", hd.ListBrandSnapshots)
+			}
+			brandDetailWrite := protected.Group("/brand")
+			brandDetailWrite.Use(middleware.RequirePermission(permChecker, "brand", "update"))
+			{
+				brandDetailWrite.PUT("/:id", hd.UpdateBrand)
+				brandDetailWrite.PUT("/:id/metadata", hd.UpdateBrandMetadata)
+				brandDetailWrite.POST("/:id/glossary", hd.CreateGlossaryEntry)
+				brandDetailWrite.PUT("/:id/glossary/:entry_id", hd.UpdateGlossaryEntry)
+				brandDetailWrite.DELETE("/:id/glossary/:entry_id", hd.DeleteGlossaryEntry)
+				brandDetailWrite.POST("/:id/glossary/bulk-import", hd.BulkImportGlossary)
+				brandDetailWrite.POST("/:id/snapshots", hd.CreateBrandSnapshot)
+			}
+			brandDetailDelete := protected.Group("/brand")
+			brandDetailDelete.Use(middleware.RequirePermission(permChecker, "brand", "delete"))
+			{
+				brandDetailDelete.DELETE("/:id", hd.DeleteBrand)
 			}
 
 			// 系统管理（仅 admin 角色可访问，中间件内 admin 自动放行）

@@ -148,6 +148,7 @@ func main() {
 	tplRepo := dal.NewContentTemplateRepository(db)
 	staggerStrategyRepo := dal.NewStaggerStrategyRepository(db)
 	staggerConfigRepo := dal.NewStaggerConfigRepository(db)
+	brandRepo := dal.NewBrandRepository(db)
 
 	// 自动迁移DAL表
 	if err := db.AutoMigrate(
@@ -156,6 +157,12 @@ func main() {
 		&model.ContentTemplate{},
 		&model.StaggerStrategy{},
 		&model.StaggerConfig{},
+		&model.Brand{},
+		&model.BrandMetadata{},
+		&model.GlossaryEntry{},
+		&model.BrandSnapshot{},
+		&model.KnowledgeEntity{},
+		&model.KnowledgeRelation{},
 	); err != nil {
 		fmt.Printf("DAL表迁移失败: %v\n", err)
 		os.Exit(1)
@@ -175,6 +182,7 @@ func main() {
 		tplRepo,
 		staggerStrategyRepo,
 		staggerConfigRepo,
+		brandRepo,
 	)
 
 	svr := server.Default(

@@ -11,6 +11,7 @@ import (
 
 	"opengeo/gateway/internal/client"
 	"opengeo/gateway/internal/model"
+	"opengeo/pkg/locale"
 )
 
 // ==================== 渠道管理 ====================
@@ -71,13 +72,14 @@ func (h *Handler) ListChannels(ctx context.Context, c *app.RequestContext) {
 
 // GetChannelPlatforms 获取支持的渠道平台
 func (h *Handler) GetChannelPlatforms(ctx context.Context, c *app.RequestContext) {
+	loc := locale.FromContext(ctx)
 	platforms := []map[string]interface{}{
-		{"value": "wechat", "label": "微信公众号", "color": "green"},
-		{"value": "weibo", "label": "微博", "color": "red"},
-		{"value": "douyin", "label": "抖音", "color": "purple"},
-		{"value": "xiaohongshu", "label": "小红书", "color": "pink"},
-		{"value": "zhihu", "label": "知乎", "color": "blue"},
-		{"value": "toutiao", "label": "今日头条", "color": "orange"},
+		{"value": "wechat", "label": locale.T(loc, "platform_wechat"), "color": "green"},
+		{"value": "weibo", "label": locale.T(loc, "platform_weibo"), "color": "red"},
+		{"value": "douyin", "label": locale.T(loc, "platform_douyin"), "color": "purple"},
+		{"value": "xiaohongshu", "label": locale.T(loc, "platform_xiaohongshu"), "color": "pink"},
+		{"value": "zhihu", "label": locale.T(loc, "platform_zhihu"), "color": "blue"},
+		{"value": "toutiao", "label": locale.T(loc, "platform_toutiao"), "color": "orange"},
 	}
 	c.JSON(http.StatusOK, success(platforms))
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/utils"
 
 	"opengeo/gateway/internal/model"
+	"opengeo/pkg/locale"
 )
 
 // ==================== 系统管理 ====================
@@ -76,12 +77,13 @@ func (h *Handler) InstallPlugin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	loc := locale.FromContext(ctx)
 	c.JSON(http.StatusOK, success(utils.H{
 		"plugin_name": req.PluginName,
 		"plugin_type": req.PluginType,
 		"version":     req.Version,
 		"is_enabled":  true,
-		"message":     "插件安装成功",
+		"message":     locale.T(loc, "plugin_install_success"),
 	}))
 }
 
@@ -395,11 +397,12 @@ func (h *Handler) DeleteTemplate(ctx context.Context, c *app.RequestContext) {
 
 // GetPlans 获取套餐配置
 func (h *Handler) GetPlans(ctx context.Context, c *app.RequestContext) {
+	loc := locale.FromContext(ctx)
 	c.JSON(http.StatusOK, success(utils.H{
 		"items": []map[string]interface{}{
 			{
 				"id":           "starter",
-				"label":        "入门版",
+				"label":        locale.T(loc, "plan_starter"),
 				"color":        "blue",
 				"max_users":    5,
 				"max_storage":  2,
@@ -408,7 +411,7 @@ func (h *Handler) GetPlans(ctx context.Context, c *app.RequestContext) {
 			},
 			{
 				"id":           "professional",
-				"label":        "专业版",
+				"label":        locale.T(loc, "plan_professional"),
 				"color":        "green",
 				"max_users":    20,
 				"max_storage":  10,
@@ -417,7 +420,7 @@ func (h *Handler) GetPlans(ctx context.Context, c *app.RequestContext) {
 			},
 			{
 				"id":           "enterprise",
-				"label":        "企业版",
+				"label":        locale.T(loc, "plan_enterprise"),
 				"color":        "purple",
 				"max_users":    100,
 				"max_storage":  100,
@@ -430,51 +433,52 @@ func (h *Handler) GetPlans(ctx context.Context, c *app.RequestContext) {
 
 // GetPermissionDefinitions 获取权限定义
 func (h *Handler) GetPermissionDefinitions(ctx context.Context, c *app.RequestContext) {
+	loc := locale.FromContext(ctx)
 	c.JSON(http.StatusOK, success(utils.H{
 		"groups": []map[string]interface{}{
 			{
-				"title": "内容管理",
+				"title": locale.T(loc, "perm_group_content"),
 				"permissions": []map[string]interface{}{
-					{"id": "content:create", "label": "创建内容"},
-					{"id": "content:read", "label": "查看内容"},
-					{"id": "content:update", "label": "编辑内容"},
-					{"id": "content:delete", "label": "删除内容"},
-					{"id": "content:publish", "label": "发布内容"},
-					{"id": "content:optimize", "label": "AI优化内容"},
+					{"id": "content:create", "label": locale.T(loc, "perm_content_create")},
+					{"id": "content:read", "label": locale.T(loc, "perm_content_read")},
+					{"id": "content:update", "label": locale.T(loc, "perm_content_update")},
+					{"id": "content:delete", "label": locale.T(loc, "perm_content_delete")},
+					{"id": "content:publish", "label": locale.T(loc, "perm_publish_create")},
+					{"id": "content:optimize", "label": locale.T(loc, "content_optimized")},
 				},
 			},
 			{
-				"title": "账号管理",
+				"title": locale.T(loc, "perm_group_account"),
 				"permissions": []map[string]interface{}{
-					{"id": "account:create", "label": "创建账号"},
-					{"id": "account:read", "label": "查看账号"},
-					{"id": "account:update", "label": "编辑账号"},
-					{"id": "account:delete", "label": "删除账号"},
+					{"id": "account:create", "label": locale.T(loc, "perm_user_create")},
+					{"id": "account:read", "label": locale.T(loc, "perm_user_read")},
+					{"id": "account:update", "label": locale.T(loc, "perm_user_update")},
+					{"id": "account:delete", "label": locale.T(loc, "perm_user_delete")},
 				},
 			},
 			{
-				"title": "发布管理",
+				"title": locale.T(loc, "perm_group_publish"),
 				"permissions": []map[string]interface{}{
-					{"id": "publish:create", "label": "创建发布任务"},
-					{"id": "publish:read", "label": "查看发布任务"},
-					{"id": "publish:cancel", "label": "取消发布任务"},
-					{"id": "publish:retry", "label": "重试发布任务"},
+					{"id": "publish:create", "label": locale.T(loc, "perm_publish_create")},
+					{"id": "publish:read", "label": locale.T(loc, "perm_publish_read")},
+					{"id": "publish:cancel", "label": locale.T(loc, "publish_cancelled")},
+					{"id": "publish:retry", "label": locale.T(loc, "publish_retry_submitted")},
 				},
 			},
 			{
-				"title": "监测管理",
+				"title": locale.T(loc, "perm_group_monitor"),
 				"permissions": []map[string]interface{}{
-					{"id": "monitor:read", "label": "查看监测数据"},
-					{"id": "monitor:configure", "label": "配置监测规则"},
+					{"id": "monitor:read", "label": locale.T(loc, "perm_tenant_read")},
+					{"id": "monitor:configure", "label": locale.T(loc, "config_updated")},
 				},
 			},
 			{
-				"title": "系统管理",
+				"title": locale.T(loc, "perm_group_system"),
 				"permissions": []map[string]interface{}{
-					{"id": "system:config", "label": "系统配置"},
-					{"id": "system:user", "label": "用户管理"},
-					{"id": "system:role", "label": "角色管理"},
-					{"id": "system:plugin", "label": "插件管理"},
+					{"id": "system:config", "label": locale.T(loc, "config_updated")},
+					{"id": "system:user", "label": locale.T(loc, "perm_user_read")},
+					{"id": "system:role", "label": locale.T(loc, "perm_role_read")},
+					{"id": "system:plugin", "label": locale.T(loc, "plugin_installed")},
 				},
 			},
 		},

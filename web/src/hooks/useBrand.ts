@@ -75,7 +75,47 @@ export function useBrands() {
     fetchBrands();
   }, [fetchBrands]);
 
-  return { brands, loading, error, refetch: fetchBrands };
+  const createBrand = async (values: Partial<Brand>) => {
+    const response = await fetch('/api/v1/brands', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to create brand');
+    const data = await response.json();
+    await fetchBrands();
+    return data;
+  };
+
+  const updateBrand = async (id: number, values: Partial<Brand>) => {
+    const response = await fetch(`/api/v1/brand/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to update brand');
+    const data = await response.json();
+    await fetchBrands();
+    return data;
+  };
+
+  const deleteBrand = async (id: number) => {
+    const response = await fetch(`/api/v1/brand/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete brand');
+    await fetchBrands();
+  };
+
+  return { 
+    brands, 
+    loading, 
+    error, 
+    refetch: fetchBrands,
+    createBrand,
+    updateBrand,
+    deleteBrand
+  };
 }
 
 export function useBrand(brandId: number) {
@@ -83,47 +123,137 @@ export function useBrand(brandId: number) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const fetchBrand = useCallback(async () => {
     if (!brandId) return;
     setLoading(true);
-    fetch(`/api/v1/brand/${brandId}`)
-      .then(res => res.json())
-      .then(data => setBrand(data))
-      .catch(err => setError(err))
-      .finally(() => setLoading(false));
+    setError(null);
+    try {
+      const response = await fetch(`/api/v1/brand/${brandId}`);
+      if (!response.ok) throw new Error('Failed to fetch brand');
+      const data = await response.json();
+      setBrand(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   }, [brandId]);
 
-  return { brand, loading, error };
+  useEffect(() => {
+    fetchBrand();
+  }, [fetchBrand]);
+
+  const updateBrand = async (values: Partial<Brand>) => {
+    const response = await fetch(`/api/v1/brand/${brandId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to update brand');
+    const data = await response.json();
+    await fetchBrand();
+    return data;
+  };
+
+  return { brand, loading, error, refetch: fetchBrand, updateBrand };
 }
 
 export function useBrandMetadata(brandId: number) {
   const [metadata, setMetadata] = useState<BrandMetadata | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const fetchMetadata = useCallback(async () => {
     if (!brandId) return;
     setLoading(true);
-    fetch(`/api/v1/brand/${brandId}/metadata`)
-      .then(res => res.json())
-      .then(data => setMetadata(data))
-      .finally(() => setLoading(false));
+    setError(null);
+    try {
+      const response = await fetch(`/api/v1/brand/${brandId}/metadata`);
+      if (!response.ok) throw new Error('Failed to fetch metadata');
+      const data = await response.json();
+      setMetadata(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   }, [brandId]);
 
-  return { metadata, loading };
+  useEffect(() => {
+    fetchMetadata();
+  }, [fetchMetadata]);
+
+  const updateMetadata = async (values: Partial<BrandMetadata>) => {
+    const response = await fetch(`/api/v1/brand/${brandId}/metadata`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to update metadata');
+    const data = await response.json();
+    await fetchMetadata();
+    return data;
+  };
+
+  return { metadata, loading, error, refetch: fetchMetadata, updateMetadata };
 }
 
 export function useGlossary(brandId: number) {
   const [entries, setEntries] = useState<GlossaryEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const fetchGlossary = useCallback(async () => {
     if (!brandId) return;
     setLoading(true);
-    fetch(`/api/v1/brand/${brandId}/glossary`)
-      .then(res => res.json())
-      .then(data => setEntries(data.entries || []))
-      .finally(() => setLoading(false));
+    setError(null);
+    try {
+      const response = await fetch(`/api/v1/brand/${brandId}/glossary`);
+      if (!response.ok) throw new Error('Failed to fetch glossary');
+      const data = await response.json();
+      setEntries(data.entries || []);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   }, [brandId]);
 
-  return { entries, loading };
+  useEffect(() => {
+    fetchGlossary();
+  }, [fetchGlossary]);
+
+  const createEntry = async (values: Partial<GlossaryEntry>) => {
+    const response = await fetch(`/api/v1/brand/${brandId}/glossary`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to create glossary entry');
+    const data = await response.json();
+    await fetchGlossary();
+    return data;
+  };
+
+  const updateEntry = async (entryId: number, values: Partial<GlossaryEntry>) => {
+    const response = await fetch(`/api/v1/brand/${brandId}/glossary/${entryId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) throw new Error('Failed to update glossary entry');
+    const data = await response.json();
+    await fetchGlossary();
+    return data;
+  };
+
+  const deleteEntry = async (entryId: number) => {
+    const response = await fetch(`/api/v1/brand/${brandId}/glossary/${entryId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete glossary entry');
+    await fetchGlossary();
+  };
+
+  return { entries, loading, error, refetch: fetchGlossary, createEntry, updateEntry, deleteEntry };
 }

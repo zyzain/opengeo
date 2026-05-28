@@ -41,11 +41,13 @@ import {
 } from "antd";
 import type { Dayjs } from "dayjs";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 export default function SchedulePage() {
+	const intl = useIntl();
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [editingSchedule, setEditingSchedule] = useState<any>(null);
@@ -62,158 +64,55 @@ export default function SchedulePage() {
 
 	const schedules = data?.items || [];
 
-	// 调度类型
 	const scheduleTypes = [
-		{
-			value: "fixed",
-			label: "固定时间",
-			color: "blue",
-			description: "在指定时间执行一次",
-		},
-		{
-			value: "interval",
-			label: "间隔循环",
-			color: "green",
-			description: "按固定间隔重复执行",
-		},
-		{
-			value: "event",
-			label: "事件触发",
-			color: "purple",
-			description: "当特定事件发生时执行",
-		},
-		{
-			value: "heat",
-			label: "热力图推荐",
-			color: "orange",
-			description: "根据AI活跃度推荐时间",
-		},
+		{ value: "fixed", label: intl.formatMessage({ id: 'schedule.type.fixed' }), color: "blue", description: intl.formatMessage({ id: 'schedule.type.fixedDesc' }) },
+		{ value: "interval", label: intl.formatMessage({ id: 'schedule.type.interval' }), color: "green", description: intl.formatMessage({ id: 'schedule.type.intervalDesc' }) },
+		{ value: "event", label: intl.formatMessage({ id: 'schedule.type.event' }), color: "purple", description: intl.formatMessage({ id: 'schedule.type.eventDesc' }) },
+		{ value: "heat", label: intl.formatMessage({ id: 'schedule.type.heat' }), color: "orange", description: intl.formatMessage({ id: 'schedule.type.heatDesc' }) },
 	];
 
-	// 获取调度类型标签
 	const getScheduleTypeTag = (type: string) => {
 		const typeInfo = scheduleTypes.find((t) => t.value === type);
-		return (
-			<Tag color={typeInfo?.color || "default"}>{typeInfo?.label || type}</Tag>
-		);
+		return <Tag color={typeInfo?.color || "default"}>{typeInfo?.label || type}</Tag>;
 	};
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
+		{ title: intl.formatMessage({ id: 'schedule.name' }), dataIndex: "schedule_name", key: "schedule_name", render: (text: string) => <Space><ScheduleOutlined /><span className="font-medium">{text}</span></Space> },
+		{ title: intl.formatMessage({ id: 'schedule.type' }), dataIndex: "schedule_type", key: "schedule_type", width: 120, render: (type: string) => getScheduleTypeTag(type) },
+		{ title: intl.formatMessage({ id: 'schedule.cron' }), dataIndex: "cron_expression", key: "cron_expression", width: 150, render: (text: string) => text ? <code className="bg-gray-100 px-2 py-1 rounded text-sm">{text}</code> : "-" },
+		{ title: intl.formatMessage({ id: 'schedule.enabled' }), dataIndex: "is_enabled", key: "is_enabled", width: 100, render: (enabled: boolean) => <Badge status={enabled ? "success" : "default"} text={enabled ? intl.formatMessage({ id: 'common.status.enabled' }) : intl.formatMessage({ id: 'common.status.disabled' })} /> },
+		{ title: intl.formatMessage({ id: 'schedule.nextRun' }), dataIndex: "next_run_time", key: "next_run_time", width: 180, render: (text: string) => (text ? new Date(text).toLocaleString() : "-") },
+		{ title: intl.formatMessage({ id: 'schedule.column.runCount' }), dataIndex: "run_count", key: "run_count", width: 80, render: (count: number) => <Badge count={count} showZero style={{ backgroundColor: "#1890ff" }} /> },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "调度名称",
-			dataIndex: "schedule_name",
-			key: "schedule_name",
-			render: (text: string) => (
-				<Space>
-					<ScheduleOutlined />
-					<span className="font-medium">{text}</span>
-				</Space>
-			),
-		},
-		{
-			title: "调度类型",
-			dataIndex: "schedule_type",
-			key: "schedule_type",
-			width: 120,
-			render: (type: string) => getScheduleTypeTag(type),
-		},
-		{
-			title: "Cron表达式",
-			dataIndex: "cron_expression",
-			key: "cron_expression",
-			width: 150,
-			render: (text: string) =>
-				text ? (
-					<code className="bg-gray-100 px-2 py-1 rounded text-sm">{text}</code>
-				) : (
-					"-"
-				),
-		},
-		{
-			title: "状态",
-			dataIndex: "is_enabled",
-			key: "is_enabled",
-			width: 100,
-			render: (enabled: boolean) => (
-				<Badge
-					status={enabled ? "success" : "default"}
-					text={enabled ? "已启用" : "已禁用"}
-				/>
-			),
-		},
-		{
-			title: "下次运行",
-			dataIndex: "next_run_time",
-			key: "next_run_time",
-			width: 180,
-			render: (text: string) => (text ? new Date(text).toLocaleString() : "-"),
-		},
-		{
-			title: "运行次数",
-			dataIndex: "run_count",
-			key: "run_count",
-			width: 80,
-			render: (count: number) => (
-				<Badge count={count} showZero style={{ backgroundColor: "#1890ff" }} />
-			),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 200,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="编辑">
-						<Button
-							type="text"
-							icon={<EditOutlined />}
-							onClick={() => handleEdit(record)}
-						/>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}><Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} /></Tooltip>
+					<Tooltip title={record.is_enabled ? intl.formatMessage({ id: 'common.action.disable' }) : intl.formatMessage({ id: 'common.action.enable' })}>
+						<Switch checked={record.is_enabled} size="small" checkedChildren={<PlayCircleOutlined />} unCheckedChildren={<PauseCircleOutlined />} onChange={(checked) => handleToggle(record.id, checked)} />
 					</Tooltip>
-					<Tooltip title={record.is_enabled ? "禁用" : "启用"}>
-						<Switch
-							checked={record.is_enabled}
-							size="small"
-							checkedChildren={<PlayCircleOutlined />}
-							unCheckedChildren={<PauseCircleOutlined />}
-							onChange={(checked) => handleToggle(record.id, checked)}
-						/>
-					</Tooltip>
-					<Popconfirm
-						title="确定要删除这个调度吗？"
-						onConfirm={() => handleDelete(record.id)}
-						okText="确定"
-						cancelText="取消"
-					>
-						<Tooltip title="删除">
-							<Button type="text" danger icon={<DeleteOutlined />} />
-						</Tooltip>
+					<Popconfirm title={intl.formatMessage({ id: 'common.confirmDelete' })} onConfirm={() => handleDelete(record.id)} okText={intl.formatMessage({ id: 'common.action.confirm' })} cancelText={intl.formatMessage({ id: 'common.action.cancel' })}>
+						<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}><Button type="text" danger icon={<DeleteOutlined />} /></Tooltip>
 					</Popconfirm>
 				</Space>
 			),
 		},
 	];
 
-	// 创建调度
 	const handleCreate = async (values: any) => {
 		try {
 			await createMutation.mutateAsync(values);
-			message.success("创建成功");
+			message.success(intl.formatMessage({ id: 'common.message.createSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "创建失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.createFailed' }));
 		}
 	};
 
-	// 编辑调度
 	const handleEdit = (record: any) => {
 		setEditingSchedule(record);
 		editForm.setFieldsValue(record);
@@ -222,119 +121,67 @@ export default function SchedulePage() {
 
 	const handleUpdate = async (values: any) => {
 		try {
-			await updateMutation.mutateAsync({
-				id: editingSchedule.id,
-				data: values,
-			});
-			message.success("更新成功");
+			await updateMutation.mutateAsync({ id: editingSchedule.id, data: values });
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			setEditModalVisible(false);
 			editForm.resetFields();
 			setEditingSchedule(null);
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "更新失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.updateFailed' }));
 		}
 	};
 
-	// 切换状态
 	const handleToggle = async (id: number, enabled: boolean) => {
 		try {
-			if (enabled) {
-				await enableMutation.mutateAsync(id);
-			} else {
-				await disableMutation.mutateAsync(id);
-			}
-			message.success(enabled ? "已启用" : "已禁用");
+			if (enabled) { await enableMutation.mutateAsync(id); } else { await disableMutation.mutateAsync(id); }
+			message.success(enabled ? intl.formatMessage({ id: 'common.status.enabled' }) : intl.formatMessage({ id: 'common.status.disabled' }));
 		} catch (error: any) {
-			message.error("操作失败");
+			message.error(intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
-	// 删除调度
 	const handleDelete = async (id: number) => {
 		try {
 			await deleteMutation.mutateAsync(id);
-			message.success("删除成功");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 		} catch (error: any) {
-			message.error("删除失败");
+			message.error(intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
-	// 日历选择
 	const onCalendarSelect = (date: Dayjs) => {
-		message.info(`选择了日期: ${date.format("YYYY-MM-DD")}`);
+		message.info(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 	};
 
-	// 统计数据
 	const stats = {
 		total: schedules.length,
 		enabled: schedules.filter((s: any) => s.is_enabled).length,
 		fixed: schedules.filter((s: any) => s.schedule_type === "fixed").length,
-		interval: schedules.filter((s: any) => s.schedule_type === "interval")
-			.length,
+		interval: schedules.filter((s: any) => s.schedule_type === "interval").length,
 	};
 
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">调度管理</h1>
-				<p className="text-gray-500 mt-1">管理定时发布任务</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'nav.schedule' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: 'schedule.page.subtitle' })}</p>
 			</div>
 
-			{/* 统计卡片 */}
 			<Row gutter={[16, 16]} className="mb-4">
-				<Col xs={12} sm={6}>
-					<Card>
-						<div className="text-center">
-							<div className="text-2xl font-bold text-gray-800">
-								{stats.total}
-							</div>
-							<div className="text-gray-500">总调度数</div>
-						</div>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<div className="text-center">
-							<div className="text-2xl font-bold text-green-500">
-								{stats.enabled}
-							</div>
-							<div className="text-gray-500">已启用</div>
-						</div>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<div className="text-center">
-							<div className="text-2xl font-bold text-blue-500">
-								{stats.fixed}
-							</div>
-							<div className="text-gray-500">固定时间</div>
-						</div>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<div className="text-center">
-							<div className="text-2xl font-bold text-purple-500">
-								{stats.interval}
-							</div>
-							<div className="text-gray-500">间隔循环</div>
-						</div>
-					</Card>
-				</Col>
+				<Col xs={12} sm={6}><Card><div className="text-center"><div className="text-2xl font-bold text-gray-800">{stats.total}</div><div className="text-gray-500">{intl.formatMessage({ id: 'schedule.stat.total' })}</div></div></Card></Col>
+				<Col xs={12} sm={6}><Card><div className="text-center"><div className="text-2xl font-bold text-green-500">{stats.enabled}</div><div className="text-gray-500">{intl.formatMessage({ id: 'common.status.enabled' })}</div></div></Card></Col>
+				<Col xs={12} sm={6}><Card><div className="text-center"><div className="text-2xl font-bold text-blue-500">{stats.fixed}</div><div className="text-gray-500">{intl.formatMessage({ id: 'schedule.stat.fixed' })}</div></div></Card></Col>
+				<Col xs={12} sm={6}><Card><div className="text-center"><div className="text-2xl font-bold text-purple-500">{stats.interval}</div><div className="text-gray-500">{intl.formatMessage({ id: 'schedule.stat.interval' })}</div></div></Card></Col>
 			</Row>
 
-			{/* 调度类型说明 */}
 			<Alert
-				message="调度类型说明"
+				message={intl.formatMessage({ id: 'schedule.alert.typeDesc' })}
 				description={
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
 						{scheduleTypes.map((type) => (
 							<div key={type.value} className="flex items-start space-x-2">
 								<Tag color={type.color}>{type.label}</Tag>
-								<span className="text-gray-500 text-sm">
-									{type.description}
-								</span>
+								<span className="text-gray-500 text-sm">{type.description}</span>
 							</div>
 						))}
 					</div>
@@ -345,161 +192,55 @@ export default function SchedulePage() {
 			/>
 
 			<Row gutter={[16, 16]}>
-				{/* 调度列表 */}
 				<Col xs={24} lg={16}>
 					<Card
-						title={
-							<Space>
-								<ScheduleOutlined />
-								<span>调度列表</span>
-							</Space>
-						}
-						extra={
-							<Button
-								type="primary"
-								icon={<PlusOutlined />}
-								onClick={() => setCreateModalVisible(true)}
-							>
-								创建调度
-							</Button>
-						}
+						title={<Space><ScheduleOutlined /><span>{intl.formatMessage({ id: 'schedule.card.scheduleList' })}</span></Space>}
+						extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>{intl.formatMessage({ id: 'schedule.action.createSchedule' })}</Button>}
 					>
-						<Table
-							columns={columns}
-							dataSource={schedules}
-							rowKey="id"
-							loading={isLoading}
-							pagination={{
-								showSizeChanger: true,
-								showQuickJumper: true,
-								showTotal: (total) => `共 ${total} 条`,
-							}}
-						/>
+						<Table columns={columns} dataSource={schedules} rowKey="id" loading={isLoading} pagination={{ showSizeChanger: true, showQuickJumper: true, showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }) }} />
 					</Card>
 				</Col>
 
-				{/* 日历视图 */}
 				<Col xs={24} lg={8}>
-					<Card
-						title={
-							<Space>
-								<CalendarOutlined /> 发布日历
-							</Space>
-						}
-					>
+					<Card title={<Space><CalendarOutlined /> {intl.formatMessage({ id: 'schedule.card.publishCalendar' })}</Space>}>
 						<Calendar fullscreen={false} onSelect={onCalendarSelect} />
 					</Card>
 				</Col>
 			</Row>
 
-			{/* 创建调度弹窗 */}
-			<Modal
-				title="创建调度"
-				open={createModalVisible}
-				onCancel={() => setCreateModalVisible(false)}
-				footer={null}
-				width={600}
-			>
-				<Form form={createForm} layout="vertical" onFinish={handleCreate}>
-					<Form.Item
-						name="schedule_name"
-						label="调度名称"
-						rules={[{ required: true, message: "请输入调度名称" }]}
-					>
-						<Input placeholder="请输入调度名称" />
-					</Form.Item>
-					<Form.Item
-						name="schedule_type"
-						label="调度类型"
-						rules={[{ required: true, message: "请选择调度类型" }]}
-					>
-						<Select placeholder="请选择调度类型">
-							{scheduleTypes.map((type) => (
-								<Option key={type.value} value={type.value}>
-									<Space>
-										<Tag color={type.color}>{type.label}</Tag>
-										<span>{type.description}</span>
-									</Space>
-								</Option>
-							))}
+		<Modal title={intl.formatMessage({ id: 'schedule.modal.createTitle' })} open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={600}>
+			<Form form={createForm} layout="vertical" onFinish={handleCreate}>
+				<Form.Item name="schedule_name" label={intl.formatMessage({ id: 'schedule.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'schedule.validation.enterName' }) }]}><Input placeholder={intl.formatMessage({ id: 'schedule.placeholder.name' })} /></Form.Item>
+				<Form.Item name="schedule_type" label={intl.formatMessage({ id: 'schedule.type' })} rules={[{ required: true, message: intl.formatMessage({ id: 'schedule.validation.selectType' }) }]}>
+					<Select placeholder={intl.formatMessage({ id: 'schedule.placeholder.type' })}>
+							{scheduleTypes.map((type) => <Option key={type.value} value={type.value}><Space><Tag color={type.color}>{type.label}</Tag><span>{type.description}</span></Space></Option>)}
 						</Select>
 					</Form.Item>
-					<Form.Item
-						name="cron_expression"
-						label="Cron表达式"
-						tooltip="例如: 0 0 9 * * ? 表示每天9点执行"
-					>
-						<Input placeholder="请输入Cron表达式，例如: 0 0 9 * * ?" />
-					</Form.Item>
-					<Form.Item name="config" label="配置">
-						<TextArea rows={3} placeholder="请输入JSON格式的配置" />
-					</Form.Item>
+				<Form.Item name="cron_expression" label={intl.formatMessage({ id: 'schedule.cron' })} tooltip={intl.formatMessage({ id: 'schedule.placeholder.cron' })}><Input placeholder={intl.formatMessage({ id: 'schedule.placeholder.cron' })} /></Form.Item>
+				<Form.Item name="config" label={intl.formatMessage({ id: 'schedule.form.config' })}><TextArea rows={3} placeholder={intl.formatMessage({ id: 'schedule.placeholder.config' })} /></Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								htmlType="submit"
-								loading={createMutation.isPending}
-							>
-								创建
-							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit" loading={createMutation.isPending}>{intl.formatMessage({ id: 'common.action.create' })}</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
 			</Modal>
 
-			{/* 编辑调度弹窗 */}
-			<Modal
-				title="编辑调度"
-				open={editModalVisible}
-				onCancel={() => {
-					setEditModalVisible(false);
-					setEditingSchedule(null);
-				}}
-				footer={null}
-				width={600}
-			>
-				<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-					<Form.Item
-						name="schedule_name"
-						label="调度名称"
-						rules={[{ required: true, message: "请输入调度名称" }]}
-					>
-						<Input placeholder="请输入调度名称" />
-					</Form.Item>
-					<Form.Item
-						name="schedule_type"
-						label="调度类型"
-						rules={[{ required: true, message: "请选择调度类型" }]}
-					>
-						<Select placeholder="请选择调度类型">
-							{scheduleTypes.map((type) => (
-								<Option key={type.value} value={type.value}>
-									<Space>
-										<Tag color={type.color}>{type.label}</Tag>
-										<span>{type.description}</span>
-									</Space>
-								</Option>
-							))}
+		<Modal title={intl.formatMessage({ id: 'schedule.modal.editTitle' })} open={editModalVisible} onCancel={() => { setEditModalVisible(false); setEditingSchedule(null); }} footer={null} width={600}>
+			<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
+				<Form.Item name="schedule_name" label={intl.formatMessage({ id: 'schedule.name' })} rules={[{ required: true, message: intl.formatMessage({ id: 'schedule.validation.enterName' }) }]}><Input placeholder={intl.formatMessage({ id: 'schedule.placeholder.name' })} /></Form.Item>
+				<Form.Item name="schedule_type" label={intl.formatMessage({ id: 'schedule.type' })} rules={[{ required: true, message: intl.formatMessage({ id: 'schedule.validation.selectType' }) }]}>
+					<Select placeholder={intl.formatMessage({ id: 'schedule.placeholder.type' })}>
+							{scheduleTypes.map((type) => <Option key={type.value} value={type.value}><Space><Tag color={type.color}>{type.label}</Tag><span>{type.description}</span></Space></Option>)}
 						</Select>
 					</Form.Item>
-					<Form.Item name="cron_expression" label="Cron表达式">
-						<Input placeholder="请输入Cron表达式" />
-					</Form.Item>
-					<Form.Item name="config" label="配置">
-						<TextArea rows={3} placeholder="请输入JSON格式的配置" />
-					</Form.Item>
+				<Form.Item name="cron_expression" label={intl.formatMessage({ id: 'schedule.cron' })}><Input placeholder={intl.formatMessage({ id: 'schedule.placeholder.cron' })} /></Form.Item>
+				<Form.Item name="config" label={intl.formatMessage({ id: 'schedule.form.config' })}><TextArea rows={3} placeholder={intl.formatMessage({ id: 'schedule.placeholder.config' })} /></Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								htmlType="submit"
-								loading={updateMutation.isPending}
-							>
-								保存
-							</Button>
-							<Button onClick={() => setEditModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit" loading={updateMutation.isPending}>{intl.formatMessage({ id: 'common.action.save' })}</Button>
+							<Button onClick={() => setEditModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>

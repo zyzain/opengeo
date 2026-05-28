@@ -35,63 +35,13 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useIntl } from "react-intl";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-// AI模型列表
-const aiModels = [
-	{
-		value: "deepseek",
-		label: "DeepSeek",
-		color: "blue",
-		description: "深度求索，擅长中文理解与生成",
-	},
-	{
-		value: "kimi",
-		label: "Kimi",
-		color: "purple",
-		description: "月之暗面，长文本处理能力强",
-	},
-	{
-		value: "doubao",
-		label: "豆包",
-		color: "orange",
-		description: "字节跳动，多模态理解能力",
-	},
-	{
-		value: "chatgpt",
-		label: "ChatGPT",
-		color: "green",
-		description: "OpenAI，全球领先的通用模型",
-	},
-];
-
-// 优化类型
-const optimizationTypes = [
-	{
-		value: "geo_semantic",
-		label: "GEO语义增强",
-		description: "优化内容结构，提升AI可读性",
-	},
-	{
-		value: "schema_markup",
-		label: "Schema标记优化",
-		description: "自动添加结构化数据标记",
-	},
-	{
-		value: "authority_boost",
-		label: "权威性提升",
-		description: "增强内容信源权重",
-	},
-	{
-		value: "multi_platform",
-		label: "多平台适配",
-		description: "适配不同平台内容规范",
-	},
-];
-
 export default function ContentPage() {
+	const intl = useIntl();
 	const navigate = useNavigate();
 	const [searchForm] = Form.useForm();
 	const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -102,6 +52,58 @@ export default function ContentPage() {
 	const [createForm] = Form.useForm();
 	const [editForm] = Form.useForm();
 	const [optimizeForm] = Form.useForm();
+
+	// AI模型列表
+	const aiModels = [
+		{
+			value: "deepseek",
+			label: "DeepSeek",
+			color: "blue",
+			description: intl.formatMessage({ id: 'content.aiModel.deepseek.desc' }),
+		},
+		{
+			value: "kimi",
+			label: "Kimi",
+			color: "purple",
+			description: intl.formatMessage({ id: 'content.aiModel.kimi.desc' }),
+		},
+		{
+			value: "doubao",
+			label: intl.formatMessage({ id: 'content.aiModel.doubao' }),
+			color: "orange",
+			description: intl.formatMessage({ id: 'content.aiModel.doubao.desc' }),
+		},
+		{
+			value: "chatgpt",
+			label: "ChatGPT",
+			color: "green",
+			description: intl.formatMessage({ id: 'content.aiModel.chatgpt.desc' }),
+		},
+	];
+
+	// 优化类型
+	const optimizationTypes = [
+		{
+			value: "geo_semantic",
+			label: intl.formatMessage({ id: 'content.optimization.geoSemantic' }),
+			description: intl.formatMessage({ id: 'content.optimization.geoSemantic.desc' }),
+		},
+		{
+			value: "schema_markup",
+			label: intl.formatMessage({ id: 'content.optimization.schemaMarkup' }),
+			description: intl.formatMessage({ id: 'content.optimization.schemaMarkup.desc' }),
+		},
+		{
+			value: "authority_boost",
+			label: intl.formatMessage({ id: 'content.optimization.authorityBoost' }),
+			description: intl.formatMessage({ id: 'content.optimization.authorityBoost.desc' }),
+		},
+		{
+			value: "multi_platform",
+			label: intl.formatMessage({ id: 'content.optimization.multiPlatform' }),
+			description: intl.formatMessage({ id: 'content.optimization.multiPlatform.desc' }),
+		},
+	];
 
 	// 查询参数
 	const [queryParams, setQueryParams] = useState({
@@ -124,20 +126,20 @@ export default function ContentPage() {
 	// 内容状态标签
 	const getStatusTag = (status: number) => {
 		const statusMap: Record<number, { color: string; text: string }> = {
-			0: { color: "warning", text: "草稿" },
-			1: { color: "success", text: "已发布" },
-			2: { color: "default", text: "已归档" },
+			0: { color: "warning", text: intl.formatMessage({ id: 'content.status.draft' }) },
+			1: { color: "success", text: intl.formatMessage({ id: 'content.status.published' }) },
+			2: { color: "default", text: intl.formatMessage({ id: 'content.status.archived' }) },
 		};
-		const config = statusMap[status] || { color: "default", text: "未知" };
+		const config = statusMap[status] || { color: "default", text: intl.formatMessage({ id: 'common.status.unknown' }) };
 		return <Tag color={config.color}>{config.text}</Tag>;
 	};
 
 	// 内容类型标签
 	const getContentTypeTag = (type: string) => {
 		const typeMap: Record<string, { color: string; text: string }> = {
-			article: { color: "blue", text: "文章" },
-			video: { color: "purple", text: "视频" },
-			image: { color: "orange", text: "图片" },
+			article: { color: "blue", text: intl.formatMessage({ id: 'content.type.article' }) },
+			video: { color: "purple", text: intl.formatMessage({ id: 'content.type.video' }) },
+			image: { color: "orange", text: intl.formatMessage({ id: 'content.type.image' }) },
 		};
 		const config = typeMap[type] || { color: "default", text: type };
 		return <Tag color={config.color}>{config.text}</Tag>;
@@ -152,7 +154,7 @@ export default function ContentPage() {
 			width: 80,
 		},
 		{
-			title: "标题",
+			title: intl.formatMessage({ id: 'content.title' }),
 			dataIndex: "title",
 			key: "title",
 			ellipsis: true,
@@ -166,21 +168,21 @@ export default function ContentPage() {
 			),
 		},
 		{
-			title: "类型",
+			title: intl.formatMessage({ id: 'common.column.type' }),
 			dataIndex: "content_type",
 			key: "content_type",
 			width: 100,
 			render: (type: string) => getContentTypeTag(type),
 		},
 		{
-			title: "状态",
+			title: intl.formatMessage({ id: 'common.column.status' }),
 			dataIndex: "status",
 			key: "status",
 			width: 100,
 			render: (status: number) => getStatusTag(status),
 		},
 		{
-			title: "AI评分",
+			title: intl.formatMessage({ id: 'content.aiScore' }),
 			dataIndex: "ai_optimization_score",
 			key: "ai_optimization_score",
 			width: 100,
@@ -194,38 +196,38 @@ export default function ContentPage() {
 								: "text-red-500"
 					}
 				>
-					{score ? `${score}分` : "-"}
+					{score ? `${score}${intl.formatMessage({ id: 'common.unit.score' })}` : "-"}
 				</span>
 			),
 		},
 		{
-			title: "创建时间",
+			title: intl.formatMessage({ id: 'common.column.createdAt' }),
 			dataIndex: "created_at",
 			key: "created_at",
 			width: 180,
 			render: (text: string) => new Date(text).toLocaleString(),
 		},
 		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 250,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="查看">
+					<Tooltip title={intl.formatMessage({ id: 'common.action.view' })}>
 						<Button
 							type="text"
 							icon={<EyeOutlined />}
 							onClick={() => navigate(`/content/${record.id}`)}
 						/>
 					</Tooltip>
-					<Tooltip title="编辑">
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}>
 						<Button
 							type="text"
 							icon={<EditOutlined />}
 							onClick={() => handleEdit(record)}
 						/>
 					</Tooltip>
-					<Tooltip title="AI优化">
+					<Tooltip title={intl.formatMessage({ id: 'content.optimize' })}>
 						<Button
 							type="text"
 							icon={<ThunderboltOutlined />}
@@ -233,7 +235,7 @@ export default function ContentPage() {
 							loading={optimizeMutation.isPending}
 						/>
 					</Tooltip>
-					<Tooltip title="合规检测">
+					<Tooltip title={intl.formatMessage({ id: 'content.compliance' })}>
 						<Button
 							type="text"
 							icon={<CheckCircleOutlined />}
@@ -241,7 +243,7 @@ export default function ContentPage() {
 							loading={complianceMutation.isPending}
 						/>
 					</Tooltip>
-					<Tooltip title="发布">
+					<Tooltip title={intl.formatMessage({ id: 'content.publish' })}>
 						<Button
 							type="text"
 							icon={<SendOutlined />}
@@ -250,12 +252,12 @@ export default function ContentPage() {
 						/>
 					</Tooltip>
 					<Popconfirm
-						title="确定要删除这个内容吗？"
+						title={intl.formatMessage({ id: 'content.confirmDelete' })}
 						onConfirm={() => handleDelete(record.id)}
-						okText="确定"
-						cancelText="取消"
+						okText={intl.formatMessage({ id: 'common.confirm' })}
+						cancelText={intl.formatMessage({ id: 'common.cancel' })}
 					>
-						<Tooltip title="删除">
+						<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}>
 							<Button type="text" danger icon={<DeleteOutlined />} />
 						</Tooltip>
 					</Popconfirm>
@@ -268,11 +270,11 @@ export default function ContentPage() {
 	const handleCreate = async (values: any) => {
 		try {
 			await createMutation.mutateAsync(values);
-			message.success("创建成功");
+			message.success(intl.formatMessage({ id: 'common.message.createSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "创建失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.createFailed' }));
 		}
 	};
 
@@ -286,12 +288,12 @@ export default function ContentPage() {
 	const handleUpdate = async (values: any) => {
 		try {
 			await updateMutation.mutateAsync({ id: editingContent.id, data: values });
-			message.success("更新成功");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			setEditModalVisible(false);
 			editForm.resetFields();
 			setEditingContent(null);
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "更新失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.updateFailed' }));
 		}
 	};
 
@@ -299,9 +301,9 @@ export default function ContentPage() {
 	const handleDelete = async (id: number) => {
 		try {
 			await deleteMutation.mutateAsync(id);
-			message.success("删除成功");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "删除失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
@@ -323,12 +325,12 @@ export default function ContentPage() {
 				id: optimizingContent.id,
 				data: values,
 			});
-			message.success("AI优化完成");
+			message.success(intl.formatMessage({ id: 'content.optimization.completed' }));
 			setOptimizeModalVisible(false);
 			optimizeForm.resetFields();
 			setOptimizingContent(null);
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "AI优化失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'content.optimization.failed' }));
 		}
 	};
 
@@ -338,12 +340,12 @@ export default function ContentPage() {
 			const res = await complianceMutation.mutateAsync({ id });
 			const result = res.data.data;
 			if (result.passed) {
-				message.success(`合规检测通过！评分: ${result.score}`);
+				message.success(intl.formatMessage({ id: 'content.compliance.passed' }, { score: result.score }));
 			} else {
-				message.warning("合规检测发现问题，请查看详情");
+				message.warning(intl.formatMessage({ id: 'content.compliance.issues' }));
 			}
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "合规检测失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'content.compliance.failed' }));
 		}
 	};
 
@@ -371,25 +373,25 @@ export default function ContentPage() {
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">内容管理</h1>
-				<p className="text-gray-500 mt-1">管理和优化您的内容</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'content.page.title' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: 'content.page.subtitle' })}</p>
 			</div>
 
 			{/* 搜索表单 */}
 			<Card className="mb-4">
 				<Form form={searchForm} layout="inline" onFinish={handleSearch}>
-					<Form.Item name="content_type" label="内容类型">
-						<Select placeholder="请选择" allowClear style={{ width: 120 }}>
-							<Option value="article">文章</Option>
-							<Option value="video">视频</Option>
-							<Option value="image">图片</Option>
+					<Form.Item name="content_type" label={intl.formatMessage({ id: 'content.form.contentType' })}>
+						<Select placeholder={intl.formatMessage({ id: 'content.select.placeholder' })} allowClear style={{ width: 120 }}>
+							<Option value="article">{intl.formatMessage({ id: 'content.type.article' })}</Option>
+							<Option value="video">{intl.formatMessage({ id: 'content.type.video' })}</Option>
+							<Option value="image">{intl.formatMessage({ id: 'content.type.image' })}</Option>
 						</Select>
 					</Form.Item>
-					<Form.Item name="status" label="状态">
-						<Select placeholder="请选择" allowClear style={{ width: 120 }}>
-							<Option value={0}>草稿</Option>
-							<Option value={1}>已发布</Option>
-							<Option value={2}>已归档</Option>
+					<Form.Item name="status" label={intl.formatMessage({ id: 'common.form.status' })}>
+						<Select placeholder={intl.formatMessage({ id: 'content.select.placeholder' })} allowClear style={{ width: 120 }}>
+							<Option value={0}>{intl.formatMessage({ id: 'content.status.draft' })}</Option>
+							<Option value={1}>{intl.formatMessage({ id: 'content.status.published' })}</Option>
+							<Option value={2}>{intl.formatMessage({ id: 'content.status.archived' })}</Option>
 						</Select>
 					</Form.Item>
 					<Form.Item>
@@ -399,9 +401,9 @@ export default function ContentPage() {
 								icon={<SearchOutlined />}
 								htmlType="submit"
 							>
-								搜索
+								{intl.formatMessage({ id: 'common.search' })}
 							</Button>
-							<Button onClick={handleReset}>重置</Button>
+							<Button onClick={handleReset}>{intl.formatMessage({ id: 'common.reset' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
@@ -409,14 +411,14 @@ export default function ContentPage() {
 
 			{/* 内容列表 */}
 			<Card
-				title="内容列表"
+				title={intl.formatMessage({ id: 'content.list.title' })}
 				extra={
 					<Button
 						type="primary"
 						icon={<PlusOutlined />}
 						onClick={() => setCreateModalVisible(true)}
 					>
-						创建内容
+						{intl.formatMessage({ id: 'content.action.create' })}
 					</Button>
 				}
 			>
@@ -431,7 +433,7 @@ export default function ContentPage() {
 						total,
 						showSizeChanger: true,
 						showQuickJumper: true,
-						showTotal: (total) => `共 ${total} 条`,
+						showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }),
 						onChange: (page, pageSize) =>
 							setQueryParams({ ...queryParams, page, page_size: pageSize }),
 					}}
@@ -440,7 +442,7 @@ export default function ContentPage() {
 
 			{/* 创建内容弹窗 */}
 			<Modal
-				title="创建内容"
+				title={intl.formatMessage({ id: 'content.modal.create' })}
 				open={createModalVisible}
 				onCancel={() => setCreateModalVisible(false)}
 				footer={null}
@@ -449,31 +451,31 @@ export default function ContentPage() {
 				<Form form={createForm} layout="vertical" onFinish={handleCreate}>
 					<Form.Item
 						name="title"
-						label="标题"
-						rules={[{ required: true, message: "请输入标题" }]}
+						label={intl.formatMessage({ id: 'content.form.title' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.enterTitle' }) }]}
 					>
-						<Input placeholder="请输入标题" />
+						<Input placeholder={intl.formatMessage({ id: 'content.placeholder.title' })} />
 					</Form.Item>
 					<Form.Item
 						name="content_type"
-						label="内容类型"
-						rules={[{ required: true, message: "请选择内容类型" }]}
+						label={intl.formatMessage({ id: 'content.form.contentType' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.selectContentType' }) }]}
 					>
-						<Select placeholder="请选择">
-							<Option value="article">文章</Option>
-							<Option value="video">视频</Option>
-							<Option value="image">图片</Option>
+						<Select placeholder={intl.formatMessage({ id: 'content.select.placeholder' })}>
+							<Option value="article">{intl.formatMessage({ id: 'content.type.article' })}</Option>
+							<Option value="video">{intl.formatMessage({ id: 'content.type.video' })}</Option>
+							<Option value="image">{intl.formatMessage({ id: 'content.type.image' })}</Option>
 						</Select>
 					</Form.Item>
 					<Form.Item
 						name="body"
-						label="正文"
-						rules={[{ required: true, message: "请输入正文" }]}
+						label={intl.formatMessage({ id: 'content.form.body' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.enterBody' }) }]}
 					>
-						<TextArea rows={6} placeholder="请输入正文" />
+						<TextArea rows={6} placeholder={intl.formatMessage({ id: 'content.placeholder.body' })} />
 					</Form.Item>
-					<Form.Item name="schema_markup" label="Schema Markup">
-						<TextArea rows={3} placeholder="可选，JSON格式的结构化数据" />
+					<Form.Item name="schema_markup" label={intl.formatMessage({ id: 'content.form.schemaMarkup' })}>
+						<TextArea rows={3} placeholder={intl.formatMessage({ id: 'content.placeholder.schemaMarkup' })} />
 					</Form.Item>
 					<Form.Item>
 						<Space>
@@ -482,9 +484,9 @@ export default function ContentPage() {
 								htmlType="submit"
 								loading={createMutation.isPending}
 							>
-								创建
+								{intl.formatMessage({ id: 'common.create' })}
 							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
@@ -492,7 +494,7 @@ export default function ContentPage() {
 
 			{/* 编辑内容弹窗 */}
 			<Modal
-				title="编辑内容"
+				title={intl.formatMessage({ id: 'content.modal.edit' })}
 				open={editModalVisible}
 				onCancel={() => {
 					setEditModalVisible(false);
@@ -504,31 +506,31 @@ export default function ContentPage() {
 				<Form form={editForm} layout="vertical" onFinish={handleUpdate}>
 					<Form.Item
 						name="title"
-						label="标题"
-						rules={[{ required: true, message: "请输入标题" }]}
+						label={intl.formatMessage({ id: 'content.form.title' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.enterTitle' }) }]}
 					>
-						<Input placeholder="请输入标题" />
+						<Input placeholder={intl.formatMessage({ id: 'content.placeholder.title' })} />
 					</Form.Item>
 					<Form.Item
 						name="content_type"
-						label="内容类型"
-						rules={[{ required: true, message: "请选择内容类型" }]}
+						label={intl.formatMessage({ id: 'content.form.contentType' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.selectContentType' }) }]}
 					>
-						<Select placeholder="请选择">
-							<Option value="article">文章</Option>
-							<Option value="video">视频</Option>
-							<Option value="image">图片</Option>
+						<Select placeholder={intl.formatMessage({ id: 'content.select.placeholder' })}>
+							<Option value="article">{intl.formatMessage({ id: 'content.type.article' })}</Option>
+							<Option value="video">{intl.formatMessage({ id: 'content.type.video' })}</Option>
+							<Option value="image">{intl.formatMessage({ id: 'content.type.image' })}</Option>
 						</Select>
 					</Form.Item>
 					<Form.Item
 						name="body"
-						label="正文"
-						rules={[{ required: true, message: "请输入正文" }]}
+						label={intl.formatMessage({ id: 'content.form.body' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.validation.enterBody' }) }]}
 					>
-						<TextArea rows={6} placeholder="请输入正文" />
+						<TextArea rows={6} placeholder={intl.formatMessage({ id: 'content.placeholder.body' })} />
 					</Form.Item>
-					<Form.Item name="schema_markup" label="Schema Markup">
-						<TextArea rows={3} placeholder="可选，JSON格式的结构化数据" />
+					<Form.Item name="schema_markup" label={intl.formatMessage({ id: 'content.form.schemaMarkup' })}>
+						<TextArea rows={3} placeholder={intl.formatMessage({ id: 'content.placeholder.schemaMarkup' })} />
 					</Form.Item>
 					<Form.Item>
 						<Space>
@@ -537,9 +539,9 @@ export default function ContentPage() {
 								htmlType="submit"
 								loading={updateMutation.isPending}
 							>
-								保存
+								{intl.formatMessage({ id: 'common.save' })}
 							</Button>
-							<Button onClick={() => setEditModalVisible(false)}>取消</Button>
+							<Button onClick={() => setEditModalVisible(false)}>{intl.formatMessage({ id: 'common.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
@@ -550,7 +552,7 @@ export default function ContentPage() {
 				title={
 					<Space>
 						<ThunderboltOutlined />
-						<span>AI内容优化</span>
+						<span>{intl.formatMessage({ id: 'content.modal.optimize' })}</span>
 					</Space>
 				}
 				open={optimizeModalVisible}
@@ -563,17 +565,17 @@ export default function ContentPage() {
 			>
 				{optimizingContent && (
 					<div className="mb-4 p-3 bg-blue-50 rounded-lg">
-						<div className="text-sm text-gray-500">正在优化内容：</div>
+						<div className="text-sm text-gray-500">{intl.formatMessage({ id: 'content.placeholder.optimizing' })}</div>
 						<div className="font-medium">{optimizingContent.title}</div>
 					</div>
 				)}
 				<Form form={optimizeForm} layout="vertical" onFinish={handleOptimize}>
 					<Form.Item
 						name="ai_model"
-						label="选择AI模型"
-						rules={[{ required: true, message: "请选择AI模型" }]}
+						label={intl.formatMessage({ id: 'content.aiModel.label' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.aiModel.label' }) }]}
 					>
-						<Select placeholder="请选择AI模型">
+						<Select placeholder={intl.formatMessage({ id: 'content.aiModel.label' })}>
 							{aiModels.map((model) => (
 								<Option key={model.value} value={model.value}>
 									<Space>
@@ -586,10 +588,10 @@ export default function ContentPage() {
 					</Form.Item>
 					<Form.Item
 						name="optimization_type"
-						label="优化类型"
-						rules={[{ required: true, message: "请选择优化类型" }]}
+						label={intl.formatMessage({ id: 'content.optimization.type' })}
+						rules={[{ required: true, message: intl.formatMessage({ id: 'content.optimization.type' }) }]}
 					>
-						<Select placeholder="请选择优化类型">
+						<Select placeholder={intl.formatMessage({ id: 'content.optimization.type' })}>
 							{optimizationTypes.map((type) => (
 								<Option key={type.value} value={type.value}>
 									<div>
@@ -610,10 +612,10 @@ export default function ContentPage() {
 								loading={optimizeMutation.isPending}
 								icon={<ThunderboltOutlined />}
 							>
-								开始优化
+								{intl.formatMessage({ id: 'content.optimization.start' })}
 							</Button>
 							<Button onClick={() => setOptimizeModalVisible(false)}>
-								取消
+								{intl.formatMessage({ id: 'common.cancel' })}
 							</Button>
 						</Space>
 					</Form.Item>

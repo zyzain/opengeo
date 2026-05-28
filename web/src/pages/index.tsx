@@ -9,39 +9,41 @@ import {
 } from "@ant-design/icons";
 import { Button, Card, Col, Row, Space, Statistic, Typography } from "antd";
 import { Link } from "react-router-dom";
+import { useIntl } from "react-intl";
 
 const { Title, Paragraph } = Typography;
 
 export default function HomePage() {
+	const intl = useIntl();
 	const features = [
 		{
 			icon: <ThunderboltOutlined className="text-4xl text-blue-500" />,
-			title: "AI内容优化",
+			title: intl.formatMessage({ id: 'landing.features.aiOptimize' }),
 			description:
-				"基于DeepSeek、Kimi、豆包等多模型的GEO语义增强，提升AI搜索可见性",
+				intl.formatMessage({ id: 'landing.features.aiOptimize.desc' }),
 		},
 		{
 			icon: <GlobalOutlined className="text-4xl text-green-500" />,
-			title: "多渠道分发",
-			description: "支持微信、微博、抖音、小红书等主流平台一键发布",
+			title: intl.formatMessage({ id: 'landing.features.multiChannel' }),
+			description: intl.formatMessage({ id: 'landing.features.multiChannel.desc' }),
 		},
 		{
 			icon: <SafetyOutlined className="text-4xl text-purple-500" />,
-			title: "智能合规检测",
-			description: "敏感词过滤、广告法合规校验、AIGC标识自动添加",
+			title: intl.formatMessage({ id: 'landing.features.compliance' }),
+			description: intl.formatMessage({ id: 'landing.features.compliance.desc' }),
 		},
 		{
 			icon: <RocketOutlined className="text-4xl text-orange-500" />,
-			title: "效果监测",
-			description: "AI引用追踪、信源权重评分、ROI归因分析",
+			title: intl.formatMessage({ id: 'landing.features.monitor' }),
+			description: intl.formatMessage({ id: 'landing.features.monitor.desc' }),
 		},
 	];
 
 	const stats = [
-		{ title: "支持平台", value: 10, suffix: "+" },
-		{ title: "AI模型", value: 4, suffix: "个" },
-		{ title: "内容优化", value: 95, suffix: "%" },
-		{ title: "发布效率", value: 300, suffix: "%" },
+		{ title: intl.formatMessage({ id: 'landing.stats.platforms' }), value: 10, suffix: "+" },
+		{ title: intl.formatMessage({ id: 'landing.stats.models' }), value: 4, suffix: intl.formatMessage({ id: 'landing.stats.modelsUnit' }) },
+		{ title: intl.formatMessage({ id: 'landing.stats.optimization' }), value: 95, suffix: "%" },
+		{ title: intl.formatMessage({ id: 'landing.stats.efficiency' }), value: 300, suffix: "%" },
 	];
 
 	return (
@@ -55,10 +57,10 @@ export default function HomePage() {
 					</div>
 					<Space>
 						<Link to="/auth/login">
-							<Button type="text">登录</Button>
+							<Button type="text">{intl.formatMessage({ id: 'landing.login' })}</Button>
 						</Link>
 						<Link to="/auth/login">
-							<Button type="primary">免费试用</Button>
+							<Button type="primary">{intl.formatMessage({ id: 'landing.freeTrial' })}</Button>
 						</Link>
 					</Space>
 				</div>
@@ -68,20 +70,19 @@ export default function HomePage() {
 			<section className="py-20 px-4">
 				<div className="max-w-4xl mx-auto text-center">
 					<Title level={1} className="mb-6">
-						AI时代的<span className="text-blue-500">GEO智能发布平台</span>
+						{intl.formatMessage({ id: 'landing.hero.title' })}
 					</Title>
 					<Paragraph className="text-lg text-gray-600 mb-8">
-						基于CloudWeGo高性能微服务架构，帮助企业在AI搜索时代提升品牌可见性。
-						支持多模型内容优化、多渠道智能分发、全链路效果监测。
+						{intl.formatMessage({ id: 'landing.hero.subtitle' })}
 					</Paragraph>
 					<Space size="large">
 						<Link to="/auth/login">
 							<Button type="primary" size="large" icon={<RocketOutlined />}>
-								开始使用
+								{intl.formatMessage({ id: 'landing.hero.start' })}
 							</Button>
 						</Link>
 						<Button size="large" icon={<ArrowRightOutlined />}>
-							了解更多
+							{intl.formatMessage({ id: 'landing.hero.learnMore' })}
 						</Button>
 					</Space>
 				</div>
@@ -110,9 +111,9 @@ export default function HomePage() {
 			<section className="py-20 px-4">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-16">
-						<Title level={2}>核心功能</Title>
+						<Title level={2}>{intl.formatMessage({ id: 'landing.features.title' })}</Title>
 						<Paragraph className="text-gray-500">
-							全链路GEO优化解决方案
+							{intl.formatMessage({ id: 'landing.features.subtitle' })}
 						</Paragraph>
 					</div>
 					<Row gutter={[32, 32]}>
@@ -138,60 +139,60 @@ export default function HomePage() {
 			<section className="py-20 px-4 bg-gray-50">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-16">
-						<Title level={2}>技术架构</Title>
+						<Title level={2}>{intl.formatMessage({ id: 'landing.arch.title' })}</Title>
 						<Paragraph className="text-gray-500">
-							基于CloudWeGo高性能微服务架构
+							{intl.formatMessage({ id: 'landing.arch.subtitle' })}
 						</Paragraph>
 					</div>
 					<Row gutter={[32, 32]}>
 						<Col xs={24} md={12}>
-							<Card title="后端技术栈">
+							<Card title={intl.formatMessage({ id: 'landing.arch.backend' })}>
 								<ul className="space-y-3">
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-										<span>HTTP框架: Hertz (CloudWeGo)</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.http' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-										<span>RPC框架: Kitex (CloudWeGo)</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.rpc' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-										<span>消息队列: Kafka</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.mq' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-										<span>数据库: MySQL + Redis + Milvus</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.db' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-										<span>监控: Prometheus + Grafana + Jaeger</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.monitor' })}</span>
 									</li>
 								</ul>
 							</Card>
 						</Col>
 						<Col xs={24} md={12}>
-							<Card title="前端技术栈">
+							<Card title={intl.formatMessage({ id: 'landing.arch.frontend' })}>
 								<ul className="space-y-3">
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-										<span>框架: Next.js 15+ (App Router)</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.framework' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-										<span>UI: Ant Design 5.x + ProComponents</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.ui' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-										<span>状态: TanStack Query + Zustand</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.state' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
-										<span>样式: Tailwind CSS 4</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.style' })}</span>
 									</li>
 									<li className="flex items-center">
 										<span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-										<span>图表: ECharts 5</span>
+										<span>{intl.formatMessage({ id: 'landing.arch.chart' })}</span>
 									</li>
 								</ul>
 							</Card>
@@ -203,13 +204,13 @@ export default function HomePage() {
 			{/* CTA */}
 			<section className="py-20 px-4">
 				<div className="max-w-4xl mx-auto text-center">
-					<Title level={2}>开始优化您的AI搜索可见性</Title>
+					<Title level={2}>{intl.formatMessage({ id: 'landing.cta.title' })}</Title>
 					<Paragraph className="text-gray-500 mb-8">
-						立即注册，免费体验OpenGEO智能发布平台
+						{intl.formatMessage({ id: 'landing.cta.subtitle' })}
 					</Paragraph>
 					<Link to="/auth/login">
 						<Button type="primary" size="large" icon={<RocketOutlined />}>
-							免费注册
+							{intl.formatMessage({ id: 'landing.cta.register' })}
 						</Button>
 					</Link>
 				</div>
@@ -224,70 +225,70 @@ export default function HomePage() {
 								<ThunderboltOutlined className="text-2xl text-blue-400" />
 								<span className="text-xl font-bold">OpenGEO</span>
 							</div>
-							<p className="text-gray-400">AI时代的GEO智能发布平台</p>
+							<p className="text-gray-400">{intl.formatMessage({ id: 'landing.hero.title' })}</p>
 						</Col>
 						<Col xs={12} md={4}>
-							<h4 className="font-bold mb-4">产品</h4>
+							<h4 className="font-bold mb-4">{intl.formatMessage({ id: 'landing.footer.product' })}</h4>
 							<ul className="space-y-2 text-gray-400">
 								<li>
 									<a href="#" className="hover:text-white">
-										功能特性
+										{intl.formatMessage({ id: 'landing.footer.features' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										定价方案
+										{intl.formatMessage({ id: 'landing.footer.pricing' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										使用文档
+										{intl.formatMessage({ id: 'landing.footer.docs' })}
 									</a>
 								</li>
 							</ul>
 						</Col>
 						<Col xs={12} md={4}>
-							<h4 className="font-bold mb-4">资源</h4>
+							<h4 className="font-bold mb-4">{intl.formatMessage({ id: 'landing.footer.resources' })}</h4>
 							<ul className="space-y-2 text-gray-400">
 								<li>
 									<a href="#" className="hover:text-white">
-										博客
+										{intl.formatMessage({ id: 'landing.footer.blog' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										案例
+										{intl.formatMessage({ id: 'landing.footer.cases' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										帮助中心
+										{intl.formatMessage({ id: 'landing.footer.help' })}
 									</a>
 								</li>
 							</ul>
 						</Col>
 						<Col xs={12} md={4}>
-							<h4 className="font-bold mb-4">关于我们</h4>
+							<h4 className="font-bold mb-4">{intl.formatMessage({ id: 'landing.footer.about' })}</h4>
 							<ul className="space-y-2 text-gray-400">
 								<li>
 									<a href="#" className="hover:text-white">
-										公司介绍
+										{intl.formatMessage({ id: 'landing.footer.company' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										联系我们
+										{intl.formatMessage({ id: 'landing.footer.contact' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										加入我们
+										{intl.formatMessage({ id: 'landing.footer.careers' })}
 									</a>
 								</li>
 							</ul>
 						</Col>
 						<Col xs={12} md={4}>
-							<h4 className="font-bold mb-4">关注我们</h4>
+							<h4 className="font-bold mb-4">{intl.formatMessage({ id: 'landing.footer.followUs' })}</h4>
 							<ul className="space-y-2 text-gray-400">
 								<li>
 									<a href="#" className="hover:text-white">
@@ -296,12 +297,12 @@ export default function HomePage() {
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										微信公众号
+										{intl.formatMessage({ id: 'landing.footer.wechat' })}
 									</a>
 								</li>
 								<li>
 									<a href="#" className="hover:text-white">
-										技术社区
+										{intl.formatMessage({ id: 'landing.footer.community' })}
 									</a>
 								</li>
 							</ul>

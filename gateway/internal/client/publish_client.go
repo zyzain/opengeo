@@ -11,6 +11,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"opengeo/pkg/locale"
 	"opengeo/pkg/similarity"
 )
 
@@ -224,22 +225,23 @@ func (c *PublishClient) PreviewPublish(ctx context.Context, channelID int64, tit
 }
 
 func (c *PublishClient) ValidatePublish(ctx context.Context, channelID int64, title, body string) (map[string]interface{}, error) {
-	errors := make([]string, 0)
+	loc := locale.FromContext(ctx)
+	errs := make([]string, 0)
 	warnings := make([]string, 0)
 
 	if title == "" {
-		errors = append(errors, "标题不能为空")
+		errs = append(errs, locale.T(loc, "title_empty"))
 	}
 	if body == "" {
-		errors = append(errors, "正文不能为空")
+		errs = append(errs, locale.T(loc, "body_empty"))
 	}
 	if len(title) > 64 {
-		warnings = append(warnings, "标题超过64字符可能被截断")
+		warnings = append(warnings, locale.T(loc, "title_too_long"))
 	}
 
 	return map[string]interface{}{
-		"valid":    len(errors) == 0,
-		"errors":   errors,
+		"valid":    len(errs) == 0,
+		"errors":   errs,
 		"warnings": warnings,
 	}, nil
 }
@@ -248,6 +250,7 @@ func (c *PublishClient) ValidatePublish(ctx context.Context, channelID int64, ti
 
 // CheckContentDedup 检查内容去重
 func (c *PublishClient) CheckContentDedup(ctx context.Context, userID int64, text string) (map[string]interface{}, error) {
+	loc := locale.FromContext(ctx)
 	// 计算内容指纹
 	simCalc := similarity.NewCombinedSimilarity()
 	fingerprint := simCalc.ComputeFingerprint(text)
@@ -277,7 +280,7 @@ func (c *PublishClient) CheckContentDedup(ctx context.Context, userID int64, tex
 					"id":         fp["content_id"],
 					"title":      fp["title"],
 					"similarity": sim,
-					"source":     "内容库",
+					"source":     locale.T(loc, "content_library"),
 					"status":     getSimilarityStatus(sim),
 				})
 			}
@@ -307,7 +310,7 @@ func (c *PublishClient) CheckContentDedup(ctx context.Context, userID int64, tex
 								"id":         contentID,
 								"title":      content["title"],
 								"similarity": sim,
-								"source":     "已发布内容",
+								"source":     locale.T(loc, "published_content"),
 								"status":     getSimilarityStatus(sim),
 							})
 						}
@@ -318,7 +321,7 @@ func (c *PublishClient) CheckContentDedup(ctx context.Context, userID int64, tex
 	}
 
 	// 生成建议
-	suggestions := generateDedupSuggestions(text, similarContents)
+	suggestions := generateDedupSuggestions(loc, text, similarContents)
 
 	return map[string]interface{}{
 		"text_length":      utf8.RuneCountInString(text),
@@ -397,21 +400,21 @@ func calculateOverallSimilarity(duplicates []map[string]interface{}) float64 {
 	return maxSim
 }
 
-func generateDedupSuggestions(text string, duplicates []map[string]interface{}) []string {
+func generateDedupSuggestions(loc locale.Locale, text string, duplicates []map[string]interface{}) []string {
 	suggestions := make([]string, 0)
 
 	if len(duplicates) > 0 {
-		suggestions = append(suggestions, "发现相似内容，建议添加独特的观点和分析")
-		suggestions = append(suggestions, "可使用同义词替换部分高频词汇")
-		suggestions = append(suggestions, "建议调整段落顺序或重新组织内容结构")
+		suggestions = append(suggestions, locale.T(loc, "similar_content_found"))
+		suggestions = append(suggestions, locale.T(loc, "use_synonyms"))
+		suggestions = append(suggestions, locale.T(loc, "restructure_content"))
 	} else {
-		suggestions = append(suggestions, "内容原创度较高，建议保持")
+		suggestions = append(suggestions, locale.T(loc, "content_original"))
 	}
 
 	// 基于内容长度的建议
 	textLen := utf8.RuneCountInString(text)
 	if textLen < 100 {
-		suggestions = append(suggestions, "内容较短，建议补充更多细节")
+		suggestions = append(suggestions, locale.T(loc, "content_too_short"))
 	}
 
 	return suggestions

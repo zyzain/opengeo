@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Select, Button, ColorPicker, Space, Tag, message } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { useIntl } from 'react-intl';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -13,6 +14,7 @@ interface MetadataEditorProps {
 }
 
 const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSave, loading }) => {
+  const intl = useIntl();
   const [form] = Form.useForm();
   const [viKeywords, setViKeywords] = useState<string[]>(metadata?.vi_profile?.brand_keywords || []);
   const [preferredPhrases, setPreferredPhrases] = useState<string[]>(metadata?.tone_profile?.preferred_phrases || []);
@@ -36,7 +38,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
         unique_selling_points: values.unique_selling_points || [],
       };
       await onSave(metadataValues);
-      message.success('元数据保存成功');
+      message.success(intl.formatMessage({ id: 'metadata.message.saveSuccess' }));
     } catch (error) {
       console.error('Form validation failed:', error);
     }
@@ -55,20 +57,20 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
           unique_selling_points: metadata?.unique_selling_points || [],
         }}
       >
-        <Card title="VI 规范" style={{ marginBottom: 16 }}>
-          <Form.Item name={['vi_profile', 'primary_color']} label="主色">
+        <Card title={intl.formatMessage({ id: 'metadata.section.viSpec' })} style={{ marginBottom: 16 }}>
+          <Form.Item name={['vi_profile', 'primary_color']} label={intl.formatMessage({ id: 'metadata.form.primaryColor' })}>
             <Input placeholder="#1890ff" />
           </Form.Item>
-          <Form.Item name={['vi_profile', 'secondary_color']} label="副色">
+          <Form.Item name={['vi_profile', 'secondary_color']} label={intl.formatMessage({ id: 'metadata.form.secondaryColor' })}>
             <Input placeholder="#52c41a" />
           </Form.Item>
-          <Form.Item name={['vi_profile', 'font_family']} label="字体">
+          <Form.Item name={['vi_profile', 'font_family']} label={intl.formatMessage({ id: 'metadata.form.fontFamily' })}>
             <Input placeholder="PingFang SC" />
           </Form.Item>
-          <Form.Item name={['vi_profile', 'slogan']} label="品牌口号">
-            <Input placeholder="请输入品牌口号" />
+          <Form.Item name={['vi_profile', 'slogan']} label={intl.formatMessage({ id: 'metadata.form.slogan' })}>
+            <Input placeholder={intl.formatMessage({ id: 'metadata.placeholder.slogan' })} />
           </Form.Item>
-          <Form.Item label="品牌关键词">
+          <Form.Item label={intl.formatMessage({ id: 'metadata.form.brandKeywords' })}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {viKeywords.map((keyword, index) => (
                 <Tag
@@ -81,7 +83,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
               ))}
             </div>
             <Input
-              placeholder="输入关键词后按回车"
+              placeholder={intl.formatMessage({ id: 'metadata.placeholder.keywords' })}
               onPressEnter={(e) => {
                 const value = (e.target as HTMLInputElement).value.trim();
                 if (value && !viKeywords.includes(value)) {
@@ -93,26 +95,26 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
           </Form.Item>
         </Card>
 
-        <Card title="语调规范" style={{ marginBottom: 16 }}>
-          <Form.Item name={['tone_profile', 'formality']} label="正式度">
-            <Select placeholder="请选择正式度">
-              <Option value="formal">正式</Option>
-              <Option value="casual">随意</Option>
-              <Option value="technical">技术</Option>
+        <Card title={intl.formatMessage({ id: 'metadata.section.toneSpec' })} style={{ marginBottom: 16 }}>
+          <Form.Item name={['tone_profile', 'formality']} label={intl.formatMessage({ id: 'metadata.form.formality' })}>
+            <Select placeholder={intl.formatMessage({ id: 'metadata.placeholder.formality' })}>
+              <Option value="formal">{intl.formatMessage({ id: 'metadata.option.formal' })}</Option>
+              <Option value="casual">{intl.formatMessage({ id: 'metadata.option.casual' })}</Option>
+              <Option value="technical">{intl.formatMessage({ id: 'metadata.option.technical' })}</Option>
             </Select>
           </Form.Item>
-          <Form.Item name={['tone_profile', 'personality']} label="个性">
-            <Select placeholder="请选择个性">
-              <Option value="friendly">友好</Option>
-              <Option value="professional">专业</Option>
-              <Option value="playful">活泼</Option>
-              <Option value="authoritative">权威</Option>
+          <Form.Item name={['tone_profile', 'personality']} label={intl.formatMessage({ id: 'metadata.form.personality' })}>
+            <Select placeholder={intl.formatMessage({ id: 'metadata.placeholder.personality' })}>
+              <Option value="friendly">{intl.formatMessage({ id: 'metadata.option.friendly' })}</Option>
+              <Option value="professional">{intl.formatMessage({ id: 'metadata.option.professional' })}</Option>
+              <Option value="playful">{intl.formatMessage({ id: 'metadata.option.playful' })}</Option>
+              <Option value="authoritative">{intl.formatMessage({ id: 'metadata.option.authoritative' })}</Option>
             </Select>
           </Form.Item>
-          <Form.Item name={['tone_profile', 'style_guide']} label="风格指南">
-            <TextArea rows={3} placeholder="请输入写作风格指南" />
+          <Form.Item name={['tone_profile', 'style_guide']} label={intl.formatMessage({ id: 'metadata.form.styleGuide' })}>
+            <TextArea rows={3} placeholder={intl.formatMessage({ id: 'metadata.placeholder.styleGuide' })} />
           </Form.Item>
-          <Form.Item label="偏好短语">
+          <Form.Item label={intl.formatMessage({ id: 'metadata.form.preferredPhrases' })}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {preferredPhrases.map((phrase, index) => (
                 <Tag
@@ -125,7 +127,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
               ))}
             </div>
             <Input
-              placeholder="输入偏好短语后按回车"
+              placeholder={intl.formatMessage({ id: 'metadata.placeholder.preferredPhrases' })}
               onPressEnter={(e) => {
                 const value = (e.target as HTMLInputElement).value.trim();
                 if (value && !preferredPhrases.includes(value)) {
@@ -135,7 +137,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
               }}
             />
           </Form.Item>
-          <Form.Item label="禁用词">
+          <Form.Item label={intl.formatMessage({ id: 'metadata.form.avoidWords' })}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {avoidWords.map((word, index) => (
                 <Tag
@@ -149,7 +151,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
               ))}
             </div>
             <Input
-              placeholder="输入禁用词后按回车"
+              placeholder={intl.formatMessage({ id: 'metadata.placeholder.avoidWords' })}
               onPressEnter={(e) => {
                 const value = (e.target as HTMLInputElement).value.trim();
                 if (value && !avoidWords.includes(value)) {
@@ -161,7 +163,7 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
           </Form.Item>
         </Card>
 
-        <Card title="受众画像" style={{ marginBottom: 16 }}>
+        <Card title={intl.formatMessage({ id: 'metadata.section.audience' })} style={{ marginBottom: 16 }}>
           <Form.List name="audience_profiles">
             {(fields, { add, remove }) => (
               <>
@@ -177,52 +179,52 @@ const MetadataEditor: React.FC<MetadataEditorProps> = ({ brandId, metadata, onSa
                         icon={<MinusCircleOutlined />}
                         onClick={() => remove(name)}
                       >
-                        删除
+                        {intl.formatMessage({ id: 'common.action.delete' })}
                       </Button>
                     }
                   >
                     <Form.Item
                       {...restField}
                       name={[name, 'name']}
-                      label="受众名称"
-                      rules={[{ required: true, message: '请输入受众名称' }]}
+                      label={intl.formatMessage({ id: 'metadata.form.audienceName' })}
+                      rules={[{ required: true, message: intl.formatMessage({ id: 'metadata.validation.enterAudienceName' }) }]}
                     >
-                      <Input placeholder="例如：企业用户" />
+                      <Input placeholder={intl.formatMessage({ id: 'metadata.placeholder.audienceNameExample' })} />
                     </Form.Item>
-                    <Form.Item {...restField} name={[name, 'age_range']} label="年龄范围">
-                      <Input placeholder="例如：25-45" />
+                    <Form.Item {...restField} name={[name, 'age_range']} label={intl.formatMessage({ id: 'metadata.form.ageRange' })}>
+                      <Input placeholder={intl.formatMessage({ id: 'metadata.form.agePlaceholder' })} />
                     </Form.Item>
-                    <Form.Item {...restField} name={[name, 'interests']} label="兴趣">
-                      <Select mode="tags" placeholder="输入兴趣标签" />
+                    <Form.Item {...restField} name={[name, 'interests']} label={intl.formatMessage({ id: 'metadata.form.interests' })}>
+                      <Select mode="tags" placeholder={intl.formatMessage({ id: 'metadata.placeholder.interests' })} />
                     </Form.Item>
-                    <Form.Item {...restField} name={[name, 'pain_points']} label="痛点">
-                      <Select mode="tags" placeholder="输入痛点" />
+                    <Form.Item {...restField} name={[name, 'pain_points']} label={intl.formatMessage({ id: 'metadata.form.painPoints' })}>
+                      <Select mode="tags" placeholder={intl.formatMessage({ id: 'metadata.placeholder.painPoints' })} />
                     </Form.Item>
                   </Card>
                 ))}
                 <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                  添加受众画像
+                  {intl.formatMessage({ id: 'metadata.action.addAudience' })}
                 </Button>
               </>
             )}
           </Form.List>
         </Card>
 
-        <Card title="品牌价值观" style={{ marginBottom: 16 }}>
+        <Card title={intl.formatMessage({ id: 'metadata.section.brandValues' })} style={{ marginBottom: 16 }}>
           <Form.Item name="brand_values">
-            <Select mode="tags" placeholder="输入品牌价值观" />
+            <Select mode="tags" placeholder={intl.formatMessage({ id: 'metadata.placeholder.brandValues' })} />
           </Form.Item>
         </Card>
 
-        <Card title="独特卖点" style={{ marginBottom: 16 }}>
+        <Card title={intl.formatMessage({ id: 'metadata.section.usp' })} style={{ marginBottom: 16 }}>
           <Form.Item name="unique_selling_points">
-            <Select mode="tags" placeholder="输入独特卖点" />
+            <Select mode="tags" placeholder={intl.formatMessage({ id: 'metadata.placeholder.usp' })} />
           </Form.Item>
         </Card>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="primary" onClick={handleSave} loading={loading}>
-            保存元数据
+            {intl.formatMessage({ id: 'metadata.action.save' })}
           </Button>
         </div>
       </Form>

@@ -6,6 +6,11 @@ import AccountEnvironmentPage from "@/pages/account/environment";
 import AccountGroupsPage from "@/pages/account/groups";
 import AccountListPage from "@/pages/account/list";
 import LoginPage from "@/pages/auth/login";
+import BrandListPage from "@/pages/brand";
+import BrandDetailPage from "@/pages/brand/detail";
+import BrandMetadataPage from "@/pages/brand/metadata";
+import BrandGlossaryPage from "@/pages/brand/glossary";
+import BrandKnowledgePage from "@/pages/brand/knowledge";
 import ContentListPage from "@/pages/content";
 import ContentDedupPage from "@/pages/content/dedup";
 import ContentKnowledgePage from "@/pages/content/knowledge";
@@ -50,6 +55,11 @@ const router = createBrowserRouter([
 						element: <MainLayout />,
 						children: [
 							{ path: "dashboard", element: <DashboardPage /> },
+							{ path: "brand", element: <BrandListPage /> },
+							{ path: "brand/:id", element: <BrandDetailPage /> },
+							{ path: "brand/metadata", element: <BrandMetadataPage /> },
+							{ path: "brand/glossary", element: <BrandGlossaryPage /> },
+							{ path: "brand/knowledge", element: <BrandKnowledgePage /> },
 							{ path: "content", element: <ContentListPage /> },
 							{ path: "content/knowledge", element: <ContentKnowledgePage /> },
 							{ path: "content/templates", element: <ContentTemplatesPage /> },

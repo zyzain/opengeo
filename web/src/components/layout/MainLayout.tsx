@@ -2,6 +2,7 @@
 
 import { useLogout } from "@/hooks";
 import { useI18n } from "@/i18n";
+import { useIntl } from "react-intl";
 import { useAppStore, useAuthStore } from "@/stores";
 import {
 	BookOutlined,
@@ -22,6 +23,9 @@ import {
 	StarOutlined,
 	TeamOutlined,
 	UserOutlined,
+	TagsOutlined,
+	BranchesOutlined,
+	HistoryOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Layout, Menu, theme } from "antd";
 import { useState } from "react";
@@ -36,6 +40,7 @@ export default function MainLayout() {
 	const { user } = useAuthStore();
 	const { sidebarCollapsed, toggleSidebar } = useAppStore();
 	const logout = useLogout();
+	const intl = useIntl();
 	const { locale, setLocale } = useI18n();
 	const {
 		token: { colorBgContainer, borderRadiusLG },
@@ -45,136 +50,159 @@ export default function MainLayout() {
 		{
 			key: "/dashboard",
 			icon: <DashboardOutlined />,
-			label: "仪表盘",
+			label: intl.formatMessage({ id: 'nav.dashboard' }),
+		},
+		{
+			key: "/brand",
+			icon: <StarOutlined />,
+			label: intl.formatMessage({ id: 'nav.brand' }),
+			children: [
+				{
+					key: "/brand",
+					label: intl.formatMessage({ id: 'nav.brand' }),
+				},
+				{
+					key: "/brand/metadata",
+					label: intl.formatMessage({ id: 'brand.tab.metadata' }),
+				},
+				{
+					key: "/brand/glossary",
+					label: intl.formatMessage({ id: 'brand.tab.glossary' }),
+				},
+				{
+					key: "/brand/knowledge",
+					label: intl.formatMessage({ id: 'nav.content.knowledge' }),
+				},
+			],
 		},
 		{
 			key: "/content",
 			icon: <FileTextOutlined />,
-			label: "内容管理",
+			label: intl.formatMessage({ id: 'nav.content' }),
 			children: [
 				{
 					key: "content_list",
-					label: "内容列表",
+					label: intl.formatMessage({ id: 'nav.content.list' }),
 				},
 				{
 					key: "/content/knowledge",
-					label: "知识图谱",
+					label: intl.formatMessage({ id: 'nav.content.knowledge' }),
 				},
 				{
 					key: "/content/templates",
-					label: "Prompt模板",
+					label: intl.formatMessage({ id: 'nav.content.templates' }),
 				},
 				{
 					key: "/content/dedup",
-					label: "内容去重",
+					label: intl.formatMessage({ id: 'nav.content.dedup' }),
 				},
 			],
 		},
 		{
 			key: "/account",
 			icon: <TeamOutlined />,
-			label: "账号管理",
+			label: intl.formatMessage({ id: 'nav.account' }),
 			children: [
 				{
 					key: "/account/list",
-					label: "账号列表",
+					label: intl.formatMessage({ id: 'nav.account.list' }),
 				},
 				{
 					key: "/account/groups",
-					label: "账号分组",
+					label: intl.formatMessage({ id: 'nav.account.groups' }),
 				},
 				{
 					key: "/account/environment",
-					label: "环境隔离",
+					label: intl.formatMessage({ id: 'nav.account.environment' }),
 				},
 			],
 		},
 		{
 			key: "/publish",
 			icon: <SendOutlined />,
-			label: "发布管理",
+			label: intl.formatMessage({ id: 'nav.publish' }),
 			children: [
 				{
 					key: "/publish/tasks",
-					label: "发布任务",
+					label: intl.formatMessage({ id: 'nav.publish.tasks' }),
 				},
 				{
 					key: "/publish/channels",
-					label: "渠道管理",
+					label: intl.formatMessage({ id: 'nav.publish.channels' }),
 				},
 				{
 					key: "/publish/stagger",
-					label: "错峰发布",
+					label: intl.formatMessage({ id: 'nav.publish.stagger' }),
 				},
 			],
 		},
 		{
 			key: "/schedule",
 			icon: <ScheduleOutlined />,
-			label: "调度管理",
+			label: intl.formatMessage({ id: 'nav.schedule' }),
 		},
 		{
 			key: "/monitor",
 			icon: <LineChartOutlined />,
-			label: "监测分析",
+			label: intl.formatMessage({ id: 'nav.monitor' }),
 			children: [
 				{
 					key: "/monitor/citations",
-					label: "AI引用",
+					label: intl.formatMessage({ id: 'nav.monitor.citations' }),
 				},
 				{
 					key: "/monitor/scores",
-					label: "信源评分",
+					label: intl.formatMessage({ id: 'nav.monitor.scores' }),
 				},
 				{
 					key: "/monitor/competitors",
-					label: "竞品监测",
+					label: intl.formatMessage({ id: 'nav.monitor.competitors' }),
 				},
 				{
 					key: "/monitor/roi",
-					label: "ROI分析",
+					label: intl.formatMessage({ id: 'nav.monitor.roi' }),
 				},
 				{
 					key: "/monitor/suggestions",
-					label: "优化建议",
+					label: intl.formatMessage({ id: 'nav.monitor.suggestions' }),
 				},
 			],
 		},
 		{
 			key: "/settings",
 			icon: <SettingOutlined />,
-			label: "系统设置",
+			label: intl.formatMessage({ id: 'nav.settings' }),
 			children: [
 				{
 					key: "/settings/configs",
-					label: "系统配置",
+					label: intl.formatMessage({ id: 'nav.settings.configs' }),
 				},
 				{
 					key: "/settings/plugins",
-					label: "插件管理",
+					label: intl.formatMessage({ id: 'nav.settings.plugins' }),
 				},
 				{
 					key: "/settings/webhooks",
-					label: "Webhook",
+					label: intl.formatMessage({ id: 'nav.settings.webhooks' }),
 				},
 			],
 		},
 		{
 			key: "/system",
 			icon: <SafetyOutlined />,
-			label: "权限管理",
+			label: intl.formatMessage({ id: 'nav.system' }),
 			children: [
 				{
 					key: "/system/users",
-					label: "用户管理",
+					label: intl.formatMessage({ id: 'nav.system.users' }),
 				},
 				{
 					key: "/system/roles",
-					label: "角色管理",
+					label: intl.formatMessage({ id: 'nav.system.roles' }),
 				},
 				{
 					key: "/system/tenants",
-					label: "租户管理",
+					label: intl.formatMessage({ id: 'nav.system.tenants' }),
 				},
 			],
 		},
@@ -184,7 +212,7 @@ export default function MainLayout() {
 		{
 			key: "profile",
 			icon: <UserOutlined />,
-			label: "个人资料",
+			label: intl.formatMessage({ id: 'nav.profile' }),
 			onClick: () => navigate("/settings/profile"),
 		},
 		{
@@ -193,7 +221,7 @@ export default function MainLayout() {
 		{
 			key: "logout",
 			icon: <LogoutOutlined />,
-			label: "退出登录",
+			label: intl.formatMessage({ id: 'nav.logout' }),
 			onClick: logout,
 		},
 	];
@@ -295,7 +323,7 @@ export default function MainLayout() {
 							<div className="flex items-center cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg">
 								<Avatar icon={<UserOutlined />} className="mr-2" />
 								<span className="text-gray-700">
-									{user?.username || "用户"}
+									{user?.username || intl.formatMessage({ id: 'nav.user' })}
 								</span>
 							</div>
 						</Dropdown>

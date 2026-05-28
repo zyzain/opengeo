@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Spin, Tag } from 'antd';
+import { useIntl } from 'react-intl';
 import { useBrands } from '../../hooks/useBrand';
 
 const { Option } = Select;
@@ -15,17 +16,18 @@ interface BrandSelectorProps {
 const BrandSelector: React.FC<BrandSelectorProps> = ({
   value,
   onChange,
-  placeholder = '请选择品牌',
+  placeholder,
   disabled = false,
   style,
 }) => {
+  const intl = useIntl();
   const { brands, loading } = useBrands();
 
   return (
     <Select
       value={value}
       onChange={onChange}
-      placeholder={placeholder}
+      placeholder={placeholder || intl.formatMessage({ id: 'brand.placeholder.selectBrand' })}
       disabled={disabled}
       loading={loading}
       style={style}

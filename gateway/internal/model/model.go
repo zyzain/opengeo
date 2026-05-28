@@ -160,3 +160,112 @@ type DedupHistory struct {
 func (DedupHistory) TableName() string {
 	return "dedup_history"
 }
+
+// Brand 品牌
+type Brand struct {
+	ID           int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:品牌ID"`
+	TenantID     int64     `json:"tenant_id" gorm:"index;not null;comment:租户ID"`
+	Name         string    `json:"name" gorm:"size:128;not null;comment:品牌名称"`
+	Slug         string    `json:"slug" gorm:"size:64;not null;comment:品牌标识"`
+	Description  string    `json:"description" gorm:"type:text;comment:品牌描述"`
+	LogoURL      string    `json:"logo_url" gorm:"size:512;comment:Logo URL"`
+	Website      string    `json:"website" gorm:"size:256;comment:品牌官网"`
+	Industry     string    `json:"industry" gorm:"size:64;index;comment:所属行业"`
+	FoundedYear  int32     `json:"founded_year" gorm:"comment:成立年份"`
+	Headquarters string    `json:"headquarters" gorm:"size:128;comment:总部所在地"`
+	Status       int32     `json:"status" gorm:"default:1;index;comment:状态：1=活跃 2=归档 3=禁用"`
+	Settings     string    `json:"settings" gorm:"type:json;comment:配置JSON"`
+	CreatedAt    time.Time `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt    time.Time `json:"updated_at" gorm:"comment:更新时间"`
+}
+
+func (Brand) TableName() string {
+	return "brands"
+}
+
+// BrandMetadata 品牌元数据
+type BrandMetadata struct {
+	ID                 int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:元数据ID"`
+	BrandID            int64     `json:"brand_id" gorm:"uniqueIndex;not null;comment:品牌ID"`
+	VIProfile          string    `json:"vi_profile" gorm:"type:json;comment:VI规范JSON"`
+	ToneProfile        string    `json:"tone_profile" gorm:"type:json;comment:语调规范JSON"`
+	AudienceProfiles   string    `json:"audience_profiles" gorm:"type:json;comment:受众画像JSON"`
+	CompetitorList     string    `json:"competitor_list" gorm:"type:json;comment:竞品列表JSON"`
+	BrandValues        []string  `json:"brand_values" gorm:"type:json;comment:品牌价值观"`
+	UniqueSellingPoints []string `json:"unique_selling_points" gorm:"type:json;comment:独特卖点"`
+	SchemaVersion      string    `json:"schema_version" gorm:"size:32;default:1.0;comment:Schema版本"`
+	CreatedAt          time.Time `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt          time.Time `json:"updated_at" gorm:"comment:更新时间"`
+}
+
+func (BrandMetadata) TableName() string {
+	return "brand_metadata"
+}
+
+// GlossaryEntry 品牌术语
+type GlossaryEntry struct {
+	ID          int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:术语ID"`
+	BrandID     int64     `json:"brand_id" gorm:"index;not null;comment:品牌ID"`
+	Term        string    `json:"term" gorm:"size:128;not null;comment:术语名称"`
+	Definition  string    `json:"definition" gorm:"type:text;not null;comment:术语定义"`
+	Category    string    `json:"category" gorm:"size:64;index;comment:术语分类"`
+	Aliases     []string  `json:"aliases" gorm:"type:json;comment:别名列表"`
+	Context     string    `json:"context" gorm:"type:text;comment:使用上下文"`
+	IsForbidden bool      `json:"is_forbidden" gorm:"default:false;index;comment:是否禁用词"`
+	IsPreferred bool      `json:"is_preferred" gorm:"default:false;index;comment:是否首选术语"`
+	CreatedAt   time.Time `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"comment:更新时间"`
+}
+
+func (GlossaryEntry) TableName() string {
+	return "glossary_entries"
+}
+
+// BrandSnapshot 品牌快照
+type BrandSnapshot struct {
+	ID           int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:快照ID"`
+	BrandID      int64     `json:"brand_id" gorm:"index;not null;comment:品牌ID"`
+	Version      string    `json:"version" gorm:"size:32;not null;comment:版本号"`
+	SnapshotData string    `json:"snapshot_data" gorm:"type:text;not null;comment:快照数据JSON"`
+	ChangeLog    string    `json:"change_log" gorm:"type:text;comment:变更说明"`
+	CreatedBy    int64     `json:"created_by" gorm:"comment:创建人ID"`
+	CreatedAt    time.Time `json:"created_at" gorm:"comment:创建时间"`
+}
+
+func (BrandSnapshot) TableName() string {
+	return "brand_snapshots"
+}
+
+// KnowledgeEntity 知识实体
+type KnowledgeEntity struct {
+	ID             int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:实体ID"`
+	BrandID        int64     `json:"brand_id" gorm:"index;not null;comment:品牌ID"`
+	EntityName     string    `json:"entity_name" gorm:"size:128;not null;comment:实体名称"`
+	EntityType     string    `json:"entity_type" gorm:"size:32;index;comment:实体类型"`
+	EntityData     string    `json:"entity_data" gorm:"type:json;comment:实体属性JSON"`
+	AuthorityLinks string    `json:"authority_links" gorm:"type:json;comment:权威链接JSON"`
+	Tags           []string  `json:"tags" gorm:"type:json;comment:标签列表"`
+	EmbeddingID    string    `json:"embedding_id" gorm:"size:128;comment:向量嵌入ID"`
+	CreatedAt      time.Time `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt      time.Time `json:"updated_at" gorm:"comment:更新时间"`
+}
+
+func (KnowledgeEntity) TableName() string {
+	return "brand_knowledge_entities"
+}
+
+// KnowledgeRelation 知识关系
+type KnowledgeRelation struct {
+	ID           int64     `json:"id" gorm:"primaryKey;autoIncrement;comment:关系ID"`
+	FromEntityID int64     `json:"from_entity_id" gorm:"index;not null;comment:源实体ID"`
+	ToEntityID   int64     `json:"to_entity_id" gorm:"index;not null;comment:目标实体ID"`
+	RelationType string    `json:"relation_type" gorm:"size:64;index;comment:关系类型"`
+	Weight       float32   `json:"weight" gorm:"default:1;comment:关系权重"`
+	Description  string    `json:"description" gorm:"type:text;comment:关系描述"`
+	Properties   string    `json:"properties" gorm:"type:json;comment:关系属性JSON"`
+	CreatedAt    time.Time `json:"created_at" gorm:"comment:创建时间"`
+}
+
+func (KnowledgeRelation) TableName() string {
+	return "knowledge_relations"
+}

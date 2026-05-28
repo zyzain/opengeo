@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Upload, Button, Table, message, Alert, Space } from 'antd';
 import { UploadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useIntl } from 'react-intl';
 
 const { Dragger } = Upload;
 
@@ -17,16 +18,17 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
   onImport,
   brandId,
 }) => {
+  const intl = useIntl();
   const [fileData, setFileData] = useState<any[]>([]);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ imported: number; skipped: number; errors: number } | null>(null);
 
   const columns = [
-    { title: '术语', dataIndex: 'term', key: 'term' },
-    { title: '定义', dataIndex: 'definition', key: 'definition', ellipsis: true },
-    { title: '分类', dataIndex: 'category', key: 'category' },
+    { title: intl.formatMessage({ id: 'glossary.column.term' }), dataIndex: 'term', key: 'term' },
+    { title: intl.formatMessage({ id: 'glossary.column.definition' }), dataIndex: 'definition', key: 'definition', ellipsis: true },
+    { title: intl.formatMessage({ id: 'glossary.column.category' }), dataIndex: 'category', key: 'category' },
     {
-      title: '别名',
+      title: intl.formatMessage({ id: 'glossary.column.aliases' }),
       dataIndex: 'aliases',
       key: 'aliases',
       render: (aliases: string[]) => aliases?.join(', ') || '-',
@@ -55,9 +57,9 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
         });
 
         setFileData(entries);
-        message.success(`成功解析 ${entries.length} 条记录`);
+        message.success(intl.formatMessage({ id: 'bulkImport.parseSuccess' }, { count: entries.length }));
       } catch (error) {
-        message.error('文件解析失败，请检查文件格式');
+        message.error(intl.formatMessage({ id: 'bulkImport.parseFailed' }));
       }
     };
     reader.readAsText(file);
@@ -66,7 +68,7 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
   const handleImport = async () => {
     if (fileData.length === 0) {
-      message.warning('请先上传文件');
+      message.warning(intl.formatMessage({ id: 'bulkImport.uploadFirst' }));
       return;
     }
 
@@ -74,9 +76,9 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
     try {
       const importResult = await onImport(fileData);
       setResult(importResult);
-      message.success(`导入完成：成功 ${importResult.imported} 条，跳过 ${importResult.skipped} 条`);
+      message.success(intl.formatMessage({ id: 'bulkImport.importComplete' }, { imported: importResult.imported, skipped: importResult.skipped }));
     } catch (error) {
-      message.error('导入失败');
+      message.error(intl.formatMessage({ id: 'bulkImport.importFailed' }));
     } finally {
       setImporting(false);
     }
@@ -98,20 +100,20 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
   return (
     <Modal
-      title="批量导入术语"
+      title={intl.formatMessage({ id: 'bulkImport.modalTitle' })}
       open={visible}
       onCancel={onClose}
       width={800}
       footer={[
         <Button key="cancel" onClick={onClose}>
-          取消
+          {intl.formatMessage({ id: 'common.action.cancel' })}
         </Button>,
         <Button
           key="template"
           icon={<DownloadOutlined />}
           onClick={handleDownloadTemplate}
         >
-          下载模板
+          {intl.formatMessage({ id: 'common.action.downloadTemplate' })}
         </Button>,
         <Button
           key="import"
@@ -120,15 +122,15 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
           onClick={handleImport}
           disabled={fileData.length === 0}
         >
-          开始导入
+          {intl.formatMessage({ id: 'bulkImport.action.startImport' })}
         </Button>,
       ]}
     >
       {result && (
         <Alert
           type="success"
-          message="导入结果"
-          description={`成功导入 ${result.imported} 条，跳过 ${result.skipped} 条，失败 ${result.errors} 条`}
+          message={intl.formatMessage({ id: 'bulkImport.result.title' })}
+          description={intl.formatMessage({ id: 'bulkImport.result.detail' }, { imported: result.imported, skipped: result.skipped, errors: result.errors })}
           style={{ marginBottom: 16 }}
           closable
           afterClose={() => setResult(null)}
@@ -144,13 +146,13 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({
         <p className="ant-upload-drag-icon">
           <UploadOutlined />
         </p>
-        <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-        <p className="ant-upload-hint">支持 CSV、TSV 格式文件</p>
+        <p className="ant-upload-text">{intl.formatMessage({ id: 'bulkImport.uploadText' })}</p>
+        <p className="ant-upload-hint">{intl.formatMessage({ id: 'bulkImport.uploadHint' })}</p>
       </Dragger>
 
       {fileData.length > 0 && (
         <div>
-          <h4>预览数据（{fileData.length} 条）</h4>
+          <h4>{intl.formatMessage({ id: 'bulkImport.preview' }, { count: fileData.length })}</h4>
           <Table
             columns={columns}
             dataSource={fileData.map((item, index) => ({ ...item, key: index }))}

@@ -186,6 +186,7 @@ type Handler struct {
 	tplRepo             *dal.ContentTemplateRepository
 	staggerStrategyRepo *dal.StaggerStrategyRepository
 	staggerConfigRepo   *dal.StaggerConfigRepository
+	brandRepo           *dal.BrandRepository
 }
 
 // NewHandler 创建HTTP处理器
@@ -203,6 +204,7 @@ func NewHandler(
 	tplRepo *dal.ContentTemplateRepository,
 	staggerStrategyRepo *dal.StaggerStrategyRepository,
 	staggerConfigRepo *dal.StaggerConfigRepository,
+	brandRepo *dal.BrandRepository,
 ) *Handler {
 	return &Handler{
 		userClient:          userClient,
@@ -218,6 +220,7 @@ func NewHandler(
 		tplRepo:             tplRepo,
 		staggerStrategyRepo: staggerStrategyRepo,
 		staggerConfigRepo:   staggerConfigRepo,
+		brandRepo:           brandRepo,
 	}
 }
 

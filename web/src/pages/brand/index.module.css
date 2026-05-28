@@ -1,0 +1,162 @@
+.brandListPage {
+  padding: 24px;
+}
+
+.brandListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brandListTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.brandListActions {
+  display: flex;
+  gap: 12px;
+}
+
+.brandListFilters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.brandListTable {
+  background: #fff;
+  border-radius: 8px;
+}
+
+.brandNameCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandLogoSmall {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.brandNameLink {
+  font-weight: 500;
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.brandNameLink:hover {
+  text-decoration: underline;
+}
+
+.brandDescriptionCell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brandStatusTag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.brandStatusActive {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.brandStatusArchived {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.brandStatusDisabled {
+  background-color: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+}
+
+.brandActions {
+  display: flex;
+  gap: 8px;
+}
+
+.brandModal {
+  min-width: 600px;
+}
+
+.brandModalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 0;
+}
+
+.emptyStateIcon {
+  font-size: 48px;
+  color: #d9d9d9;
+  margin-bottom: 16px;
+}
+
+.emptyStateText {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.brandStats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  flex: 1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1890ff;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .brandListHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .brandListFilters {
+    flex-direction: column;
+  }
+
+  .brandStats {
+    flex-direction: column;
+  }
+}

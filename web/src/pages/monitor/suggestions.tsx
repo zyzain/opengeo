@@ -37,52 +37,44 @@ import {
 	message,
 } from "antd";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
-const suggestionTypes = [
-	{
-		value: "content",
-		label: "内容优化",
-		color: "blue",
-		icon: <BulbOutlined />,
-	},
-	{
-		value: "structure",
-		label: "结构优化",
-		color: "green",
-		icon: <ThunderboltOutlined />,
-	},
-	{
-		value: "authority",
-		label: "权威性提升",
-		color: "purple",
-		icon: <StarOutlined />,
-	},
-];
-
-const priorityConfig: Record<number, { label: string; color: string }> = {
-	2: { label: "高", color: "red" },
-	1: { label: "中", color: "orange" },
-	0: { label: "低", color: "blue" },
+const priorityConfig: Record<number, { color: string }> = {
+	2: { color: "red" },
+	1: { color: "orange" },
+	0: { color: "blue" },
 };
 
-const statusConfig: Record<
-	number,
-	{ label: string; color: string; icon: React.ReactNode }
-> = {
-	0: { label: "待处理", color: "processing", icon: <ClockCircleOutlined /> },
-	1: { label: "已应用", color: "success", icon: <CheckCircleOutlined /> },
-	2: { label: "已忽略", color: "default", icon: <ExclamationCircleOutlined /> },
+const statusConfig: Record<number, { color: string; icon: React.ReactNode }> = {
+	0: { color: "processing", icon: <ClockCircleOutlined /> },
+	1: { color: "success", icon: <CheckCircleOutlined /> },
+	2: { color: "default", icon: <ExclamationCircleOutlined /> },
 };
 
 export default function SuggestionsPage() {
+	const intl = useIntl();
+
+	const suggestionTypes = [
+		{ value: "content", label: intl.formatMessage({ id: "suggestions.type.content" }), color: "blue", icon: <BulbOutlined /> },
+		{ value: "structure", label: intl.formatMessage({ id: "suggestions.type.structure" }), color: "green", icon: <ThunderboltOutlined /> },
+		{ value: "authority", label: intl.formatMessage({ id: "suggestions.type.authority" }), color: "purple", icon: <StarOutlined /> },
+	];
+
+	const priorityLabels: Record<number, string> = {
+		2: intl.formatMessage({ id: "suggestions.priority.high" }),
+		1: intl.formatMessage({ id: "suggestions.priority.medium" }),
+		0: intl.formatMessage({ id: "suggestions.priority.low" }),
+	};
+
+	const statusLabels: Record<number, string> = {
+		0: intl.formatMessage({ id: "suggestions.status.pending" }),
+		1: intl.formatMessage({ id: "suggestions.status.applied" }),
+		2: intl.formatMessage({ id: "suggestions.status.ignored" }),
+	};
 	const queryClient = useQueryClient();
 	const generateMutation = useGenerateSuggestions();
 
-	const {
-		data: suggestionsData,
-		isLoading,
-		refetch,
-	} = useQuery({
+	const { data: suggestionsData, isLoading, refetch } = useQuery({
 		queryKey: ["suggestions"],
 		queryFn: () => api.monitor.listSuggestions(),
 		select: (response) => response.data.data,
@@ -93,219 +85,113 @@ export default function SuggestionsPage() {
 	const [selectedSuggestion, setSelectedSuggestion] = useState<any>(null);
 	const [activeTab, setActiveTab] = useState("all");
 	const [filterType, setFilterType] = useState<string | undefined>(undefined);
-	const [filterPriority, setFilterPriority] = useState<number | undefined>(
-		undefined,
-	);
+	const [filterPriority, setFilterPriority] = useState<number | undefined>(undefined);
 	const [generateContentId, setGenerateContentId] = useState<number>(0);
 
 	const handleGenerateSuggestions = async () => {
 		try {
 			await generateMutation.mutateAsync(generateContentId);
-			message.success("建议生成成功");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			refetch();
 		} catch (error: any) {
-			message.error("生成失败");
+			message.error(intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
-	// 过滤建议
 	const filteredSuggestions = suggestions.filter((s: any) => {
-		const matchTab =
-			activeTab === "all" ||
-			(activeTab === "pending" && s.status === 0) ||
-			(activeTab === "applied" && s.status === 1) ||
-			(activeTab === "ignored" && s.status === 2);
+		const matchTab = activeTab === "all" || (activeTab === "pending" && s.status === 0) || (activeTab === "applied" && s.status === 1) || (activeTab === "ignored" && s.status === 2);
 		const matchType = !filterType || s.suggestion_type === filterType;
-		const matchPriority =
-			filterPriority === undefined || s.priority === filterPriority;
+		const matchPriority = filterPriority === undefined || s.priority === filterPriority;
 		return matchTab && matchType && matchPriority;
 	});
 
-	// 统计数据
 	const stats = {
 		total: suggestions.length,
 		pending: suggestions.filter((s: any) => s.status === 0).length,
 		applied: suggestions.filter((s: any) => s.status === 1).length,
 		ignored: suggestions.filter((s: any) => s.status === 2).length,
-		highPriority: suggestions.filter(
-			(s: any) => s.priority === 2 && s.status === 0,
-		).length,
+		highPriority: suggestions.filter((s: any) => s.priority === 2 && s.status === 0).length,
 	};
 
-	// 显示详情
 	const handleShowDetail = (record: any) => {
 		setSelectedSuggestion(record);
 		setDetailModalVisible(true);
 	};
 
-	// 应用建议
 	const handleApply = async (id: number) => {
 		try {
 			await api.monitor.applySuggestion(id);
-			message.success("建议已应用");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			refetch();
 		} catch (error: any) {
-			message.error("操作失败");
+			message.error(intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
-	// 忽略建议
 	const handleIgnore = async (id: number) => {
 		try {
 			await api.monitor.ignoreSuggestion(id);
-			message.success("建议已忽略");
+			message.success(intl.formatMessage({ id: 'common.message.updateSuccess' }));
 			refetch();
 		} catch (error: any) {
-			message.error("操作失败");
+			message.error(intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
-	// 获取类型标签
 	const getTypeTag = (type: string) => {
 		const config = suggestionTypes.find((t) => t.value === type);
-		return (
-			<Tag color={config?.color} icon={config?.icon}>
-				{config?.label}
-			</Tag>
-		);
+		return <Tag color={config?.color} icon={config?.icon}>{config?.label}</Tag>;
 	};
 
-	// 获取优先级标签
 	const getPriorityTag = (priority: number) => {
 		const config = priorityConfig[priority];
-		return <Tag color={config?.color}>{config?.label}优先级</Tag>;
+		return <Tag color={config?.color}>{priorityLabels[priority]}</Tag>;
 	};
 
-	// 获取状态标签
 	const getStatusTag = (status: number) => {
 		const config = statusConfig[status];
-		return <Badge status={config?.color as any} text={config?.label} />;
+		return <Badge status={config?.color as any} text={statusLabels[status]} />;
 	};
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
+	{ title: intl.formatMessage({ id: "suggestions.column.content" }), dataIndex: "content_title", key: "content_title", render: (text: string) => <span className="font-medium">{text}</span> },
+	{ title: intl.formatMessage({ id: "suggestions.column.type" }), dataIndex: "suggestion_type", key: "suggestion_type", width: 120, render: (type: string) => getTypeTag(type) },
+	{ title: intl.formatMessage({ id: "suggestions.column.content" }), key: "title", render: (_: any, record: any) => <a onClick={() => handleShowDetail(record)} className="text-blue-500">{record.suggestion_data.title}</a> },
+		{ title: intl.formatMessage({ id: 'common.column.priority' }), dataIndex: "priority", key: "priority", width: 100, render: (priority: number) => getPriorityTag(priority) },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "内容",
-			dataIndex: "content_title",
-			key: "content_title",
-			render: (text: string) => <span className="font-medium">{text}</span>,
-		},
-		{
-			title: "建议类型",
-			dataIndex: "suggestion_type",
-			key: "suggestion_type",
-			width: 120,
-			render: (type: string) => getTypeTag(type),
-		},
-		{
-			title: "建议标题",
-			key: "title",
-			render: (_: any, record: any) => (
-				<a onClick={() => handleShowDetail(record)} className="text-blue-500">
-					{record.suggestion_data.title}
-				</a>
-			),
-		},
-		{
-			title: "优先级",
-			dataIndex: "priority",
-			key: "priority",
-			width: 100,
-			render: (priority: number) => getPriorityTag(priority),
-		},
-		{
-			title: "影响",
+			title: intl.formatMessage({ id: "suggestions.column.priority" }),
 			key: "impact",
 			width: 80,
 			render: (_: any, record: any) => (
-				<Tag
-					color={
-						record.suggestion_data.impact === "high"
-							? "red"
-							: record.suggestion_data.impact === "medium"
-								? "orange"
-								: "blue"
-					}
-				>
-					{record.suggestion_data.impact === "high"
-						? "高"
-						: record.suggestion_data.impact === "medium"
-							? "中"
-							: "低"}
+				<Tag color={record.suggestion_data.impact === "high" ? "red" : record.suggestion_data.impact === "medium" ? "orange" : "blue"}>
+					{record.suggestion_data.impact === "high" ? intl.formatMessage({ id: 'common.priority.high' }) : record.suggestion_data.impact === "medium" ? intl.formatMessage({ id: 'common.priority.medium' }) : intl.formatMessage({ id: 'common.priority.low' })}
 				</Tag>
 			),
 		},
 		{
-			title: "工作量",
+			title: intl.formatMessage({ id: "suggestions.column.priority" }),
 			key: "effort",
 			width: 80,
 			render: (_: any, record: any) => (
-				<Tag
-					color={
-						record.suggestion_data.effort === "low"
-							? "green"
-							: record.suggestion_data.effort === "medium"
-								? "orange"
-								: "red"
-					}
-				>
-					{record.suggestion_data.effort === "low"
-						? "低"
-						: record.suggestion_data.effort === "medium"
-							? "中"
-							: "高"}
+				<Tag color={record.suggestion_data.effort === "low" ? "green" : record.suggestion_data.effort === "medium" ? "orange" : "red"}>
+					{record.suggestion_data.effort === "low" ? intl.formatMessage({ id: 'common.priority.low' }) : record.suggestion_data.effort === "medium" ? intl.formatMessage({ id: 'common.priority.medium' }) : intl.formatMessage({ id: 'common.priority.high' })}
 				</Tag>
 			),
 		},
+		{ title: intl.formatMessage({ id: 'common.column.status' }), dataIndex: "status", key: "status", width: 100, render: (status: number) => getStatusTag(status) },
+		{ title: intl.formatMessage({ id: 'common.column.createdAt' }), dataIndex: "created_at", key: "created_at", width: 180, render: (text: string) => new Date(text).toLocaleString() },
 		{
-			title: "状态",
-			dataIndex: "status",
-			key: "status",
-			width: 100,
-			render: (status: number) => getStatusTag(status),
-		},
-		{
-			title: "创建时间",
-			dataIndex: "created_at",
-			key: "created_at",
-			width: 180,
-			render: (text: string) => new Date(text).toLocaleString(),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 200,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="查看详情">
-						<Button
-							type="text"
-							icon={<BulbOutlined />}
-							onClick={() => handleShowDetail(record)}
-						/>
-					</Tooltip>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.viewDetail' })}><Button type="text" icon={<BulbOutlined />} onClick={() => handleShowDetail(record)} /></Tooltip>
 					{record.status === 0 && (
 						<>
-							<Tooltip title="应用">
-								<Button
-									type="text"
-									icon={<LikeOutlined />}
-									onClick={() => handleApply(record.id)}
-								/>
-							</Tooltip>
-							<Tooltip title="忽略">
-								<Button
-									type="text"
-									icon={<DislikeOutlined />}
-									onClick={() => handleIgnore(record.id)}
-								/>
-							</Tooltip>
+							<Tooltip title={intl.formatMessage({ id: 'common.action.enable' })}><Button type="text" icon={<LikeOutlined />} onClick={() => handleApply(record.id)} /></Tooltip>
+							<Tooltip title={intl.formatMessage({ id: 'common.action.disable' })}><Button type="text" icon={<DislikeOutlined />} onClick={() => handleIgnore(record.id)} /></Tooltip>
 						</>
 					)}
 				</Space>
@@ -313,133 +199,39 @@ export default function SuggestionsPage() {
 		},
 	];
 
-	// 高优先级建议列表
-	const highPrioritySuggestions = suggestions.filter(
-		(s: any) => s.priority === 2 && s.status === 0,
-	);
+	const highPrioritySuggestions = suggestions.filter((s: any) => s.priority === 2 && s.status === 0);
 
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">优化建议</h1>
-				<p className="text-gray-500 mt-1">
-					基于AI分析生成的内容优化建议，提升GEO效果
-				</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'nav.monitor.suggestions' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: "suggestions.page.subtitle" })}</p>
 			</div>
 
-			{/* 统计卡片 */}
 			<Row gutter={[16, 16]} className="mb-4">
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="总建议数"
-							value={stats.total}
-							prefix={<BulbOutlined />}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="待处理"
-							value={stats.pending}
-							prefix={<ClockCircleOutlined />}
-							valueStyle={{ color: "#1890ff" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="已应用"
-							value={stats.applied}
-							prefix={<CheckCircleOutlined />}
-							valueStyle={{ color: "#52c41a" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="已忽略"
-							value={stats.ignored}
-							prefix={<ExclamationCircleOutlined />}
-							valueStyle={{ color: "#8c8c8c" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="高优先级"
-							value={stats.highPriority}
-							prefix={<ExclamationCircleOutlined />}
-							valueStyle={{ color: "#ff4d4f" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={8} lg={4}>
-					<Card>
-						<Statistic
-							title="完成率"
-							value={
-								stats.total > 0
-									? Math.round((stats.applied / stats.total) * 100)
-									: 0
-							}
-							suffix="%"
-							valueStyle={{ color: "#52c41a" }}
-						/>
-					</Card>
-				</Col>
+			<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "suggestions.column.content" })} value={stats.total} prefix={<BulbOutlined />} /></Card></Col>
+			<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "suggestions.status.pending" })} value={stats.pending} prefix={<ClockCircleOutlined />} valueStyle={{ color: "#1890ff" }} /></Card></Col>
+			<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "suggestions.status.applied" })} value={stats.applied} prefix={<CheckCircleOutlined />} valueStyle={{ color: "#52c41a" }} /></Card></Col>
+			<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "suggestions.status.ignored" })} value={stats.ignored} prefix={<ExclamationCircleOutlined />} valueStyle={{ color: "#8c8c8c" }} /></Card></Col>
+			<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "suggestions.priority.high" })} value={stats.highPriority} prefix={<ExclamationCircleOutlined />} valueStyle={{ color: "#ff4d4f" }} /></Card></Col>
+				<Col xs={12} sm={8} lg={4}><Card><Statistic title={intl.formatMessage({ id: "common.status.active" })} value={stats.total > 0 ? Math.round((stats.applied / stats.total) * 100) : 0} suffix="%" valueStyle={{ color: "#52c41a" }} /></Card></Col>
 			</Row>
 
-			{/* 高优先级建议 */}
 			{highPrioritySuggestions.length > 0 && (
-				<Card title="高优先级建议" className="mb-4" type="inner">
+				<Card title={intl.formatMessage({ id: "suggestions.priority.high" })} className="mb-4" type="inner">
 					<List
 						dataSource={highPrioritySuggestions}
 						renderItem={(item: any) => (
 							<List.Item
 								actions={[
-									<Button
-										type="primary"
-										size="small"
-										icon={<LikeOutlined />}
-										onClick={() => handleApply(item.id)}
-									>
-										应用
-									</Button>,
-									<Button
-										size="small"
-										icon={<DislikeOutlined />}
-										onClick={() => handleIgnore(item.id)}
-									>
-										忽略
-									</Button>,
+								<Button type="primary" size="small" icon={<LikeOutlined />} onClick={() => handleApply(item.id)}>{intl.formatMessage({ id: "suggestions.action.apply" })}</Button>,
+								<Button size="small" icon={<DislikeOutlined />} onClick={() => handleIgnore(item.id)}>{intl.formatMessage({ id: "suggestions.action.ignore" })}</Button>,
 								]}
 							>
 								<List.Item.Meta
-									avatar={
-										<Avatar
-											icon={<ExclamationCircleOutlined />}
-											style={{ backgroundColor: "#ff4d4f" }}
-										/>
-									}
-									title={
-										<Space>
-											<span>{item.suggestion_data.title}</span>
-											{getTypeTag(item.suggestion_type)}
-										</Space>
-									}
-									description={
-										<div>
-											<div>{item.content_title}</div>
-											<div className="text-gray-400 text-sm">
-												{item.suggestion_data.description}
-											</div>
-										</div>
-									}
+									avatar={<Avatar icon={<ExclamationCircleOutlined />} style={{ backgroundColor: "#ff4d4f" }} />}
+									title={<Space><span>{item.suggestion_data.title}</span>{getTypeTag(item.suggestion_type)}</Space>}
+									description={<div><div>{item.content_title}</div><div className="text-gray-400 text-sm">{item.suggestion_data.description}</div></div>}
 								/>
 							</List.Item>
 						)}
@@ -447,55 +239,15 @@ export default function SuggestionsPage() {
 				</Card>
 			)}
 
-			{/* 建议列表 */}
 			<Card
-				title={
-					<Space>
-						<BulbOutlined />
-						<span>建议列表</span>
-					</Space>
-				}
+				title={<Space><BulbOutlined /><span>{intl.formatMessage({ id: "suggestions.column.content" })}</span></Space>}
 				extra={
 					<Space>
-						<InputNumber
-							placeholder="内容ID"
-							min={0}
-							style={{ width: 100 }}
-							value={generateContentId}
-							onChange={(v) => setGenerateContentId(v || 0)}
-						/>
-						<Button
-							type="primary"
-							icon={<BulbOutlined />}
-							loading={generateMutation.isPending}
-							onClick={handleGenerateSuggestions}
-						>
-							生成建议
-						</Button>
-						<Select
-							placeholder="建议类型"
-							allowClear
-							style={{ width: 120 }}
-							onChange={setFilterType}
-							options={suggestionTypes.map((type) => ({
-								value: type.value,
-								label: type.label,
-							}))}
-						/>
-						<Select
-							placeholder="优先级"
-							allowClear
-							style={{ width: 100 }}
-							onChange={setFilterPriority}
-							options={[
-								{ value: 2, label: "高" },
-								{ value: 1, label: "中" },
-								{ value: 0, label: "低" },
-							]}
-						/>
-						<Button icon={<ReloadOutlined />} onClick={() => refetch()}>
-							刷新
-						</Button>
+					<InputNumber placeholder="Content ID" min={0} style={{ width: 100 }} value={generateContentId} onChange={(v) => setGenerateContentId(v || 0)} />
+					<Button type="primary" icon={<BulbOutlined />} loading={generateMutation.isPending} onClick={handleGenerateSuggestions}>{intl.formatMessage({ id: "suggestions.action.apply" })}</Button>
+					<Select placeholder={intl.formatMessage({ id: "suggestions.column.type" })} allowClear style={{ width: 120 }} onChange={setFilterType} options={suggestionTypes.map((type) => ({ value: type.value, label: type.label }))} />
+						<Select placeholder={intl.formatMessage({ id: 'common.column.priority' })} allowClear style={{ width: 100 }} onChange={setFilterPriority} options={[{ value: 2, label: intl.formatMessage({ id: 'common.priority.high' }) }, { value: 1, label: intl.formatMessage({ id: 'common.priority.medium' }) }, { value: 0, label: intl.formatMessage({ id: 'common.priority.low' }) }]} />
+						<Button icon={<ReloadOutlined />} onClick={() => refetch()}>{intl.formatMessage({ id: 'common.action.refresh' })}</Button>
 					</Space>
 				}
 			>
@@ -503,124 +255,49 @@ export default function SuggestionsPage() {
 					activeKey={activeTab}
 					onChange={setActiveTab}
 					items={[
-						{ key: "all", label: `全部 (${stats.total})` },
-						{ key: "pending", label: `待处理 (${stats.pending})` },
-						{ key: "applied", label: `已应用 (${stats.applied})` },
-						{ key: "ignored", label: `已忽略 (${stats.ignored})` },
+					{ key: "all", label: `${intl.formatMessage({ id: "config.tab.all" })} (${stats.total})` },
+					{ key: "pending", label: `${intl.formatMessage({ id: "suggestions.status.pending" })} (${stats.pending})` },
+					{ key: "applied", label: `${intl.formatMessage({ id: "suggestions.status.applied" })} (${stats.applied})` },
+					{ key: "ignored", label: `${intl.formatMessage({ id: "suggestions.status.ignored" })} (${stats.ignored})` },
 					]}
 					className="mb-4"
 				/>
 
-				<Table
-					columns={columns}
-					dataSource={filteredSuggestions}
-					rowKey="id"
-					pagination={{
-						showSizeChanger: true,
-						showQuickJumper: true,
-						showTotal: (total) => `共 ${total} 条`,
-					}}
-				/>
+				<Table columns={columns} dataSource={filteredSuggestions} rowKey="id" pagination={{ showSizeChanger: true, showQuickJumper: true, showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }) }} />
 			</Card>
 
-			{/* 建议详情弹窗 */}
-			<Modal
-				title="优化建议详情"
-				open={detailModalVisible}
-				onCancel={() => setDetailModalVisible(false)}
-				footer={null}
-				width={600}
-			>
+			<Modal title={intl.formatMessage({ id: "suggestions.page.title" })} open={detailModalVisible} onCancel={() => setDetailModalVisible(false)} footer={null} width={600}>
 				{selectedSuggestion && (
 					<div>
 						<Descriptions column={1} bordered>
-							<Descriptions.Item label="内容">
-								{selectedSuggestion.content_title}
-							</Descriptions.Item>
-							<Descriptions.Item label="建议类型">
-								{getTypeTag(selectedSuggestion.suggestion_type)}
-							</Descriptions.Item>
-							<Descriptions.Item label="优先级">
-								{getPriorityTag(selectedSuggestion.priority)}
-							</Descriptions.Item>
-							<Descriptions.Item label="状态">
-								{getStatusTag(selectedSuggestion.status)}
-							</Descriptions.Item>
-							<Descriptions.Item label="影响程度">
-								<Tag
-									color={
-										selectedSuggestion.suggestion_data.impact === "high"
-											? "red"
-											: selectedSuggestion.suggestion_data.impact === "medium"
-												? "orange"
-												: "blue"
-									}
-								>
-									{selectedSuggestion.suggestion_data.impact === "high"
-										? "高"
-										: selectedSuggestion.suggestion_data.impact === "medium"
-											? "中"
-											: "低"}
+						<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.content" })}>{selectedSuggestion.content_title}</Descriptions.Item>
+						<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.type" })}>{getTypeTag(selectedSuggestion.suggestion_type)}</Descriptions.Item>
+							<Descriptions.Item label={intl.formatMessage({ id: 'common.column.priority' })}>{getPriorityTag(selectedSuggestion.priority)}</Descriptions.Item>
+							<Descriptions.Item label={intl.formatMessage({ id: 'common.column.status' })}>{getStatusTag(selectedSuggestion.status)}</Descriptions.Item>
+							<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.priority" })}>
+								<Tag color={selectedSuggestion.suggestion_data.impact === "high" ? "red" : selectedSuggestion.suggestion_data.impact === "medium" ? "orange" : "blue"}>
+									{selectedSuggestion.suggestion_data.impact === "high" ? intl.formatMessage({ id: 'common.priority.high' }) : selectedSuggestion.suggestion_data.impact === "medium" ? intl.formatMessage({ id: 'common.priority.medium' }) : intl.formatMessage({ id: 'common.priority.low' })}
 								</Tag>
 							</Descriptions.Item>
-							<Descriptions.Item label="工作量">
-								<Tag
-									color={
-										selectedSuggestion.suggestion_data.effort === "low"
-											? "green"
-											: selectedSuggestion.suggestion_data.effort === "medium"
-												? "orange"
-												: "red"
-									}
-								>
-									{selectedSuggestion.suggestion_data.effort === "low"
-										? "低"
-										: selectedSuggestion.suggestion_data.effort === "medium"
-											? "中"
-											: "高"}
+							<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.priority" })}>
+								<Tag color={selectedSuggestion.suggestion_data.effort === "low" ? "green" : selectedSuggestion.suggestion_data.effort === "medium" ? "orange" : "red"}>
+									{selectedSuggestion.suggestion_data.effort === "low" ? intl.formatMessage({ id: 'common.priority.low' }) : selectedSuggestion.suggestion_data.effort === "medium" ? intl.formatMessage({ id: 'common.priority.medium' }) : intl.formatMessage({ id: 'common.priority.high' })}
 								</Tag>
 							</Descriptions.Item>
-							<Descriptions.Item label="建议标题">
-								{selectedSuggestion.suggestion_data.title}
-							</Descriptions.Item>
-							<Descriptions.Item label="详细描述">
-								{selectedSuggestion.suggestion_data.description}
-							</Descriptions.Item>
-							<Descriptions.Item label="示例">
+						<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.content" })}>{selectedSuggestion.suggestion_data.title}</Descriptions.Item>
+						<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.content" })}>{selectedSuggestion.suggestion_data.description}</Descriptions.Item>
+						<Descriptions.Item label={intl.formatMessage({ id: "suggestions.column.content" })}>
 								<ul className="list-disc pl-4">
-									{selectedSuggestion.suggestion_data.examples.map(
-										(example: string, index: number) => (
-											<li key={index}>{example}</li>
-										),
-									)}
+									{selectedSuggestion.suggestion_data.examples.map((example: string, index: number) => <li key={index}>{example}</li>)}
 								</ul>
 							</Descriptions.Item>
-							<Descriptions.Item label="创建时间">
-								{new Date(selectedSuggestion.created_at).toLocaleString()}
-							</Descriptions.Item>
+							<Descriptions.Item label={intl.formatMessage({ id: 'common.column.createdAt' })}>{new Date(selectedSuggestion.created_at).toLocaleString()}</Descriptions.Item>
 						</Descriptions>
 
 						{selectedSuggestion.status === 0 && (
 							<div className="mt-4 flex justify-end space-x-4">
-								<Button
-									icon={<DislikeOutlined />}
-									onClick={() => {
-										handleIgnore(selectedSuggestion.id);
-										setDetailModalVisible(false);
-									}}
-								>
-									忽略
-								</Button>
-								<Button
-									type="primary"
-									icon={<LikeOutlined />}
-									onClick={() => {
-										handleApply(selectedSuggestion.id);
-										setDetailModalVisible(false);
-									}}
-								>
-									应用建议
-								</Button>
+							<Button icon={<DislikeOutlined />} onClick={() => { handleIgnore(selectedSuggestion.id); setDetailModalVisible(false); }}>{intl.formatMessage({ id: "suggestions.action.ignore" })}</Button>
+							<Button type="primary" icon={<LikeOutlined />} onClick={() => { handleApply(selectedSuggestion.id); setDetailModalVisible(false); }}>{intl.formatMessage({ id: "suggestions.action.apply" })}</Button>
 							</div>
 						)}
 					</div>

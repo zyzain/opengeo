@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, Modal, Form, Input, Select, Tag, Empty, Spin, message } from 'antd';
 import { PlusOutlined, NodeIndexOutlined } from '@ant-design/icons';
+import { useIntl } from 'react-intl';
 
 const { Option } = Select;
 
@@ -40,6 +41,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
   onAddRelation,
   onDeleteEntity,
 }) => {
+  const intl = useIntl();
   const [entityModalVisible, setEntityModalVisible] = useState(false);
   const [relationModalVisible, setRelationModalVisible] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<KnowledgeEntity | null>(null);
@@ -58,14 +60,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
   };
 
   const entityTypeLabels: Record<string, string> = {
-    brand: '品牌',
-    product: '产品',
-    person: '人物',
-    org: '组织',
-    event: '事件',
-    concept: '概念',
-    location: '地点',
-    technology: '技术',
+    brand: intl.formatMessage({ id: 'knowledge.type.brand' }),
+    product: intl.formatMessage({ id: 'knowledge.type.product' }),
+    person: intl.formatMessage({ id: 'knowledge.type.person' }),
+    org: intl.formatMessage({ id: 'knowledge.type.org' }),
+    event: intl.formatMessage({ id: 'knowledge.type.event' }),
+    concept: intl.formatMessage({ id: 'knowledge.type.concept' }),
+    location: intl.formatMessage({ id: 'knowledge.type.location' }),
+    technology: intl.formatMessage({ id: 'knowledge.type.technology' }),
   };
 
   const handleAddEntity = async () => {
@@ -74,7 +76,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
       await onAddEntity({ ...values, brand_id: brandId });
       setEntityModalVisible(false);
       entityForm.resetFields();
-      message.success('实体添加成功');
+      message.success(intl.formatMessage({ id: 'knowledge.message.entityAdded' }));
     } catch (error) {
       console.error('Form validation failed:', error);
     }
@@ -86,7 +88,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
       await onAddRelation(values);
       setRelationModalVisible(false);
       relationForm.resetFields();
-      message.success('关系添加成功');
+      message.success(intl.formatMessage({ id: 'knowledge.message.relationAdded' }));
     } catch (error) {
       console.error('Form validation failed:', error);
     }
@@ -158,7 +160,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
   return (
     <div>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-        <h3>知识图谱</h3>
+        <h3>{intl.formatMessage({ id: 'knowledge.title' })}</h3>
         <Space>
           <Button
             icon={<PlusOutlined />}
@@ -167,7 +169,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
               setEntityModalVisible(true);
             }}
           >
-            添加实体
+            {intl.formatMessage({ id: 'knowledge.action.addEntity' })}
           </Button>
           <Button
             icon={<NodeIndexOutlined />}
@@ -177,23 +179,23 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
             }}
             disabled={entities.length < 2}
           >
-            添加关系
+            {intl.formatMessage({ id: 'knowledge.action.addRelation' })}
           </Button>
         </Space>
       </div>
 
       {entities.length === 0 ? (
-        <Empty description="暂无知识实体" />
+        <Empty description={intl.formatMessage({ id: 'knowledge.empty.noEntities' })} />
       ) : (
         <div>
-          <Card title="实体列表" size="small" style={{ marginBottom: 16 }}>
+          <Card title={intl.formatMessage({ id: 'knowledge.card.entityList' })} size="small" style={{ marginBottom: 16 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               {entities.map(entity => renderEntityCard(entity))}
             </div>
           </Card>
 
           {relations.length > 0 && (
-            <Card title="关系列表" size="small">
+            <Card title={intl.formatMessage({ id: 'knowledge.card.relationList' })} size="small">
               {relations.map(relation => renderRelationLine(relation))}
             </Card>
           )}
@@ -201,74 +203,74 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
       )}
 
       <Modal
-        title="添加知识实体"
+        title={intl.formatMessage({ id: 'knowledge.modal.addEntity' })}
         open={entityModalVisible}
         onOk={handleAddEntity}
         onCancel={() => setEntityModalVisible(false)}
         width={600}
       >
         <Form form={entityForm} layout="vertical">
-          <Form.Item name="name" label="实体名称" rules={[{ required: true, message: '请输入实体名称' }]}>
-            <Input placeholder="请输入实体名称" />
+          <Form.Item name="name" label={intl.formatMessage({ id: 'knowledge.form.entityName' })} rules={[{ required: true, message: intl.formatMessage({ id: 'knowledge.validation.enterEntityName' }) }]}>
+            <Input placeholder={intl.formatMessage({ id: 'knowledge.placeholder.entityName' })} />
           </Form.Item>
-          <Form.Item name="type" label="实体类型" rules={[{ required: true, message: '请选择实体类型' }]}>
-            <Select placeholder="请选择实体类型">
+          <Form.Item name="type" label={intl.formatMessage({ id: 'knowledge.form.entityType' })} rules={[{ required: true, message: intl.formatMessage({ id: 'knowledge.validation.selectEntityType' }) }]}>
+            <Select placeholder={intl.formatMessage({ id: 'knowledge.placeholder.entityType' })}>
               {Object.entries(entityTypeLabels).map(([value, label]) => (
                 <Option key={value} value={value}>{label}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="description" label="实体描述">
-            <Input.TextArea rows={3} placeholder="请输入实体描述" />
+          <Form.Item name="description" label={intl.formatMessage({ id: 'knowledge.form.entityDesc' })}>
+            <Input.TextArea rows={3} placeholder={intl.formatMessage({ id: 'knowledge.placeholder.entityDesc' })} />
           </Form.Item>
-          <Form.Item name="tags" label="标签">
-            <Select mode="tags" placeholder="输入标签" />
+          <Form.Item name="tags" label={intl.formatMessage({ id: 'knowledge.form.tags' })}>
+            <Select mode="tags" placeholder={intl.formatMessage({ id: 'knowledge.placeholder.tags' })} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="添加知识关系"
+        title={intl.formatMessage({ id: 'knowledge.modal.addRelation' })}
         open={relationModalVisible}
         onOk={handleAddRelation}
         onCancel={() => setRelationModalVisible(false)}
         width={600}
       >
         <Form form={relationForm} layout="vertical">
-          <Form.Item name="from_entity_id" label="源实体" rules={[{ required: true, message: '请选择源实体' }]}>
-            <Select placeholder="请选择源实体">
+          <Form.Item name="from_entity_id" label={intl.formatMessage({ id: 'knowledge.form.sourceEntity' })} rules={[{ required: true, message: intl.formatMessage({ id: 'knowledge.validation.selectSource' }) }]}>
+            <Select placeholder={intl.formatMessage({ id: 'knowledge.placeholder.sourceEntity' })}>
               {entities.map(entity => (
                 <Option key={entity.id} value={entity.id}>{entity.name}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="to_entity_id" label="目标实体" rules={[{ required: true, message: '请选择目标实体' }]}>
-            <Select placeholder="请选择目标实体">
+          <Form.Item name="to_entity_id" label={intl.formatMessage({ id: 'knowledge.form.targetEntity' })} rules={[{ required: true, message: intl.formatMessage({ id: 'knowledge.validation.selectTarget' }) }]}>
+            <Select placeholder={intl.formatMessage({ id: 'knowledge.placeholder.targetEntity' })}>
               {entities.map(entity => (
                 <Option key={entity.id} value={entity.id}>{entity.name}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="type" label="关系类型" rules={[{ required: true, message: '请选择关系类型' }]}>
-            <Select placeholder="请选择关系类型">
-              <Option value="is_a">是一种</Option>
-              <Option value="part_of">属于</Option>
-              <Option value="related_to">相关</Option>
-              <Option value="competes_with">竞争</Option>
-              <Option value="mentions">提及</Option>
-              <Option value="depends_on">依赖</Option>
-              <Option value="owns">拥有</Option>
-              <Option value="created_by">创建者</Option>
+          <Form.Item name="type" label={intl.formatMessage({ id: 'knowledge.form.relationType' })} rules={[{ required: true, message: intl.formatMessage({ id: 'knowledge.validation.selectRelationType' }) }]}>
+            <Select placeholder={intl.formatMessage({ id: 'knowledge.placeholder.relationType' })}>
+              <Option value="is_a">{intl.formatMessage({ id: 'knowledge.relation.is_a' })}</Option>
+              <Option value="part_of">{intl.formatMessage({ id: 'knowledge.relation.part_of' })}</Option>
+              <Option value="related_to">{intl.formatMessage({ id: 'knowledge.relation.related_to' })}</Option>
+              <Option value="competes_with">{intl.formatMessage({ id: 'knowledge.relation.competes_with' })}</Option>
+              <Option value="mentions">{intl.formatMessage({ id: 'knowledge.relation.mentions' })}</Option>
+              <Option value="depends_on">{intl.formatMessage({ id: 'knowledge.relation.depends_on' })}</Option>
+              <Option value="owns">{intl.formatMessage({ id: 'knowledge.relation.owns' })}</Option>
+              <Option value="created_by">{intl.formatMessage({ id: 'knowledge.relation.created_by' })}</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="weight" label="关系权重">
+          <Form.Item name="weight" label={intl.formatMessage({ id: 'knowledge.form.weight' })}>
             <Input type="number" min={0} max={1} step={0.1} placeholder="0-1" />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="实体详情"
+        title={intl.formatMessage({ id: 'knowledge.modal.entityDetail' })}
         open={!!selectedEntity}
         onCancel={() => setSelectedEntity(null)}
         footer={null}
@@ -293,7 +295,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
             {selectedEntity.description && <p>{selectedEntity.description}</p>}
             {selectedEntity.tags && selectedEntity.tags.length > 0 && (
               <div>
-                <strong>标签：</strong>
+                <strong>{intl.formatMessage({ id: 'knowledge.field.tags' })}</strong>
                 {selectedEntity.tags.map(tag => <Tag key={tag}>{tag}</Tag>)}
               </div>
             )}
@@ -303,10 +305,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({
                 onClick={async () => {
                   await onDeleteEntity(selectedEntity.id);
                   setSelectedEntity(null);
-                  message.success('实体删除成功');
+                  message.success(intl.formatMessage({ id: 'knowledge.message.entityDeleted' }));
                 }}
               >
-                删除实体
+                {intl.formatMessage({ id: 'knowledge.action.deleteEntity' })}
               </Button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Card, Button, Table, Modal, Form, Input, Tag, Timeline, Descriptions, message } from 'antd';
+import { Card, Button, Table, Modal, Form, Input, Tag, Timeline, Descriptions, message, Space } from 'antd';
 import { PlusOutlined, HistoryOutlined, DiffOutlined } from '@ant-design/icons';
+import { useIntl } from 'react-intl';
 
 const { TextArea } = Input;
 
@@ -29,6 +30,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
   onCreateSnapshot,
   onCompareSnapshots,
 }) => {
+  const intl = useIntl();
   const [modalVisible, setModalVisible] = useState(false);
   const [compareModalVisible, setCompareModalVisible] = useState(false);
   const [selectedSnapshots, setSelectedSnapshots] = useState<number[]>([]);
@@ -36,25 +38,25 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
 
   const columns = [
     {
-      title: '版本',
+      title: intl.formatMessage({ id: 'snapshot.column.version' }),
       dataIndex: 'version',
       key: 'version',
       render: (text: string) => <Tag color="blue">{text}</Tag>,
     },
     {
-      title: '变更说明',
+      title: intl.formatMessage({ id: 'snapshot.column.changeLog' }),
       dataIndex: 'change_log',
       key: 'change_log',
       ellipsis: true,
     },
     {
-      title: '创建时间',
+      title: intl.formatMessage({ id: 'snapshot.column.createdAt' }),
       dataIndex: 'created_at',
       key: 'created_at',
       render: (text: string) => new Date(text).toLocaleString(),
     },
     {
-      title: '操作',
+      title: intl.formatMessage({ id: 'snapshot.column.action' }),
       key: 'action',
       render: (_: any, record: Snapshot) => (
         <Button
@@ -67,7 +69,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
             }
           }}
         >
-          {selectedSnapshots.includes(record.id) ? '取消选择' : '选择对比'}
+          {selectedSnapshots.includes(record.id) ? intl.formatMessage({ id: 'snapshot.action.deselect' }) : intl.formatMessage({ id: 'snapshot.action.selectCompare' })}
         </Button>
       ),
     },
@@ -79,7 +81,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
       await onCreateSnapshot({ ...values, brand_id: brandId });
       setModalVisible(false);
       form.resetFields();
-      message.success('快照创建成功');
+      message.success(intl.formatMessage({ id: 'snapshot.message.createSuccess' }));
     } catch (error) {
       console.error('Form validation failed:', error);
     }
@@ -87,7 +89,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
 
   const handleCompare = async () => {
     if (selectedSnapshots.length !== 2) {
-      message.warning('请选择两个快照进行对比');
+      message.warning(intl.formatMessage({ id: 'snapshot.message.selectTwo' }));
       return;
     }
     await onCompareSnapshots(selectedSnapshots[0], selectedSnapshots[1]);
@@ -97,14 +99,14 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
   return (
     <div>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-        <h3>品牌快照</h3>
+        <h3>{intl.formatMessage({ id: 'snapshot.title' })}</h3>
         <Space>
           <Button
             icon={<DiffOutlined />}
             onClick={handleCompare}
             disabled={selectedSnapshots.length !== 2}
           >
-            对比快照
+            {intl.formatMessage({ id: 'snapshot.action.compare' })}
           </Button>
           <Button
             type="primary"
@@ -114,7 +116,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
               setModalVisible(true);
             }}
           >
-            创建快照
+            {intl.formatMessage({ id: 'snapshot.action.create' })}
           </Button>
         </Space>
       </div>
@@ -132,7 +134,7 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
       />
 
       <Modal
-        title="创建品牌快照"
+        title={intl.formatMessage({ id: 'snapshot.modal.createTitle' })}
         open={modalVisible}
         onOk={handleCreate}
         onCancel={() => setModalVisible(false)}
@@ -141,32 +143,32 @@ const BrandSnapshot: React.FC<BrandSnapshotProps> = ({
         <Form form={form} layout="vertical">
           <Form.Item
             name="version"
-            label="版本号"
-            rules={[{ required: true, message: '请输入版本号' }]}
-            extra="例如：v1.0.0"
+            label={intl.formatMessage({ id: 'snapshot.form.version' })}
+            rules={[{ required: true, message: intl.formatMessage({ id: 'snapshot.validation.enterVersion' }) }]}
+            extra={intl.formatMessage({ id: 'snapshot.form.versionExample' })}
           >
-            <Input placeholder="请输入版本号" />
+            <Input placeholder={intl.formatMessage({ id: 'snapshot.placeholder.enterVersion' })} />
           </Form.Item>
           <Form.Item
             name="change_log"
-            label="变更说明"
-            rules={[{ required: true, message: '请输入变更说明' }]}
+            label={intl.formatMessage({ id: 'snapshot.form.changeLog' })}
+            rules={[{ required: true, message: intl.formatMessage({ id: 'snapshot.validation.enterChangeLog' }) }]}
           >
-            <TextArea rows={4} placeholder="请描述本次变更内容" />
+            <TextArea rows={4} placeholder={intl.formatMessage({ id: 'snapshot.placeholder.changeLog' })} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title="快照对比"
+        title={intl.formatMessage({ id: 'snapshot.modal.compareTitle' })}
         open={compareModalVisible}
         onCancel={() => setCompareModalVisible(false)}
         footer={null}
         width={800}
       >
         <div>
-          <p>快照对比功能开发中...</p>
-          <p>已选择快照：{selectedSnapshots.join(' vs ')}</p>
+          <p>{intl.formatMessage({ id: 'snapshot.message.compareInDev' })}</p>
+          <p>{intl.formatMessage({ id: 'snapshot.message.selectedSnapshots' })}{selectedSnapshots.join(' vs ')}</p>
         </div>
       </Modal>
     </div>

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"opengeo/gateway/internal/content"
+	"opengeo/pkg/locale"
 )
 
 type ContentClient struct {
@@ -35,28 +36,31 @@ func (c *ContentClient) ListContents(ctx context.Context, userID int64, page, pa
 }
 
 func (c *ContentClient) OptimizeContent(ctx context.Context, contentID int64, optimizationType string) (map[string]interface{}, error) {
+	loc := locale.FromContext(ctx)
 	return map[string]interface{}{
 		"success":           true,
-		"optimized_content": "优化后的内容",
+		"optimized_content": locale.T(loc, "optimized_content"),
 		"score":             85.5,
-		"details":           "内容结构良好",
+		"details":           locale.T(loc, "content_structure_good"),
 	}, nil
 }
 
 func (c *ContentClient) PublishContent(ctx context.Context, contentID int64, channelIDs []int64) (map[string]interface{}, error) {
+	loc := locale.FromContext(ctx)
 	return map[string]interface{}{
 		"success":  true,
 		"task_ids": []int64{1, 2, 3},
-		"message":  "发布任务已创建",
+		"message":  locale.T(loc, "publish_task_created_msg"),
 	}, nil
 }
 
 func (c *ContentClient) CheckCompliance(ctx context.Context, contentID int64) (map[string]interface{}, error) {
+	loc := locale.FromContext(ctx)
 	return map[string]interface{}{
 		"content_id": contentID,
 		"compliant":  true,
 		"score":      95,
 		"issues":     []interface{}{},
-		"report":     "内容合规",
+		"report":     locale.T(loc, "content_compliant"),
 	}, nil
 }

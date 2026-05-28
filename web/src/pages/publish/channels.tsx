@@ -29,11 +29,13 @@ import {
 	message,
 } from "antd";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 export default function ChannelsPage() {
+	const intl = useIntl();
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 	const [createForm] = Form.useForm();
 	const queryClient = useQueryClient();
@@ -50,38 +52,36 @@ export default function ChannelsPage() {
 			} else {
 				await api.channels.enable(record.id);
 			}
-			message.success(record.is_enabled ? "已禁用" : "已启用");
+			message.success(record.is_enabled ? intl.formatMessage({ id: 'common.status.disabled' }) : intl.formatMessage({ id: 'common.status.enabled' }));
 			queryClient.invalidateQueries({ queryKey: ["channels"] });
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "操作失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
 	const handleDelete = async (id: number) => {
 		try {
 			await api.channels.delete(id);
-			message.success("删除成功");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 			queryClient.invalidateQueries({ queryKey: ["channels"] });
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "删除失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
 	const handleSettings = (record: any) => {
-		message.info(`渠道设置功能开发中: ${record.channel_name}`);
+		message.info(intl.formatMessage({ id: 'settings.config.description' }) + `: ${record.channel_name}`);
 	};
 
-	// 支持的平台
 	const supportedPlatforms = [
-		{ value: "wechat", label: "微信公众号", color: "green", icon: "🟢" },
-		{ value: "weibo", label: "微博", color: "red", icon: "🔴" },
-		{ value: "douyin", label: "抖音", color: "purple", icon: "🟣" },
-		{ value: "xiaohongshu", label: "小红书", color: "pink", icon: "🩷" },
-		{ value: "zhihu", label: "知乎", color: "blue", icon: "🔵" },
-		{ value: "toutiao", label: "今日头条", color: "orange", icon: "🟠" },
+		{ value: "wechat", label: intl.formatMessage({ id: 'platform.channels.wechat' }), color: "green", icon: "🟢" },
+		{ value: "weibo", label: intl.formatMessage({ id: 'platform.channels.weibo' }), color: "red", icon: "🔴" },
+		{ value: "douyin", label: intl.formatMessage({ id: 'platform.channels.douyin' }), color: "purple", icon: "🟣" },
+		{ value: "xiaohongshu", label: intl.formatMessage({ id: 'platform.channels.xiaohongshu' }), color: "pink", icon: "🩷" },
+		{ value: "zhihu", label: intl.formatMessage({ id: 'platform.channels.zhihu' }), color: "blue", icon: "🔵" },
+		{ value: "toutiao", label: intl.formatMessage({ id: 'platform.channels.toutiao' }), color: "orange", icon: "🟠" },
 	];
 
-	// 获取平台标签
 	const getPlatformTag = (platform: string) => {
 		const platformInfo = supportedPlatforms.find((p) => p.value === platform);
 		return (
@@ -91,80 +91,41 @@ export default function ChannelsPage() {
 		);
 	};
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "渠道名称",
+			title: intl.formatMessage({ id: 'channels.column.channelName' }),
 			dataIndex: "channel_name",
 			key: "channel_name",
 			render: (text: string, record: any) => (
-				<Space>
-					<GlobalOutlined />
-					<span className="font-medium">{text}</span>
-				</Space>
+				<Space><GlobalOutlined /><span className="font-medium">{text}</span></Space>
 			),
 		},
+		{ title: intl.formatMessage({ id: 'channels.column.platformType' }), dataIndex: "channel_type", key: "channel_type", width: 150, render: (type: string) => getPlatformTag(type) },
 		{
-			title: "平台类型",
-			dataIndex: "channel_type",
-			key: "channel_type",
-			width: 150,
-			render: (type: string) => getPlatformTag(type),
-		},
-		{
-			title: "状态",
+			title: intl.formatMessage({ id: 'common.column.status' }),
 			dataIndex: "is_enabled",
 			key: "is_enabled",
 			width: 100,
 			render: (enabled: boolean) => (
-				<Badge
-					status={enabled ? "success" : "default"}
-					text={enabled ? "已启用" : "已禁用"}
-				/>
+				<Badge status={enabled ? "success" : "default"} text={enabled ? intl.formatMessage({ id: 'common.status.enabled' }) : intl.formatMessage({ id: 'common.status.disabled' })} />
 			),
 		},
+		{ title: intl.formatMessage({ id: 'common.column.createdAt' }), dataIndex: "created_at", key: "created_at", width: 180, render: (text: string) => new Date(text).toLocaleString() },
 		{
-			title: "创建时间",
-			dataIndex: "created_at",
-			key: "created_at",
-			width: 180,
-			render: (text: string) => new Date(text).toLocaleString(),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 200,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="设置">
-						<Button
-							type="text"
-							icon={<SettingOutlined />}
-							onClick={() => handleSettings(record)}
-						/>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}>
+						<Button type="text" icon={<SettingOutlined />} onClick={() => handleSettings(record)} />
 					</Tooltip>
-					<Tooltip title={record.is_enabled ? "禁用" : "启用"}>
-						<Switch
-							checked={record.is_enabled}
-							size="small"
-							checkedChildren={<CheckCircleOutlined />}
-							unCheckedChildren={<CloseCircleOutlined />}
-							onChange={() => handleToggleEnabled(record)}
-						/>
+					<Tooltip title={record.is_enabled ? intl.formatMessage({ id: 'common.action.disable' }) : intl.formatMessage({ id: 'common.action.enable' })}>
+						<Switch checked={record.is_enabled} size="small" checkedChildren={<CheckCircleOutlined />} unCheckedChildren={<CloseCircleOutlined />} onChange={() => handleToggleEnabled(record)} />
 					</Tooltip>
-					<Popconfirm
-						title="确定要删除这个渠道吗？"
-						okText="确定"
-						cancelText="取消"
-						onConfirm={() => handleDelete(record.id)}
-					>
-						<Tooltip title="删除">
+					<Popconfirm title={intl.formatMessage({ id: 'common.confirmDelete' })} okText={intl.formatMessage({ id: 'common.action.confirm' })} cancelText={intl.formatMessage({ id: 'common.action.cancel' })} onConfirm={() => handleDelete(record.id)}>
+						<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}>
 							<Button type="text" danger icon={<DeleteOutlined />} />
 						</Tooltip>
 					</Popconfirm>
@@ -173,19 +134,17 @@ export default function ChannelsPage() {
 		},
 	];
 
-	// 创建渠道
 	const handleCreate = async (values: any) => {
 		try {
 			await createMutation.mutateAsync(values);
-			message.success("创建成功");
+			message.success(intl.formatMessage({ id: 'common.message.createSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 		} catch (error: any) {
-			message.error(error.response?.data?.message || "创建失败");
+			message.error(error.response?.data?.message || intl.formatMessage({ id: 'common.message.createFailed' }));
 		}
 	};
 
-	// 统计数据
 	const stats = {
 		total: channels.length,
 		enabled: channels.filter((c: any) => c.is_enabled).length,
@@ -195,40 +154,17 @@ export default function ChannelsPage() {
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">渠道管理</h1>
-				<p className="text-gray-500 mt-1">管理发布渠道配置</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'nav.publish.channels' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: 'channels.page.subtitle' })}</p>
 			</div>
 
-			{/* 统计卡片 */}
 			<div className="grid grid-cols-3 gap-4 mb-4">
-				<Card>
-					<div className="text-center">
-						<div className="text-2xl font-bold text-gray-800">
-							{stats.total}
-						</div>
-						<div className="text-gray-500">总渠道数</div>
-					</div>
-				</Card>
-				<Card>
-					<div className="text-center">
-						<div className="text-2xl font-bold text-green-500">
-							{stats.enabled}
-						</div>
-						<div className="text-gray-500">已启用</div>
-					</div>
-				</Card>
-				<Card>
-					<div className="text-center">
-						<div className="text-2xl font-bold text-gray-400">
-							{stats.disabled}
-						</div>
-						<div className="text-gray-500">已禁用</div>
-					</div>
-				</Card>
+				<Card><div className="text-center"><div className="text-2xl font-bold text-gray-800">{stats.total}</div><div className="text-gray-500">{intl.formatMessage({ id: 'channels.stat.total' })}</div></div></Card>
+				<Card><div className="text-center"><div className="text-2xl font-bold text-green-500">{stats.enabled}</div><div className="text-gray-500">{intl.formatMessage({ id: 'common.status.enabled' })}</div></div></Card>
+				<Card><div className="text-center"><div className="text-2xl font-bold text-gray-400">{stats.disabled}</div><div className="text-gray-500">{intl.formatMessage({ id: 'common.status.disabled' })}</div></div></Card>
 			</div>
 
-			{/* 支持的平台 */}
-			<Card title="支持的平台" className="mb-4">
+			<Card title={intl.formatMessage({ id: 'channels.platforms.supported' })} className="mb-4">
 				<div className="flex flex-wrap gap-4">
 					{supportedPlatforms.map((platform) => (
 						<Card key={platform.value} size="small" hoverable className="w-40">
@@ -236,12 +172,7 @@ export default function ChannelsPage() {
 								<div className="text-2xl mb-2">{platform.icon}</div>
 								<div className="font-medium">{platform.label}</div>
 								<Tag color={platform.color} className="mt-2">
-									{
-										channels.filter(
-											(c: any) => c.channel_type === platform.value,
-										).length
-									}{" "}
-									个渠道
+									{intl.formatMessage({ id: 'channels.platforms.count' }, { count: channels.filter((c: any) => c.channel_type === platform.value).length })}
 								</Tag>
 							</div>
 						</Card>
@@ -249,23 +180,9 @@ export default function ChannelsPage() {
 				</div>
 			</Card>
 
-			{/* 渠道列表 */}
 			<Card
-				title={
-					<Space>
-						<GlobalOutlined />
-						<span>渠道列表</span>
-					</Space>
-				}
-				extra={
-					<Button
-						type="primary"
-						icon={<PlusOutlined />}
-						onClick={() => setCreateModalVisible(true)}
-					>
-						添加渠道
-					</Button>
-				}
+				title={<Space><GlobalOutlined /><span>{intl.formatMessage({ id: 'channels.card.channelList' })}</span></Space>}
+				extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>{intl.formatMessage({ id: 'channels.action.addChannel' })}</Button>}
 			>
 				<Table
 					columns={columns}
@@ -275,63 +192,32 @@ export default function ChannelsPage() {
 					pagination={{
 						showSizeChanger: true,
 						showQuickJumper: true,
-						showTotal: (total) => `共 ${total} 条`,
+						showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }),
 					}}
 				/>
 			</Card>
 
-			{/* 创建渠道弹窗 */}
-			<Modal
-				title="添加渠道"
-				open={createModalVisible}
-				onCancel={() => setCreateModalVisible(false)}
-				footer={null}
-				width={500}
-			>
-				<Form form={createForm} layout="vertical" onFinish={handleCreate}>
-					<Form.Item
-						name="channel_type"
-						label="平台类型"
-						rules={[{ required: true, message: "请选择平台类型" }]}
-					>
-						<Select placeholder="请选择平台类型">
+		<Modal title={intl.formatMessage({ id: 'channels.modal.addTitle' })} open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={500}>
+			<Form form={createForm} layout="vertical" onFinish={handleCreate}>
+				<Form.Item name="channel_type" label={intl.formatMessage({ id: 'channels.form.platformType' })} rules={[{ required: true, message: intl.formatMessage({ id: 'channels.validation.selectPlatform' }) }]}>
+					<Select placeholder={intl.formatMessage({ id: 'channels.placeholder.selectPlatform' })}>
 							{supportedPlatforms.map((platform) => (
 								<Option key={platform.value} value={platform.value}>
-									<Space>
-										<span>{platform.icon}</span>
-										<span>{platform.label}</span>
-									</Space>
+									<Space><span>{platform.icon}</span><span>{platform.label}</span></Space>
 								</Option>
 							))}
 						</Select>
 					</Form.Item>
-					<Form.Item
-						name="channel_name"
-						label="渠道名称"
-						rules={[{ required: true, message: "请输入渠道名称" }]}
-					>
-						<Input placeholder="请输入渠道名称" />
-					</Form.Item>
-					<Form.Item
-						name="channel_config"
-						label="渠道配置"
-						rules={[{ required: true, message: "请输入渠道配置" }]}
-					>
-						<TextArea
-							rows={4}
-							placeholder='请输入JSON格式的配置，例如：{"app_id": "xxx", "app_secret": "xxx"}'
-						/>
+				<Form.Item name="channel_name" label={intl.formatMessage({ id: 'channels.form.channelName' })} rules={[{ required: true, message: intl.formatMessage({ id: 'channels.validation.enterChannelName' }) }]}>
+					<Input placeholder={intl.formatMessage({ id: 'channels.placeholder.channelName' })} />
+				</Form.Item>
+				<Form.Item name="channel_config" label={intl.formatMessage({ id: 'channels.form.channelConfig' })} rules={[{ required: true, message: intl.formatMessage({ id: 'channels.validation.enterChannelConfig' }) }]}>
+					<TextArea rows={4} placeholder={intl.formatMessage({ id: 'channels.placeholder.channelConfig' })} />
 					</Form.Item>
 					<Form.Item>
 						<Space>
-							<Button
-								type="primary"
-								htmlType="submit"
-								loading={createMutation.isPending}
-							>
-								创建
-							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit" loading={createMutation.isPending}>{intl.formatMessage({ id: 'common.action.create' })}</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>

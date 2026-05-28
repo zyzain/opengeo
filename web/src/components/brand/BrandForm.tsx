@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Select, Button, Card, message } from 'antd';
+import { useIntl } from 'react-intl';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -12,6 +13,7 @@ interface BrandFormProps {
 }
 
 const BrandForm: React.FC<BrandFormProps> = ({ initialValues, onSubmit, onCancel, loading }) => {
+  const intl = useIntl();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -26,73 +28,73 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialValues, onSubmit, onCancel
     try {
       const values = await form.validateFields();
       await onSubmit(values);
-      message.success(initialValues ? '更新成功' : '创建成功');
+      message.success(initialValues ? intl.formatMessage({ id: 'common.message.updateSuccess' }) : intl.formatMessage({ id: 'common.message.createSuccess' }));
     } catch (error) {
       console.error('Form validation failed:', error);
     }
   };
 
   return (
-    <Card title={initialValues ? '编辑品牌' : '创建品牌'}>
+    <Card title={initialValues ? intl.formatMessage({ id: 'brand.form.editTitle' }) : intl.formatMessage({ id: 'brand.form.createTitle' })}>
       <Form form={form} layout="vertical">
         <Form.Item
           name="name"
-          label="品牌名称"
-          rules={[{ required: true, message: '请输入品牌名称' }]}
+          label={intl.formatMessage({ id: 'brand.form.name' })}
+          rules={[{ required: true, message: intl.formatMessage({ id: 'brand.validation.enterName' }) }]}
         >
-          <Input placeholder="请输入品牌名称" />
+          <Input placeholder={intl.formatMessage({ id: 'brand.placeholder.enterName' })} />
         </Form.Item>
 
         <Form.Item
           name="slug"
-          label="品牌标识"
+          label={intl.formatMessage({ id: 'brand.form.slug' })}
           rules={[
-            { required: true, message: '请输入品牌标识' },
-            { pattern: /^[a-z0-9-]+$/, message: '只能包含小写字母、数字和连字符' },
+            { required: true, message: intl.formatMessage({ id: 'brand.validation.enterSlug' }) },
+            { pattern: /^[a-z0-9-]+$/, message: intl.formatMessage({ id: 'brand.validation.slugPattern' }) },
           ]}
-          extra="URL友好的标识，创建后不可修改"
+          extra={intl.formatMessage({ id: 'brand.form.slugHelp' })}
         >
-          <Input placeholder="例如：my-brand" disabled={!!initialValues} />
+          <Input placeholder={intl.formatMessage({ id: 'brand.form.slugPlaceholder' })} disabled={!!initialValues} />
         </Form.Item>
 
-        <Form.Item name="description" label="品牌描述">
-          <TextArea rows={4} placeholder="请输入品牌描述" />
+        <Form.Item name="description" label={intl.formatMessage({ id: 'brand.form.description' })}>
+          <TextArea rows={4} placeholder={intl.formatMessage({ id: 'brand.placeholder.enterDescription' })} />
         </Form.Item>
 
-        <Form.Item name="industry" label="所属行业">
-          <Select placeholder="请选择行业">
-            <Option value="科技">科技</Option>
-            <Option value="金融">金融</Option>
-            <Option value="医疗">医疗</Option>
-            <Option value="教育">教育</Option>
-            <Option value="电商">电商</Option>
-            <Option value="制造">制造</Option>
-            <Option value="零售">零售</Option>
-            <Option value="其他">其他</Option>
+        <Form.Item name="industry" label={intl.formatMessage({ id: 'brand.form.industry' })}>
+          <Select placeholder={intl.formatMessage({ id: 'brand.placeholder.selectIndustry' })}>
+            <Option value="科技">{intl.formatMessage({ id: 'industry.tech' })}</Option>
+            <Option value="金融">{intl.formatMessage({ id: 'industry.finance' })}</Option>
+            <Option value="医疗">{intl.formatMessage({ id: 'industry.medical' })}</Option>
+            <Option value="教育">{intl.formatMessage({ id: 'industry.education' })}</Option>
+            <Option value="电商">{intl.formatMessage({ id: 'industry.ecommerce' })}</Option>
+            <Option value="制造">{intl.formatMessage({ id: 'industry.manufacturing' })}</Option>
+            <Option value="零售">{intl.formatMessage({ id: 'industry.retail' })}</Option>
+            <Option value="其他">{intl.formatMessage({ id: 'industry.other' })}</Option>
           </Select>
         </Form.Item>
 
-        <Form.Item name="website" label="品牌官网">
+        <Form.Item name="website" label={intl.formatMessage({ id: 'brand.form.website' })}>
           <Input placeholder="https://example.com" />
         </Form.Item>
 
-        <Form.Item name="logo_url" label="Logo URL">
-          <Input placeholder="请输入Logo图片地址" />
+        <Form.Item name="logo_url" label={intl.formatMessage({ id: 'brand.form.logoUrl' })}>
+          <Input placeholder={intl.formatMessage({ id: 'brand.placeholder.logoUrl' })} />
         </Form.Item>
 
-        <Form.Item name="founded_year" label="成立年份">
-          <Input type="number" placeholder="例如：2024" />
+        <Form.Item name="founded_year" label={intl.formatMessage({ id: 'brand.form.foundedYear' })}>
+          <Input type="number" placeholder={intl.formatMessage({ id: 'brand.form.yearPlaceholder' })} />
         </Form.Item>
 
-        <Form.Item name="headquarters" label="总部所在地">
-          <Input placeholder="例如：北京" />
+        <Form.Item name="headquarters" label={intl.formatMessage({ id: 'brand.form.headquarters' })}>
+          <Input placeholder={intl.formatMessage({ id: 'brand.placeholder.headquartersExample' })} />
         </Form.Item>
 
         <Form.Item>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <Button onClick={onCancel}>取消</Button>
+            <Button onClick={onCancel}>{intl.formatMessage({ id: 'common.cancel' })}</Button>
             <Button type="primary" onClick={handleSubmit} loading={loading}>
-              {initialValues ? '更新' : '创建'}
+              {initialValues ? intl.formatMessage({ id: 'common.update' }) : intl.formatMessage({ id: 'common.create' })}
             </Button>
           </div>
         </Form.Item>

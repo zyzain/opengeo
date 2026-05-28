@@ -403,6 +403,10 @@ func (s *Store) SeedPermissions(ctx context.Context) error {
 		{Name: "role:delete", Description: "删除角色", Resource: "role", Action: "delete"},
 		{Name: "tenant:read", Description: "查看租户", Resource: "tenant", Action: "read"},
 		{Name: "tenant:update", Description: "更新租户", Resource: "tenant", Action: "update"},
+		{Name: "brand:create", Description: "创建品牌", Resource: "brand", Action: "create"},
+		{Name: "brand:read", Description: "查看品牌", Resource: "brand", Action: "read"},
+		{Name: "brand:update", Description: "更新品牌", Resource: "brand", Action: "update"},
+		{Name: "brand:delete", Description: "删除品牌", Resource: "brand", Action: "delete"},
 	}
 	for _, p := range perms {
 		p.CreatedAt = time.Now()
@@ -466,7 +470,7 @@ func (s *Store) SeedRolePermissions(ctx context.Context) error {
 	if err := s.db.WithContext(ctx).Where("name = ?", "operator").First(&operatorRole).Error; err != nil {
 		return nil
 	}
-	operatorPerms := []string{"content:create", "content:read", "content:update", "publish:create", "publish:read", "publish:execute", "user:read", "role:read"}
+	operatorPerms := []string{"content:create", "content:read", "content:update", "publish:create", "publish:read", "publish:execute", "user:read", "role:read", "brand:create", "brand:read", "brand:update"}
 	for _, name := range operatorPerms {
 		var p Permission
 		if err := s.db.WithContext(ctx).Where("name = ?", name).First(&p).Error; err == nil {
@@ -478,7 +482,7 @@ func (s *Store) SeedRolePermissions(ctx context.Context) error {
 	if err := s.db.WithContext(ctx).Where("name = ?", "viewer").First(&viewerRole).Error; err != nil {
 		return nil
 	}
-	viewerPerms := []string{"content:read", "publish:read", "user:read", "role:read", "tenant:read"}
+	viewerPerms := []string{"content:read", "publish:read", "user:read", "role:read", "tenant:read", "brand:read"}
 	for _, name := range viewerPerms {
 		var p Permission
 		if err := s.db.WithContext(ctx).Where("name = ?", name).First(&p).Error; err == nil {

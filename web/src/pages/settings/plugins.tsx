@@ -35,11 +35,13 @@ import {
 	message,
 } from "antd";
 import { useState } from "react";
+import { useIntl } from "react-intl";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 export default function PluginsPage() {
+	const intl = useIntl();
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 	const [createForm] = Form.useForm();
 	const queryClient = useQueryClient();
@@ -50,183 +52,80 @@ export default function PluginsPage() {
 	const handleInstall = async (values: any) => {
 		try {
 			await api.system.installPlugin(values);
-			message.success("插件安装成功");
+			message.success(intl.formatMessage({ id: 'common.message.addSuccess' }));
 			setCreateModalVisible(false);
 			createForm.resetFields();
 			queryClient.invalidateQueries({ queryKey: queryKeys.plugins });
 		} catch (error: any) {
-			message.error(error?.response?.data?.message || "安装失败");
+			message.error(error?.response?.data?.message || intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
 	const handleToggleEnabled = async (record: any, checked: boolean) => {
 		try {
 			await api.system.updatePlugin(record.id, { is_enabled: checked });
-			message.success(checked ? "插件已启用" : "插件已禁用");
+			message.success(checked ? intl.formatMessage({ id: 'common.status.enabled' }) : intl.formatMessage({ id: 'common.status.disabled' }));
 			queryClient.invalidateQueries({ queryKey: queryKeys.plugins });
 		} catch (error: any) {
-			message.error(error?.response?.data?.message || "操作失败");
+			message.error(error?.response?.data?.message || intl.formatMessage({ id: 'common.message.operationFailed' }));
 		}
 	};
 
 	const handleUninstall = async (id: number) => {
 		try {
 			await api.system.deletePlugin(id);
-			message.success("插件已卸载");
+			message.success(intl.formatMessage({ id: 'common.message.deleteSuccess' }));
 			queryClient.invalidateQueries({ queryKey: queryKeys.plugins });
 		} catch (error: any) {
-			message.error(error?.response?.data?.message || "卸载失败");
+			message.error(error?.response?.data?.message || intl.formatMessage({ id: 'common.message.deleteFailed' }));
 		}
 	};
 
 	const handleSettings = (record: any) => {
 		Modal.info({
-			title: `${record.plugin_name} - 设置`,
-			content: (
-				<div>
-					<p>插件名称: {record.plugin_name}</p>
-					<p>版本: v{record.version}</p>
-					<p>作者: {record.author}</p>
-					<p>描述: {record.description || "无"}</p>
-				</div>
-			),
+			title: `${record.plugin_name} - ${intl.formatMessage({ id: 'common.action.edit' })}`,
+			content: (<div><p>{intl.formatMessage({ id: "plugin.detail.name" })}: {record.plugin_name}</p><p>{intl.formatMessage({ id: "plugin.detail.version" })}: v{record.version}</p><p>{intl.formatMessage({ id: "plugin.detail.author" })}: {record.author}</p><p>{intl.formatMessage({ id: "plugin.detail.description" })}: {record.description || intl.formatMessage({ id: "plugin.detail.noDesc" })}</p></div>),
 		});
 	};
 
-	// 插件类型
 	const pluginTypes = [
-		{
-			value: "channel",
-			label: "渠道插件",
-			color: "blue",
-			icon: <CloudOutlined />,
-		},
-		{
-			value: "ai",
-			label: "AI插件",
-			color: "purple",
-			icon: <ThunderboltOutlined />,
-		},
-		{
-			value: "analyzer",
-			label: "分析插件",
-			color: "green",
-			icon: <ApiOutlined />,
-		},
+		{ value: "channel", label: intl.formatMessage({ id: "plugin.type.channel" }), color: "blue", icon: <CloudOutlined /> },
+		{ value: "ai", label: intl.formatMessage({ id: "plugin.type.ai" }), color: "purple", icon: <ThunderboltOutlined /> },
+		{ value: "analyzer", label: intl.formatMessage({ id: "plugin.type.analyzer" }), color: "green", icon: <ApiOutlined /> },
 	];
 
-	// 获取插件类型标签
 	const getPluginTypeTag = (type: string) => {
 		const typeInfo = pluginTypes.find((t) => t.value === type);
-		return (
-			<Tag color={typeInfo?.color || "default"} icon={typeInfo?.icon}>
-				{typeInfo?.label || type}
-			</Tag>
-		);
+		return <Tag color={typeInfo?.color || "default"} icon={typeInfo?.icon}>{typeInfo?.label || type}</Tag>;
 	};
 
-	// 表格列定义
 	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id", width: 80 },
+		{ title: intl.formatMessage({ id: "plugin.column.name" }), dataIndex: "plugin_name", key: "plugin_name", render: (text: string) => <Space><AppstoreOutlined /><span className="font-medium">{text}</span></Space> },
+		{ title: intl.formatMessage({ id: 'common.column.type' }), dataIndex: "plugin_type", key: "plugin_type", width: 120, render: (type: string) => getPluginTypeTag(type) },
+		{ title: intl.formatMessage({ id: "plugin.column.version" }), dataIndex: "version", key: "version", width: 100, render: (text: string) => <Tag>v{text}</Tag> },
+		{ title: intl.formatMessage({ id: 'common.column.author' }), dataIndex: "author", key: "author", width: 120 },
+		{ title: intl.formatMessage({ id: 'common.column.description' }), dataIndex: "description", key: "description", ellipsis: true },
+		{ title: intl.formatMessage({ id: 'common.column.status' }), dataIndex: "is_enabled", key: "is_enabled", width: 100, render: (enabled: boolean) => <Badge status={enabled ? "success" : "default"} text={enabled ? intl.formatMessage({ id: 'common.status.enabled' }) : intl.formatMessage({ id: 'common.status.disabled' })} /> },
+		{ title: intl.formatMessage({ id: "plugin.column.installedAt" }), dataIndex: "installed_at", key: "installed_at", width: 180, render: (text: string) => new Date(text).toLocaleString() },
 		{
-			title: "ID",
-			dataIndex: "id",
-			key: "id",
-			width: 80,
-		},
-		{
-			title: "插件名称",
-			dataIndex: "plugin_name",
-			key: "plugin_name",
-			render: (text: string) => (
-				<Space>
-					<AppstoreOutlined />
-					<span className="font-medium">{text}</span>
-				</Space>
-			),
-		},
-		{
-			title: "类型",
-			dataIndex: "plugin_type",
-			key: "plugin_type",
-			width: 120,
-			render: (type: string) => getPluginTypeTag(type),
-		},
-		{
-			title: "版本",
-			dataIndex: "version",
-			key: "version",
-			width: 100,
-			render: (text: string) => <Tag>v{text}</Tag>,
-		},
-		{
-			title: "作者",
-			dataIndex: "author",
-			key: "author",
-			width: 120,
-		},
-		{
-			title: "描述",
-			dataIndex: "description",
-			key: "description",
-			ellipsis: true,
-		},
-		{
-			title: "状态",
-			dataIndex: "is_enabled",
-			key: "is_enabled",
-			width: 100,
-			render: (enabled: boolean) => (
-				<Badge
-					status={enabled ? "success" : "default"}
-					text={enabled ? "已启用" : "已禁用"}
-				/>
-			),
-		},
-		{
-			title: "安装时间",
-			dataIndex: "installed_at",
-			key: "installed_at",
-			width: 180,
-			render: (text: string) => new Date(text).toLocaleString(),
-		},
-		{
-			title: "操作",
+			title: intl.formatMessage({ id: 'common.column.action' }),
 			key: "action",
 			width: 150,
 			render: (_: any, record: any) => (
 				<Space size="small">
-					<Tooltip title="设置">
-						<Button
-							type="text"
-							icon={<SettingOutlined />}
-							onClick={() => handleSettings(record)}
-						/>
+					<Tooltip title={intl.formatMessage({ id: 'common.action.edit' })}><Button type="text" icon={<SettingOutlined />} onClick={() => handleSettings(record)} /></Tooltip>
+					<Tooltip title={record.is_enabled ? intl.formatMessage({ id: 'common.action.disable' }) : intl.formatMessage({ id: 'common.action.enable' })}>
+						<Switch checked={record.is_enabled} size="small" checkedChildren={<CheckCircleOutlined />} unCheckedChildren={<CloseCircleOutlined />} onChange={(checked) => handleToggleEnabled(record, checked)} />
 					</Tooltip>
-					<Tooltip title={record.is_enabled ? "禁用" : "启用"}>
-						<Switch
-							checked={record.is_enabled}
-							size="small"
-							checkedChildren={<CheckCircleOutlined />}
-							unCheckedChildren={<CloseCircleOutlined />}
-							onChange={(checked) => handleToggleEnabled(record, checked)}
-						/>
-					</Tooltip>
-					<Popconfirm
-						title="确定要卸载这个插件吗？"
-						okText="确定"
-						cancelText="取消"
-						onConfirm={() => handleUninstall(record.id)}
-					>
-						<Tooltip title="卸载">
-							<Button type="text" danger icon={<DeleteOutlined />} />
-						</Tooltip>
+					<Popconfirm title={intl.formatMessage({ id: 'common.confirmDelete' })} okText={intl.formatMessage({ id: 'common.action.confirm' })} cancelText={intl.formatMessage({ id: 'common.action.cancel' })} onConfirm={() => handleUninstall(record.id)}>
+						<Tooltip title={intl.formatMessage({ id: 'common.action.delete' })}><Button type="text" danger icon={<DeleteOutlined />} /></Tooltip>
 					</Popconfirm>
 				</Space>
 			),
 		},
 	];
 
-	// 统计数据
 	const stats = {
 		total: plugins.length,
 		enabled: plugins.filter((p: any) => p.is_enabled).length,
@@ -237,55 +136,18 @@ export default function PluginsPage() {
 	return (
 		<div className="page-container">
 			<div className="page-header">
-				<h1 className="text-2xl font-bold text-gray-800">插件管理</h1>
-				<p className="text-gray-500 mt-1">管理系统扩展插件</p>
+				<h1 className="text-2xl font-bold text-gray-800">{intl.formatMessage({ id: 'nav.settings.plugins' })}</h1>
+				<p className="text-gray-500 mt-1">{intl.formatMessage({ id: "plugin.page.subtitle" })}</p>
 			</div>
 
-			{/* 统计卡片 */}
 			<Row gutter={[16, 16]} className="mb-4">
-				<Col xs={12} sm={6}>
-					<Card>
-						<Statistic
-							title="总插件数"
-							value={stats.total}
-							prefix={<AppstoreOutlined />}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<Statistic
-							title="已启用"
-							value={stats.enabled}
-							prefix={<CheckCircleOutlined />}
-							valueStyle={{ color: "#52c41a" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<Statistic
-							title="渠道插件"
-							value={stats.channel}
-							prefix={<CloudOutlined />}
-							valueStyle={{ color: "#1890ff" }}
-						/>
-					</Card>
-				</Col>
-				<Col xs={12} sm={6}>
-					<Card>
-						<Statistic
-							title="AI插件"
-							value={stats.ai}
-							prefix={<ThunderboltOutlined />}
-							valueStyle={{ color: "#722ed1" }}
-						/>
-					</Card>
-				</Col>
+				<Col xs={12} sm={6}><Card><Statistic title={intl.formatMessage({ id: "plugin.stat.total" })} value={stats.total} prefix={<AppstoreOutlined />} /></Card></Col>
+				<Col xs={12} sm={6}><Card><Statistic title={intl.formatMessage({ id: 'common.status.enabled' })} value={stats.enabled} prefix={<CheckCircleOutlined />} valueStyle={{ color: "#52c41a" }} /></Card></Col>
+			<Col xs={12} sm={6}><Card><Statistic title={intl.formatMessage({ id: "plugin.stat.channel" })} value={stats.channel} prefix={<CloudOutlined />} valueStyle={{ color: "#1890ff" }} /></Card></Col>
+			<Col xs={12} sm={6}><Card><Statistic title={intl.formatMessage({ id: "plugin.stat.ai" })} value={stats.ai} prefix={<ThunderboltOutlined />} valueStyle={{ color: "#722ed1" }} /></Card></Col>
 			</Row>
 
-			{/* 插件类型说明 */}
-			<Card title="插件类型" className="mb-4">
+			<Card title={intl.formatMessage({ id: "plugin.section.types" })} className="mb-4">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 					{pluginTypes.map((type) => (
 						<Card key={type.value} size="small" hoverable>
@@ -294,9 +156,9 @@ export default function PluginsPage() {
 								<div>
 									<div className="font-medium">{type.label}</div>
 									<div className="text-gray-500 text-sm">
-										{type.value === "channel" && "支持多平台内容发布"}
-										{type.value === "ai" && "AI模型集成与优化"}
-										{type.value === "analyzer" && "数据分析与报告"}
+								{type.value === "channel" && intl.formatMessage({ id: "plugin.type.channel.desc" })}
+									{type.value === "ai" && intl.formatMessage({ id: "plugin.type.ai.desc" })}
+									{type.value === "analyzer" && intl.formatMessage({ id: "plugin.type.analyzer.desc" })}
 									</div>
 								</div>
 							</div>
@@ -305,84 +167,28 @@ export default function PluginsPage() {
 				</div>
 			</Card>
 
-			{/* 插件列表 */}
 			<Card
-				title={
-					<Space>
-						<AppstoreOutlined />
-						<span>插件列表</span>
-					</Space>
-				}
-				extra={
-					<Button
-						type="primary"
-						icon={<PlusOutlined />}
-						onClick={() => setCreateModalVisible(true)}
-					>
-						安装插件
-					</Button>
-				}
+			title={<Space><AppstoreOutlined /><span>{intl.formatMessage({ id: "plugin.section.list" })}</span></Space>}
+			extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>{intl.formatMessage({ id: "plugin.action.install" })}</Button>}
 			>
-				<Table
-					columns={columns}
-					dataSource={plugins}
-					rowKey="id"
-					loading={isLoading}
-					pagination={{
-						showSizeChanger: true,
-						showQuickJumper: true,
-						showTotal: (total) => `共 ${total} 条`,
-					}}
-				/>
+				<Table columns={columns} dataSource={plugins} rowKey="id" loading={isLoading} pagination={{ showSizeChanger: true, showQuickJumper: true, showTotal: (total) => intl.formatMessage({ id: 'common.pagination.totalShort' }, { total }) }} />
 			</Card>
 
-			{/* 安装插件弹窗 */}
-			<Modal
-				title="安装插件"
-				open={createModalVisible}
-				onCancel={() => setCreateModalVisible(false)}
-				footer={null}
-				width={500}
-			>
+			<Modal title={intl.formatMessage({ id: "plugin.modal.install" })} open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={500}>
 				<Form form={createForm} layout="vertical" onFinish={handleInstall}>
-					<Form.Item
-						name="plugin_name"
-						label="插件名称"
-						rules={[{ required: true, message: "请输入插件名称" }]}
-					>
-						<Input placeholder="请输入插件名称" />
-					</Form.Item>
-					<Form.Item
-						name="plugin_type"
-						label="插件类型"
-						rules={[{ required: true, message: "请选择插件类型" }]}
-					>
-						<Select placeholder="请选择插件类型">
-							{pluginTypes.map((type) => (
-								<Option key={type.value} value={type.value}>
-									<Space>
-										{type.icon}
-										<span>{type.label}</span>
-									</Space>
-								</Option>
-							))}
+				<Form.Item name="plugin_name" label={intl.formatMessage({ id: "plugin.form.name" })} rules={[{ required: true, message: intl.formatMessage({ id: "plugin.validation.enterName" }) }]}><Input placeholder={intl.formatMessage({ id: "plugin.placeholder.name" })} /></Form.Item>
+				<Form.Item name="plugin_type" label={intl.formatMessage({ id: 'common.column.type' })} rules={[{ required: true, message: intl.formatMessage({ id: "plugin.validation.selectType" }) }]}>
+					<Select placeholder={intl.formatMessage({ id: "plugin.placeholder.type" })}>
+							{pluginTypes.map((type) => <Option key={type.value} value={type.value}><Space>{type.icon}<span>{type.label}</span></Space></Option>)}
 						</Select>
 					</Form.Item>
-					<Form.Item name="version" label="版本">
-						<Input placeholder="请输入版本号" />
-					</Form.Item>
-					<Form.Item name="author" label="作者">
-						<Input placeholder="请输入作者" />
-					</Form.Item>
-					<Form.Item name="description" label="描述">
-						<TextArea rows={3} placeholder="请输入插件描述" />
-					</Form.Item>
+				<Form.Item name="version" label={intl.formatMessage({ id: "plugin.form.version" })}><Input placeholder={intl.formatMessage({ id: "plugin.placeholder.version" })} /></Form.Item>
+				<Form.Item name="author" label={intl.formatMessage({ id: 'common.column.author' })}><Input placeholder={intl.formatMessage({ id: "plugin.placeholder.author" })} /></Form.Item>
+				<Form.Item name="description" label={intl.formatMessage({ id: 'common.column.description' })}><TextArea rows={3} placeholder={intl.formatMessage({ id: "plugin.placeholder.description" })} /></Form.Item>
 					<Form.Item>
 						<Space>
-							<Button type="primary" htmlType="submit">
-								安装
-							</Button>
-							<Button onClick={() => setCreateModalVisible(false)}>取消</Button>
+							<Button type="primary" htmlType="submit">{intl.formatMessage({ id: "plugin.action.install" })}</Button>
+							<Button onClick={() => setCreateModalVisible(false)}>{intl.formatMessage({ id: 'common.action.cancel' })}</Button>
 						</Space>
 					</Form.Item>
 				</Form>
