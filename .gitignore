@@ -1,0 +1,157 @@
+# ==================== Go ====================
+# 编译产物
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Go 工作区
+go.work
+go.work.sum
+
+# Vendor（如果使用 go mod vendor 则取消注释）
+# vendor/
+
+# ==================== Node.js / 前端 ====================
+node_modules/
+web/node_modules/
+
+# 构建产物
+dist/
+web/dist/
+.next/
+web/.next/
+out/
+web/out/
+
+# Vite
+*.local
+
+# ==================== 环境变量 / 配置 ====================
+.env
+.env.local
+.env.*.local
+web/.env
+web/.env.local
+web/.env.*.local
+
+# 运行时配置（包含密码/密钥）
+configs/config.json
+configs/config.local.json
+configs/secrets/
+
+# JWT 密钥
+*.pem
+*.key
+
+# ==================== 日志 ====================
+*.log
+logs/
+gateway.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==================== IDE / 编辑器 ====================
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# GoLand
+*.go_*
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+.#*
+
+# ==================== OS 文件 ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==================== Docker ====================
+# Docker 数据卷
+mysql_data/
+redis_data/
+
+# ==================== 构建 / 部署 ====================
+# 临时文件
+tmp/
+temp/
+
+# Proto 生成代码（由 buf generate 生成）
+gen/
+web/src/types/gen/
+
+# Mock 数据
+mocks/
+
+# ==================== 测试 / 覆盖率 ====================
+# 覆盖率报告
+*.coverprofile
+htmlcov/
+
+# Playwright
+test-results/
+playwright-report/
+
+# ==================== 缓存 ====================
+# Go 缓存
+.cache/
+
+# npm / pnpm 缓存
+.npm
+.pnpm-store
+
+# Turborepo
+.turbo
+
+# ==================== 其他 ====================
+# 压缩包
+*.tar.gz
+*.zip
+*.rar
+
+# 证书
+*.crt
+*.csr
+
+# 敏感文件
+secrets/
+credentials/
+*.p12
+*.pfx
